@@ -329,6 +329,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1926037791
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1926037793}
+  - component: {fileID: 1926037792}
+  m_Layer: 0
+  m_Name: SpellcraftModeController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1926037792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1926037791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 305fb0422f65b5a4fab51b4af27cac84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MandateOfInk.Spellcraft::MandateOfInk.Spellcraft.SpellcraftModeController
+  _config: {fileID: 11400000, guid: 479fae067a5afe54789741a604ebbaf8, type: 2}
+  _drawingModeChanged: {fileID: 11400000, guid: 752ceb53d3802da449bd74d9e198f1df, type: 2}
+--- !u!4 &1926037793
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1926037791}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &453084650675967570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -495,6 +541,7 @@ GameObject:
   - component: {fileID: 7685886781228776622}
   - component: {fileID: 4244626405548083746}
   - component: {fileID: 453084650675967570}
+  - component: {fileID: 7685886781228776623}
   m_Layer: 8
   m_Name: PlayerCapsule
   m_TagString: Player
@@ -1097,6 +1144,21 @@ MonoBehaviour:
     m_Bits: 0
   canPush: 0
   strength: 1.1
+--- !u!114 &7685886781228776623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453084650675967582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dc352645ecb4c94d8ed87a8fd6072f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FirstPersonControllerModeGlue
+  _drawingModeChanged: {fileID: 11400000, guid: 752ceb53d3802da449bd74d9e198f1df, type: 2}
+  _playerInput: {fileID: 453084650675967570}
+  _inputs: {fileID: 4244626405548083746}
 --- !u!114 &8967929480435846179
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1119,3 +1181,4 @@ SceneRoots:
   - {fileID: 1569272217}
   - {fileID: 1695802988}
   - {fileID: 6556307555211505974}
+  - {fileID: 1926037793}
