@@ -1,7 +1,10 @@
 {
     "name": "MandateOfInk.Core",
     "rootNamespace": "MandateOfInk.Core",
-    "references": [],
+    "references": [
+        "VContainer",
+        "UniTask"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

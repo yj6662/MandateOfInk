@@ -15,7 +15,7 @@
 | 현재 마일스톤 | M0 진행 중 |
 | 현재 일차 | D1 완료 |
 | 마지막 갱신 | 2026-07-18 |
-| 다음 할 일 | M0 D2 — VContainer·UniTask 도입, 부트 씬 + 루트 LifetimeScope |
+| 다음 할 일 | D3 — SO 이벤트 채널 코어, 핵심 서비스 인터페이스·DI 등록, 부트 흐름 검증 |
 | 블로커 | 없음 |
 
 ---
@@ -34,8 +34,8 @@
 - [x] D1. Unity 6·URP 프로젝트 생성, Git+LFS·.gitignore — Unity 6000.3.9f1 · URP 17.3.0. .gitignore는 Unity 프로젝트 폴더에 배치, .gitattributes(LFS)는 리포 루트에 작성
 - [x] D1. 초기 세팅 — Force Text 직렬화 · Visible Meta Files · Linear 색 공간 · URP 프리셋 (전 항목 확인 완료)
 - [x] D1. 폴더 구조 + asmdef 모듈 경계 확정(Core / Spellcraft / Combat / Data / Presentation / EditorTools — 런타임 코어 Odin 참조 금지) → 「프로젝트 메모」에 기록 완료
-- [ ] D2. 코어 패키지 도입 — VContainer · UniTask · Input System → 이후 Odin Inspector(에디터 계층 한정)
-- [ ] D2. 부트 씬 + 루트 LifetimeScope, 앱 시작 흐름(부트 → 인게임 스텁) 골격
+- [x] D2. 코어 패키지 도입 — VContainer **1.19.0** · UniTask **2.5.11** 설치(OpenUPM), Input System 1.18.0 기설치, Odin Inspector 임포트 완료(`Assets/Plugins/Sirenix`, 에디터/데이터 계층 한정 · 런타임 코어 참조 금지)
+- [x] D2. 부트 씬 + 루트 LifetimeScope, 앱 시작 흐름(부트 → 인게임 스텁) 골격 — `Core/App/RootLifetimeScope.cs`(+DontDestroyOnLoad)·`AppEntryPoint.cs`(IAsyncStartable, UniTask 씬 전환), Boot·InGame 씬, 빌드 세팅 등록(Boot=0). 플레이모드에서 부트→인게임 전환 로그 확인 완료(2026-07-19)
 - [ ] D3. ScriptableObject 이벤트 채널 코어(제네릭 채널·리스너 + 에디터 디버그 표시)
 - [ ] D3. 핵심 서비스 인터페이스 정의·DI 등록 — 씬 로딩·세이브·사운드·풀링/스폰(스텁)
 - [ ] D3. 부트 흐름 검증(싱글턴 없이 DI·이벤트 채널로만 연결)
@@ -137,6 +137,7 @@
 
 | 날짜 | 한 일 | 다음 할 일 | 특이사항 |
 |---|---|---|---|
+| 2026-07-19 | M0 D2 구성 — VContainer 1.19.0·UniTask 2.5.11 설치, Core asmdef 참조 추가, RootLifetimeScope·AppEntryPoint 작성, Boot/InGame 씬 + 빌드 세팅 배선. 스파이크 커밋(89a4c3a) | 부트 흐름 플레이 검증·Odin 임포트(사용자) → D3 | MCP 도구가 도메인 리로드를 사이에 두면 응답이 끊기는 이슈 — 패키지 설치·스크립트 컴파일 후에는 에디터 재시작이 가장 확실. RootLifetimeScope 컴파일 누락도 재시작으로 해소 |
 | 2026-07-18 | S2~S4 완료 — 실기 마우스 테스트 정확 인식(사용자 확인), 템플릿 23개(`Assets/Spike/Templates/`), 다획 네이티브 실증. $P 채택을 결정 로그에 기록 | M0 D2 — VContainer·UniTask·Input System 순 도입 후 Odin | 스파이크 폴더(Assets/Spike, Spike/)는 M1 W1에서 본 시스템 이식 후 정리 예정. 템플릿 XML은 M1 D10 재사용 가치 있음 — 보존 |
 | 2026-07-18 | Unity MCP 로컬 모드 연결 확립(클라우드 OAuth 불가 → bootstrap-local). S2 준비 완료 — `Assets/Spike/S2_JamoRecognitionTest.cs` 작성, `Assets/Spike/S2_JamoTest.unity` 씬 구성(카메라·라이트·컴포넌트 부착), 컴파일 에러 0 | 사용자가 플레이모드에서 ㄱㄴㅁㅅㅇ 템플릿 등록(클래스당 3~5개) 후 테스트 모드로 인식률 측정 | 플러그인 설정상 playmode 제어 도구 비활성 — 플레이 진입은 사용자가 직접 |
 | 2026-07-18 | S1 완료 — PDollar($P) 콘솔 구동 검증(Spike/S1_PDollarConsole). 16종 템플릿 자기 분류 16/16, 교란 인식률 98.8%, 지연 평균 0.59ms | S2 — 초성 5자 템플릿 + 마우스 입력 인식률 | Unity MCP(ai-game-developer) 미인증 상태 — `npx unity-mcp-cli login` 필요. $P는 회전 비불변이므로 자모처럼 방향이 의미 있는 글자에 유리 |
