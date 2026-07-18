@@ -15,7 +15,7 @@
 | 현재 마일스톤 | M0 진행 중 |
 | 현재 일차 | D1 완료 |
 | 마지막 갱신 | 2026-07-18 |
-| 다음 할 일 | D3 부트 재검증(플레이) → 커밋 → D4 1인칭 컨트롤러 |
+| 다음 할 일 | D5 — 작도 키 홀드 상태머신(교전↔작도) + 뷰모델 별도 카메라·레이어 |
 | 블로커 | 없음 |
 
 ---
@@ -39,7 +39,7 @@
 - [x] D3. ScriptableObject 이벤트 채널 코어(제네릭 채널·리스너 + 에디터 디버그 표시) — `Core/Events/`: EventChannelSO<T>·VoidEventChannelSO(+ContextMenu 디버그 발신·발신 카운터)·리스너 2종(UnityEvent 반응)
 - [x] D3. 핵심 서비스 인터페이스 정의·DI 등록 — `Core/Services/`: ISceneLoadService(실구현)·ISaveService·ISoundService·IPoolService(스텁), RootLifetimeScope에 싱글턴 등록
 - [~] D3. 부트 흐름 검증(싱글턴 없이 DI·이벤트 채널로만 연결) — AppEntryPoint가 ISceneLoadService를 생성자 주입으로 받아 씬 전환하도록 변경. **남은 일: 플레이모드에서 [SceneLoad] 로그 확인(사용자)**
-- [ ] D4. 1인칭 컨트롤러(WASD·마우스 시점) + 기본 카메라
+- [x] D4. 1인칭 컨트롤러(WASD·마우스 시점) + 기본 카메라 — **StarterAssets FirstPerson 활용**(사용자 제안·합의). InGame 씬에 NestedParent_Unpack 배치(언팩 완료)·프로토 바닥(Plane 50m)·기본 카메라 제거·모바일 조이스틱 UI 삭제. 플레이모드 WASD·마우스룩 검증 완료(2026-07-19)
 - [ ] D5. 작도 키 홀드 상태머신(교전↔작도) + 뷰모델 별도 카메라·레이어
 - [ ] D6. 데이터 스키마 — 도면 DTO·상극 5×5(SerializedScriptableObject + Dictionary)·적 DTO·강화 DTO
 - [ ] D7. 글자 일람 v1.2 → 도면 DTO 임포트(40장), 로드·조회 검증
@@ -98,6 +98,7 @@
 | 2026-07 | Odin: 에디터/데이터 계층 한정, 런타임 코어 독립. SerializedScriptableObject·Dictionary 직렬화·OdinMenuEditorWindow 패턴 | Personal 라이선스, Validator 스킵 |
 | 2026-07 | 분기: 순수 플래그(필수/금지) + 카운터 2종. 원장 CSV = 단일 진실 | 분기 시스템 사양 v0.3 |
 | 2026-07 | 문서 체계: 사람용 PDF 단독 / 개발용 MD·CSV | zip 방식 대체 |
+| 2026-07-19 | 1인칭 컨트롤러 = **StarterAssets FirstPerson 채택(프로토타입 한정)** | 사용자 제안. asmdef 없이 Assembly-CSharp 소속 — 우리 모듈에서 직접 참조 금지, 플레이스홀더 취급. D5 작도↔교전 전환 통합 시 재평가 |
 | 2026-07-18 | 작도 인식기 = PDollar **$P Point-Cloud Recognizer** 채택. 다획 자모는 획 분할 없이 $P 네이티브 처리 | S 스파이크 통과 — S1 합성 교란 98.8%·0.59ms, S2 실기 마우스 정확 인식, S3 ㅁ(1·3획)/ㅅ(1·2획) 혼재 인식. M1 게이트에서 외부 테스트로 재검증 |
 
 ## 미결 사항 (임의 결정 금지)
@@ -137,6 +138,7 @@
 
 | 날짜 | 한 일 | 다음 할 일 | 특이사항 |
 |---|---|---|---|
+| 2026-07-19 | D3 플레이 검증 완료(4단 로그 확인)·커밋 00819b0. D4 — StarterAssets FPC 채택, InGame 씬 배선(플레이어 프리팹+바닥, 기본 카메라 제거), 카메라 스크린샷 확인 | D4 플레이 검증 → 커밋 → D5 | 에디트 모드 스크린샷의 카메라 위치는 Cinemachine 작동 전 상태 — 정상 |
 | 2026-07-19 | D2 완료 확인(부트 플레이 검증·Odin 임포트, 커밋 9e24011) + D3 구현 — SO 이벤트 채널 코어(제네릭+Void, 리스너, 에디터 디버그), 서비스 4종 인터페이스·스텁 DI 등록, AppEntryPoint 생성자 주입 전환. 컴파일 에러 0 | 플레이 재검증 후 D3 커밋 → D4 | 리포는 private — Odin 커밋 가능 확인 |
 | 2026-07-19 | M0 D2 구성 — VContainer 1.19.0·UniTask 2.5.11 설치, Core asmdef 참조 추가, RootLifetimeScope·AppEntryPoint 작성, Boot/InGame 씬 + 빌드 세팅 배선. 스파이크 커밋(89a4c3a) | 부트 흐름 플레이 검증·Odin 임포트(사용자) → D3 | MCP 도구가 도메인 리로드를 사이에 두면 응답이 끊기는 이슈 — 패키지 설치·스크립트 컴파일 후에는 에디터 재시작이 가장 확실. RootLifetimeScope 컴파일 누락도 재시작으로 해소 |
 | 2026-07-18 | S2~S4 완료 — 실기 마우스 테스트 정확 인식(사용자 확인), 템플릿 23개(`Assets/Spike/Templates/`), 다획 네이티브 실증. $P 채택을 결정 로그에 기록 | M0 D2 — VContainer·UniTask·Input System 순 도입 후 Odin | 스파이크 폴더(Assets/Spike, Spike/)는 M1 W1에서 본 시스템 이식 후 정리 예정. 템플릿 XML은 M1 D10 재사용 가치 있음 — 보존 |
