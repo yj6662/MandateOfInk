@@ -1,0 +1,18 @@
+{
+    "name": "MandateOfInk.Combat",
+    "rootNamespace": "MandateOfInk.Combat",
+    "references": [
+        "MandateOfInk.Core",
+        "MandateOfInk.Data",
+        "MandateOfInk.Spellcraft"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

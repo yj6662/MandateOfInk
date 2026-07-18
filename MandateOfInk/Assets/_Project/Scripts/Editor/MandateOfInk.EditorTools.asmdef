@@ -1,0 +1,22 @@
+{
+    "name": "MandateOfInk.EditorTools",
+    "rootNamespace": "MandateOfInk.EditorTools",
+    "references": [
+        "MandateOfInk.Core",
+        "MandateOfInk.Data",
+        "MandateOfInk.Spellcraft",
+        "MandateOfInk.Combat",
+        "MandateOfInk.Presentation"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

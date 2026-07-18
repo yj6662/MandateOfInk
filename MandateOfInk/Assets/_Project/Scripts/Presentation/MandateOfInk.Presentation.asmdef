@@ -1,0 +1,19 @@
+{
+    "name": "MandateOfInk.Presentation",
+    "rootNamespace": "MandateOfInk.Presentation",
+    "references": [
+        "MandateOfInk.Core",
+        "MandateOfInk.Data",
+        "MandateOfInk.Spellcraft",
+        "MandateOfInk.Combat"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

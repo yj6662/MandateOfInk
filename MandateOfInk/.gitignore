@@ -104,3 +104,6 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# MCP 개인 연결 설정 (개인 엔드포인트 URL 포함 — 커밋 금지)
+.mcp.json
