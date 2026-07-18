@@ -15,7 +15,7 @@
 | 현재 마일스톤 | M0 진행 중 |
 | 현재 일차 | D1 완료 |
 | 마지막 갱신 | 2026-07-18 |
-| 다음 할 일 | D5 플레이 검증(Q 토글·감속·커서) → 뷰모델 카메라·레이어 → D6 데이터 스키마 |
+| 다음 할 일 | D6 — 데이터 스키마: 도면 DTO·상극 5×5(Odin)·적 DTO·강화 DTO |
 | 블로커 | 없음 |
 
 ---
@@ -40,7 +40,7 @@
 - [x] D3. 핵심 서비스 인터페이스 정의·DI 등록 — `Core/Services/`: ISceneLoadService(실구현)·ISaveService·ISoundService·IPoolService(스텁), RootLifetimeScope에 싱글턴 등록
 - [~] D3. 부트 흐름 검증(싱글턴 없이 DI·이벤트 채널로만 연결) — AppEntryPoint가 ISceneLoadService를 생성자 주입으로 받아 씬 전환하도록 변경. **남은 일: 플레이모드에서 [SceneLoad] 로그 확인(사용자)**
 - [x] D4. 1인칭 컨트롤러(WASD·마우스 시점) + 기본 카메라 — **StarterAssets FirstPerson 활용**(사용자 제안·합의). InGame 씬에 NestedParent_Unpack 배치(언팩 완료)·프로토 바닥(Plane 50m)·기본 카메라 제거·모바일 조이스틱 UI 삭제. 플레이모드 WASD·마우스룩 검증 완료(2026-07-19)
-- [~] D5. 작도 키 홀드 상태머신(교전↔작도) + 뷰모델 별도 카메라·레이어 — 상태머신·시간 감속 구현: `Spellcraft/SpellcraftModeController`(Combat↔Drawing, timeScale+fixedDeltaTime 감속·복원), `Data/SpellcraftModeConfigSO`([가정] Q 토글·0.2배), `EC_DrawingModeChanged`(bool 채널) → ProtoGlue가 StarterAssets 입력·커서 잠금/해제 중계. InGame 배선 완료. **남은 일: 플레이 검증(사용자) + 뷰모델 별도 카메라·레이어**
+- [x] D5. 작도 키 홀드 상태머신(교전↔작도) + 뷰모델 별도 카메라·레이어 — 상태머신·시간 감속 구현: `Spellcraft/SpellcraftModeController`(Combat↔Drawing, timeScale+fixedDeltaTime 감속·복원), `Data/SpellcraftModeConfigSO`([가정] Q 토글·0.2배), `EC_DrawingModeChanged`(bool 채널) → ProtoGlue가 StarterAssets 입력·커서 잠금/해제 중계. InGame 배선 완료. 모드 전환·감속·커서 플레이 검증 완료. 뷰모델: ViewModel 레이어(6) 신설, MainCamera 컬링 제외, ViewModelCamera(URP Overlay, FOV 50 [가정], near 0.01) 스택 등록, 대필 자리표시자 큐브([가정] W2에서 교체). 자리표시자 표시·추적 플레이 확인 완료(2026-07-19)
 - [ ] D6. 데이터 스키마 — 도면 DTO·상극 5×5(SerializedScriptableObject + Dictionary)·적 DTO·강화 DTO
 - [ ] D7. 글자 일람 v1.2 → 도면 DTO 임포트(40장), 로드·조회 검증
 - [ ] D8. 플레이스홀더 — 졸개 적(캡슐+텔레)·대필 막대·회색 아레나
