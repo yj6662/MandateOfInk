@@ -1,0 +1,38 @@
+using MandateOfInk.Data;
+using UnityEngine;
+
+namespace MandateOfInk.Combat
+{
+    // 적 체력 — 수치는 전부 EnemyDefinitionSO(데이터)에서 온다.
+    public sealed class EnemyHealth : MonoBehaviour
+    {
+        [SerializeField] private EnemyDefinitionSO _definition;
+        [SerializeField] private GameObject _deathVfxPrefab; // 사망 연출(임시)
+
+        public EnemyDefinitionSO Definition => _definition;
+        public float CurrentHp { get; private set; }
+
+        private void Awake()
+        {
+            CurrentHp = _definition != null ? _definition.MaxHp : 1f;
+        }
+
+        public void TakeDamage(float amount)
+        {
+            CurrentHp -= amount;
+            Debug.Log($"[Enemy] {name} 피해 {amount:F1} -> 남은 HP {CurrentHp:F1}");
+            if (CurrentHp <= 0f) Die();
+        }
+
+        private void Die()
+        {
+            Debug.Log($"[Enemy] {name} 격파");
+            if (_deathVfxPrefab != null)
+            {
+                var vfx = Instantiate(_deathVfxPrefab, transform.position, Quaternion.identity);
+                Destroy(vfx, 3f); // [가정] VFX 잔류 상한
+            }
+            Destroy(gameObject);
+        }
+    }
+}

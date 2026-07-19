@@ -46,6 +46,12 @@ namespace MandateOfInk.Spellcraft
             Debug.Log($"[Spellcraft] 작도 모드 진입 (timeScale={Time.timeScale:F2})");
         }
 
+        // 작도 완료(인식 성공) 시 외부에서 호출 — 모드 해제 + 시간 복원
+        public void CompleteDrawing()
+        {
+            if (Mode == SpellcraftMode.Drawing) ExitDrawing();
+        }
+
         private void ExitDrawing()
         {
             Mode = SpellcraftMode.Combat;

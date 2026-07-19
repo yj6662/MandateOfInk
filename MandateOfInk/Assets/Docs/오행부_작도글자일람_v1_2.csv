@@ -1,0 +1,121 @@
+letter,initial,medial,final,element,polarity,scope,modifier,category,ink_cost,description
+가,ㄱ,ㅏ,,Wood,Yang,Single,None,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해.
+각,ㄱ,ㅏ,ㄱ,Wood,Yang,Single,Bind,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 닿은 대상 속박.
+간,ㄱ,ㅏ,ㄴ,Wood,Yang,Single,Sustain,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 장(場)으로 남아 지속.
+감,ㄱ,ㅏ,ㅁ,Wood,Yang,Single,Trigger,TriggerInstall,10,덩굴 표식을 격발 장전으로 심는 공세형 설치([가정]).
+갓,ㄱ,ㅏ,ㅅ,Wood,Yang,Single,Pierce,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 방어·다수 관통.
+강,ㄱ,ㅏ,ㅇ,Wood,Yang,Single,Chain,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 인접으로 연쇄.
+거,ㄱ,ㅓ,,Wood,Yin,Single,None,DefenseControl,10,한 대상/자신에 덩굴 방벽으로 막기(받아치기).
+걱,ㄱ,ㅓ,ㄱ,Wood,Yin,Single,Bind,DefenseControl,10,한 대상/자신에 덩굴 방벽으로 막기(받아치기). 닿은 대상 속박.
+건,ㄱ,ㅓ,ㄴ,Wood,Yin,Single,Sustain,DefenseControl,10,한 대상/자신에 덩굴 방벽으로 막기(받아치기). 장(場)으로 남아 지속.
+검,ㄱ,ㅓ,ㅁ,Wood,Yin,Single,Trigger,TriggerInstall,10,덩굴 표식을 한 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 생목·덩굴 폭발(상합).
+것,ㄱ,ㅓ,ㅅ,Wood,Yin,Single,Pierce,DefenseControl,10,한 대상/자신에 덩굴 방벽으로 막기(받아치기). 방어·다수 관통.
+겅,ㄱ,ㅓ,ㅇ,Wood,Yin,Single,Chain,DefenseControl,10,한 대상/자신에 덩굴 방벽으로 막기(받아치기). 인접으로 연쇄.
+고,ㄱ,ㅗ,,Wood,Yang,Area,None,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해.
+곡,ㄱ,ㅗ,ㄱ,Wood,Yang,Area,Bind,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 닿은 대상 속박.
+곤,ㄱ,ㅗ,ㄴ,Wood,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 장(場)으로 남아 지속.
+곰,ㄱ,ㅗ,ㅁ,Wood,Yang,Area,Trigger,TriggerInstall,10,덩굴 표식을 격발 장전으로 심는 공세형 설치([가정]).
+곳,ㄱ,ㅗ,ㅅ,Wood,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 방어·다수 관통.
+공,ㄱ,ㅗ,ㅇ,Wood,Yang,Area,Chain,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 인접으로 연쇄.
+구,ㄱ,ㅜ,,Wood,Yin,Area,None,DefenseControl,10,넓은 범위에 덩굴 방벽으로 광역 방어.
+국,ㄱ,ㅜ,ㄱ,Wood,Yin,Area,Bind,DefenseControl,10,넓은 범위에 덩굴 방벽으로 광역 방어. 닿은 대상 속박.
+군,ㄱ,ㅜ,ㄴ,Wood,Yin,Area,Sustain,DefenseControl,10,넓은 범위에 덩굴 방벽으로 광역 방어. 장(場)으로 남아 지속.
+굼,ㄱ,ㅜ,ㅁ,Wood,Yin,Area,Trigger,TriggerInstall,10,덩굴 표식을 여러 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 생목·덩굴 폭발(상합).
+굿,ㄱ,ㅜ,ㅅ,Wood,Yin,Area,Pierce,DefenseControl,10,넓은 범위에 덩굴 방벽으로 광역 방어. 방어·다수 관통.
+궁,ㄱ,ㅜ,ㅇ,Wood,Yin,Area,Chain,DefenseControl,10,넓은 범위에 덩굴 방벽으로 광역 방어. 인접으로 연쇄.
+나,ㄴ,ㅏ,,Fire,Yang,Single,None,Attack,10,단일 대상에 화염을 내쏘아 직접 피해.
+낙,ㄴ,ㅏ,ㄱ,Fire,Yang,Single,Bind,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 닿은 대상 속박.
+난,ㄴ,ㅏ,ㄴ,Fire,Yang,Single,Sustain,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 장(場)으로 남아 지속.
+남,ㄴ,ㅏ,ㅁ,Fire,Yang,Single,Trigger,TriggerInstall,10,불씨을 격발 장전으로 심는 공세형 설치([가정]).
+낫,ㄴ,ㅏ,ㅅ,Fire,Yang,Single,Pierce,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 방어·다수 관통.
+낭,ㄴ,ㅏ,ㅇ,Fire,Yang,Single,Chain,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 인접으로 연쇄.
+너,ㄴ,ㅓ,,Fire,Yin,Single,None,DefenseControl,10,한 대상/자신에 화막(火幕)으로 막기(받아치기).
+넉,ㄴ,ㅓ,ㄱ,Fire,Yin,Single,Bind,DefenseControl,10,한 대상/자신에 화막(火幕)으로 막기(받아치기). 닿은 대상 속박.
+넌,ㄴ,ㅓ,ㄴ,Fire,Yin,Single,Sustain,DefenseControl,10,한 대상/자신에 화막(火幕)으로 막기(받아치기). 장(場)으로 남아 지속.
+넘,ㄴ,ㅓ,ㅁ,Fire,Yin,Single,Trigger,TriggerInstall,10,불씨을 한 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 화염 폭발(상합).
+넛,ㄴ,ㅓ,ㅅ,Fire,Yin,Single,Pierce,DefenseControl,10,한 대상/자신에 화막(火幕)으로 막기(받아치기). 방어·다수 관통.
+넝,ㄴ,ㅓ,ㅇ,Fire,Yin,Single,Chain,DefenseControl,10,한 대상/자신에 화막(火幕)으로 막기(받아치기). 인접으로 연쇄.
+노,ㄴ,ㅗ,,Fire,Yang,Area,None,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해.
+녹,ㄴ,ㅗ,ㄱ,Fire,Yang,Area,Bind,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 닿은 대상 속박.
+논,ㄴ,ㅗ,ㄴ,Fire,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 장(場)으로 남아 지속.
+놈,ㄴ,ㅗ,ㅁ,Fire,Yang,Area,Trigger,TriggerInstall,10,불씨을 격발 장전으로 심는 공세형 설치([가정]).
+놋,ㄴ,ㅗ,ㅅ,Fire,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 방어·다수 관통.
+농,ㄴ,ㅗ,ㅇ,Fire,Yang,Area,Chain,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 인접으로 연쇄.
+누,ㄴ,ㅜ,,Fire,Yin,Area,None,DefenseControl,10,넓은 범위에 화막(火幕)으로 광역 방어.
+눅,ㄴ,ㅜ,ㄱ,Fire,Yin,Area,Bind,DefenseControl,10,넓은 범위에 화막(火幕)으로 광역 방어. 닿은 대상 속박.
+눈,ㄴ,ㅜ,ㄴ,Fire,Yin,Area,Sustain,DefenseControl,10,넓은 범위에 화막(火幕)으로 광역 방어. 장(場)으로 남아 지속.
+눔,ㄴ,ㅜ,ㅁ,Fire,Yin,Area,Trigger,TriggerInstall,10,불씨을 여러 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 화염 폭발(상합).
+눗,ㄴ,ㅜ,ㅅ,Fire,Yin,Area,Pierce,DefenseControl,10,넓은 범위에 화막(火幕)으로 광역 방어. 방어·다수 관통.
+눙,ㄴ,ㅜ,ㅇ,Fire,Yin,Area,Chain,DefenseControl,10,넓은 범위에 화막(火幕)으로 광역 방어. 인접으로 연쇄.
+마,ㅁ,ㅏ,,Earth,Yang,Single,None,Attack,10,단일 대상에 바위를 쳐올려 직접 피해.
+막,ㅁ,ㅏ,ㄱ,Earth,Yang,Single,Bind,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 닿은 대상 속박.
+만,ㅁ,ㅏ,ㄴ,Earth,Yang,Single,Sustain,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 장(場)으로 남아 지속.
+맘,ㅁ,ㅏ,ㅁ,Earth,Yang,Single,Trigger,TriggerInstall,10,토진(土陣) 부적을 격발 장전으로 심는 공세형 설치([가정]).
+맛,ㅁ,ㅏ,ㅅ,Earth,Yang,Single,Pierce,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 방어·다수 관통.
+망,ㅁ,ㅏ,ㅇ,Earth,Yang,Single,Chain,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 인접으로 연쇄.
+머,ㅁ,ㅓ,,Earth,Yin,Single,None,DefenseControl,10,한 대상/자신에 토벽 결계으로 막기(받아치기).
+먹,ㅁ,ㅓ,ㄱ,Earth,Yin,Single,Bind,DefenseControl,10,한 대상/자신에 토벽 결계으로 막기(받아치기). 닿은 대상 속박.
+먼,ㅁ,ㅓ,ㄴ,Earth,Yin,Single,Sustain,DefenseControl,10,한 대상/자신에 토벽 결계으로 막기(받아치기). 장(場)으로 남아 지속.
+멈,ㅁ,ㅓ,ㅁ,Earth,Yin,Single,Trigger,TriggerInstall,10,토진(土陣) 부적을 한 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 흙·바위 폭발(상합).
+멋,ㅁ,ㅓ,ㅅ,Earth,Yin,Single,Pierce,DefenseControl,10,한 대상/자신에 토벽 결계으로 막기(받아치기). 방어·다수 관통.
+멍,ㅁ,ㅓ,ㅇ,Earth,Yin,Single,Chain,DefenseControl,10,한 대상/자신에 토벽 결계으로 막기(받아치기). 인접으로 연쇄.
+모,ㅁ,ㅗ,,Earth,Yang,Area,None,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해.
+목,ㅁ,ㅗ,ㄱ,Earth,Yang,Area,Bind,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 닿은 대상 속박.
+몬,ㅁ,ㅗ,ㄴ,Earth,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 장(場)으로 남아 지속.
+몸,ㅁ,ㅗ,ㅁ,Earth,Yang,Area,Trigger,TriggerInstall,10,토진(土陣) 부적을 격발 장전으로 심는 공세형 설치([가정]).
+못,ㅁ,ㅗ,ㅅ,Earth,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 방어·다수 관통.
+몽,ㅁ,ㅗ,ㅇ,Earth,Yang,Area,Chain,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 인접으로 연쇄.
+무,ㅁ,ㅜ,,Earth,Yin,Area,None,DefenseControl,10,넓은 범위에 토벽 결계으로 광역 방어.
+묵,ㅁ,ㅜ,ㄱ,Earth,Yin,Area,Bind,DefenseControl,10,넓은 범위에 토벽 결계으로 광역 방어. 닿은 대상 속박.
+문,ㅁ,ㅜ,ㄴ,Earth,Yin,Area,Sustain,DefenseControl,10,넓은 범위에 토벽 결계으로 광역 방어. 장(場)으로 남아 지속.
+뭄,ㅁ,ㅜ,ㅁ,Earth,Yin,Area,Trigger,TriggerInstall,10,토진(土陣) 부적을 여러 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 흙·바위 폭발(상합).
+뭇,ㅁ,ㅜ,ㅅ,Earth,Yin,Area,Pierce,DefenseControl,10,넓은 범위에 토벽 결계으로 광역 방어. 방어·다수 관통.
+뭉,ㅁ,ㅜ,ㅇ,Earth,Yin,Area,Chain,DefenseControl,10,넓은 범위에 토벽 결계으로 광역 방어. 인접으로 연쇄.
+사,ㅅ,ㅏ,,Metal,Yang,Single,None,Attack,10,단일 대상에 쇳날로 베어 직접 피해.
+삭,ㅅ,ㅏ,ㄱ,Metal,Yang,Single,Bind,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 닿은 대상 속박.
+산,ㅅ,ㅏ,ㄴ,Metal,Yang,Single,Sustain,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 장(場)으로 남아 지속.
+삼,ㅅ,ㅏ,ㅁ,Metal,Yang,Single,Trigger,TriggerInstall,10,쇳가시을 격발 장전으로 심는 공세형 설치([가정]).
+삿,ㅅ,ㅏ,ㅅ,Metal,Yang,Single,Pierce,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 방어·다수 관통.
+상,ㅅ,ㅏ,ㅇ,Metal,Yang,Single,Chain,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 인접으로 연쇄.
+서,ㅅ,ㅓ,,Metal,Yin,Single,None,DefenseControl,10,한 대상/자신에 금강 방벽으로 막기(받아치기).
+석,ㅅ,ㅓ,ㄱ,Metal,Yin,Single,Bind,DefenseControl,10,한 대상/자신에 금강 방벽으로 막기(받아치기). 닿은 대상 속박.
+선,ㅅ,ㅓ,ㄴ,Metal,Yin,Single,Sustain,DefenseControl,10,한 대상/자신에 금강 방벽으로 막기(받아치기). 장(場)으로 남아 지속.
+섬,ㅅ,ㅓ,ㅁ,Metal,Yin,Single,Trigger,TriggerInstall,10,쇳가시을 한 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 쇠날 폭발(상합).
+섯,ㅅ,ㅓ,ㅅ,Metal,Yin,Single,Pierce,DefenseControl,10,한 대상/자신에 금강 방벽으로 막기(받아치기). 방어·다수 관통.
+성,ㅅ,ㅓ,ㅇ,Metal,Yin,Single,Chain,DefenseControl,10,한 대상/자신에 금강 방벽으로 막기(받아치기). 인접으로 연쇄.
+소,ㅅ,ㅗ,,Metal,Yang,Area,None,Attack,10,광역의 여러 대상에 쇳날로 베어 피해.
+속,ㅅ,ㅗ,ㄱ,Metal,Yang,Area,Bind,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 닿은 대상 속박.
+손,ㅅ,ㅗ,ㄴ,Metal,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 장(場)으로 남아 지속.
+솜,ㅅ,ㅗ,ㅁ,Metal,Yang,Area,Trigger,TriggerInstall,10,쇳가시을 격발 장전으로 심는 공세형 설치([가정]).
+솟,ㅅ,ㅗ,ㅅ,Metal,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 방어·다수 관통.
+송,ㅅ,ㅗ,ㅇ,Metal,Yang,Area,Chain,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 인접으로 연쇄.
+수,ㅅ,ㅜ,,Metal,Yin,Area,None,DefenseControl,10,넓은 범위에 금강 방벽으로 광역 방어.
+숙,ㅅ,ㅜ,ㄱ,Metal,Yin,Area,Bind,DefenseControl,10,넓은 범위에 금강 방벽으로 광역 방어. 닿은 대상 속박.
+순,ㅅ,ㅜ,ㄴ,Metal,Yin,Area,Sustain,DefenseControl,10,넓은 범위에 금강 방벽으로 광역 방어. 장(場)으로 남아 지속.
+숨,ㅅ,ㅜ,ㅁ,Metal,Yin,Area,Trigger,TriggerInstall,10,쇳가시을 여러 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 쇠날 폭발(상합).
+숫,ㅅ,ㅜ,ㅅ,Metal,Yin,Area,Pierce,DefenseControl,10,넓은 범위에 금강 방벽으로 광역 방어. 방어·다수 관통.
+숭,ㅅ,ㅜ,ㅇ,Metal,Yin,Area,Chain,DefenseControl,10,넓은 범위에 금강 방벽으로 광역 방어. 인접으로 연쇄.
+아,ㅇ,ㅏ,,Water,Yang,Single,None,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해.
+악,ㅇ,ㅏ,ㄱ,Water,Yang,Single,Bind,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 닿은 대상 속박.
+안,ㅇ,ㅏ,ㄴ,Water,Yang,Single,Sustain,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 장(場)으로 남아 지속.
+암,ㅇ,ㅏ,ㅁ,Water,Yang,Single,Trigger,TriggerInstall,10,서릿발을 격발 장전으로 심는 공세형 설치([가정]).
+앗,ㅇ,ㅏ,ㅅ,Water,Yang,Single,Pierce,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 방어·다수 관통.
+앙,ㅇ,ㅏ,ㅇ,Water,Yang,Single,Chain,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 인접으로 연쇄.
+어,ㅇ,ㅓ,,Water,Yin,Single,None,DefenseControl,10,한 대상/자신에 수막(水幕)으로 막기(받아치기).
+억,ㅇ,ㅓ,ㄱ,Water,Yin,Single,Bind,DefenseControl,10,한 대상/자신에 수막(水幕)으로 막기(받아치기). 닿은 대상 속박.
+언,ㅇ,ㅓ,ㄴ,Water,Yin,Single,Sustain,DefenseControl,10,한 대상/자신에 수막(水幕)으로 막기(받아치기). 장(場)으로 남아 지속.
+엄,ㅇ,ㅓ,ㅁ,Water,Yin,Single,Trigger,TriggerInstall,10,서릿발을 한 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 물·서리 폭발(상합).
+엇,ㅇ,ㅓ,ㅅ,Water,Yin,Single,Pierce,DefenseControl,10,한 대상/자신에 수막(水幕)으로 막기(받아치기). 방어·다수 관통.
+엉,ㅇ,ㅓ,ㅇ,Water,Yin,Single,Chain,DefenseControl,10,한 대상/자신에 수막(水幕)으로 막기(받아치기). 인접으로 연쇄.
+오,ㅇ,ㅗ,,Water,Yang,Area,None,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해.
+옥,ㅇ,ㅗ,ㄱ,Water,Yang,Area,Bind,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 닿은 대상 속박.
+온,ㅇ,ㅗ,ㄴ,Water,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 장(場)으로 남아 지속.
+옴,ㅇ,ㅗ,ㅁ,Water,Yang,Area,Trigger,TriggerInstall,10,서릿발을 격발 장전으로 심는 공세형 설치([가정]).
+옷,ㅇ,ㅗ,ㅅ,Water,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 방어·다수 관통.
+옹,ㅇ,ㅗ,ㅇ,Water,Yang,Area,Chain,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 인접으로 연쇄.
+우,ㅇ,ㅜ,,Water,Yin,Area,None,DefenseControl,10,넓은 범위에 수막(水幕)으로 광역 방어.
+욱,ㅇ,ㅜ,ㄱ,Water,Yin,Area,Bind,DefenseControl,10,넓은 범위에 수막(水幕)으로 광역 방어. 닿은 대상 속박.
+운,ㅇ,ㅜ,ㄴ,Water,Yin,Area,Sustain,DefenseControl,10,넓은 범위에 수막(水幕)으로 광역 방어. 장(場)으로 남아 지속.
+움,ㅇ,ㅜ,ㅁ,Water,Yin,Area,Trigger,TriggerInstall,10,서릿발을 여러 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 물·서리 폭발(상합).
+웃,ㅇ,ㅜ,ㅅ,Water,Yin,Area,Pierce,DefenseControl,10,넓은 범위에 수막(水幕)으로 광역 방어. 방어·다수 관통.
+웅,ㅇ,ㅜ,ㅇ,Water,Yin,Area,Chain,DefenseControl,10,넓은 범위에 수막(水幕)으로 광역 방어. 인접으로 연쇄.

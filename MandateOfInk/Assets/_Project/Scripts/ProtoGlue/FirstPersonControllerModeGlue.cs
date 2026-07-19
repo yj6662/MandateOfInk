@@ -1,7 +1,6 @@
 using MandateOfInk.Core.Events;
 using StarterAssets;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 // 프로토타입 글루: 작도 모드 채널 신호에 따라 StarterAssets 컨트롤러의 입력·커서를 잠그고 푼다.
 // StarterAssets는 asmdef 없이 Assembly-CSharp 소속이라 본 모듈(asmdef)에서 직접 참조할 수 없다.
@@ -9,7 +8,6 @@ using UnityEngine.InputSystem;
 public sealed class FirstPersonControllerModeGlue : MonoBehaviour
 {
     [SerializeField] private BoolEventChannelSO _drawingModeChanged;
-    [SerializeField] private PlayerInput _playerInput;
     [SerializeField] private StarterAssetsInputs _inputs;
 
     private void OnEnable()
@@ -33,10 +31,9 @@ public sealed class FirstPersonControllerModeGlue : MonoBehaviour
     {
         if (drawing)
         {
-            // 잔여 입력을 지우고 컨트롤러 입력 차단, 커서를 풀어 마우스를 붓으로 쓴다
-            _inputs.MoveInput(Vector2.zero);
+            // 시점 회전만 끊고 커서를 풀어 마우스를 붓으로 쓴다.
+            // 이동(WASD)은 살려 둔다 — 느려진 시간 속에서 움직이며 작도 가능(사용자 결정).
             _inputs.LookInput(Vector2.zero);
-            _playerInput.DeactivateInput();
             _inputs.cursorLocked = false;
             _inputs.cursorInputForLook = false;
             Cursor.lockState = CursorLockMode.None;
@@ -44,7 +41,6 @@ public sealed class FirstPersonControllerModeGlue : MonoBehaviour
         }
         else
         {
-            _playerInput.ActivateInput();
             _inputs.cursorLocked = true;
             _inputs.cursorInputForLook = true;
             Cursor.lockState = CursorLockMode.Locked;

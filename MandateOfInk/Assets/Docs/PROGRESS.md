@@ -13,9 +13,9 @@
 | 항목 | 값 |
 |---|---|
 | 현재 마일스톤 | M0 진행 중 |
-| 현재 일차 | D6 완료 |
+| 현재 일차 | D7 완료·D8 진행 중 |
 | 마지막 갱신 | 2026-07-19 |
-| 다음 할 일 | D7 — 글자 일람 v1.2 → 도면 DTO 임포트(40장), 로드·조회 검증 |
+| 다음 할 일 | D8 잔여(텔레그래프·회색 아레나) → 게이트 M0 판정 |
 | 블로커 | 없음 |
 
 ---
@@ -42,17 +42,17 @@
 - [x] D4. 1인칭 컨트롤러(WASD·마우스 시점) + 기본 카메라 — **StarterAssets FirstPerson 활용**(사용자 제안·합의). InGame 씬에 NestedParent_Unpack 배치(언팩 완료)·프로토 바닥(Plane 50m)·기본 카메라 제거·모바일 조이스틱 UI 삭제. 플레이모드 WASD·마우스룩 검증 완료(2026-07-19)
 - [x] D5. 작도 키 홀드 상태머신(교전↔작도) + 뷰모델 별도 카메라·레이어 — 상태머신·시간 감속 구현: `Spellcraft/SpellcraftModeController`(Combat↔Drawing, timeScale+fixedDeltaTime 감속·복원), `Data/SpellcraftModeConfigSO`([가정] Q 토글·0.2배), `EC_DrawingModeChanged`(bool 채널) → ProtoGlue가 StarterAssets 입력·커서 잠금/해제 중계. InGame 배선 완료. 모드 전환·감속·커서 플레이 검증 완료. 뷰모델: ViewModel 레이어(6) 신설, MainCamera 컬링 제외, ViewModelCamera(URP Overlay, FOV 50 [가정], near 0.01) 스택 등록, 대필 자리표시자 큐브([가정] W2에서 교체). 자리표시자 표시·추적 플레이 확인 완료(2026-07-19)
 - [x] D6. 데이터 스키마 — 도면 DTO·상극 5×5(SerializedScriptableObject + Dictionary)·적 DTO·강화 DTO — `Data/`: Element·Polarity·FinalModifier enum, EffectParam 추상 다형성(Damage/Shield/Dot), SpellDiagramSO(글자·자모·파생속성·먹비용·효과), ElementRelationTableSO(중첩 Dictionary + GetMultiplier), EnemyDefinitionSO, UpgradeDefinitionSO(마석 비용 — 화폐 아님 명시). `ElementRelationTable.asset` 생성·5×5 기본값([가정] 우세 1.5/열세 0.5/중립 1.0) 채움·조회 검증(수→화 1.5, 금→화 0.5, 목→목 1.0). Odin 직렬화 파일 저장 확인
-- [ ] D7. 글자 일람 v1.2 → 도면 DTO 임포트(40장), 로드·조회 검증
-- [ ] D8. 플레이스홀더 — 졸개 적(캡슐+텔레)·대필 막대·회색 아레나
+- [x] D7. 글자 일람 v1.2 → 도면 DTO 임포트(40장), 로드·조회 검증 — **120장 전체 임포트**(요구 40장의 상위집합). PDF→CSV 추출(`Assets/Docs/오행부_작도글자일람_v1_2.csv`, 120행 원문 대조 100% 일치), EditorTools `SpellDiagramCsvImporter`(메뉴·멱등, Effects 수동 튜닝 보존) → `Data/Diagrams/SD_*.asset` 120개 생성, 조회 검증(나=화·양·단일·공격). 주의: 일람 v1.2 축 기준으로 스키마 수정 — 광역은 중성(천지인 Scope), 종성=속박/지속/격발/관통/연쇄
+- [~] D8. 플레이스홀더 — 졸개 적(캡슐+텔레)·대필 막대·회색 아레나 — 더미 적(캡슐+EnemyHealth+EN_TestDummy[금·HP30 가정]) 배치, Combat 모듈(SpellCaster·SpellProjectile·EnemyHealth)로 좌클릭 시전→투사체→상극 배율 피해→격파 파이프라인 구성, GAP FreeQuickEffects URP 임포트(vfx_Projectile_01/Explosion_01/02). **남은 일: 텔레그래프·회색 아레나·플레이 검증(사용자)**
 
 **게이트 M0**: [ ] 빈 아레나에서 1인칭 이동 + 적 타격 + 작도/교전 모드 전환 작동. 싱글턴 없이 DI·이벤트 채널로만 연결 확인.
 
 ## M1 — 프로토타입: 작도 손맛 + 룩 (D9–D28, 최우선)
 
 ### W1 — 작도 인식 코어
-- [ ] D9. 작도 평면 + 마우스 투영, 날것 점 궤적 수집·시각화
-- [ ] D10. $1류 제스처 인식기 통합(스파이크 결과 반영) + 초성 5 단독 인식
-- [ ] D11. 중성 4(ㅏㅓㅗㅜ) 인식 + 초·중 결합 20장
+- [~] D9. 작도 평면 + 마우스 투영, 날것 점 궤적 수집·시각화 — M0에서 선행: DrawingInputController가 화면 좌표 궤적 수집 + ViewModel 레이어 먹선 표시(카메라 추종). 작도 평면·투영 정식화는 M1에서
+- [~] D10. $1류 제스처 인식기 통합(스파이크 결과 반영) + 초성 5 단독 인식 — M0에서 선행: PDollar에 asmdef 부여(Spellcraft 참조), 템플릿 23개를 _Project/Data/JamoTemplates로 이관·런타임 로드, 초성 인식→ㅏ 기본형 도면 매핑([가정] 임시 규칙)→EC_DiagramDrawn 채널→시전→모드 자동 해제. 인식 품질·정식 통합은 M1에서 재검
+- [~] D11. 중성 4(ㅏㅓㅗㅜ) 인식 + 초·중 결합 20장 — M0에서 선행: 획 그룹 분할 인식(초성 우선 쓰기 규칙 이용, 부분별 독립 정규화 — 위치·침범 무관) + F2 중성 실필기 등록. 사용자 체감 「굉장히 좋아짐」(2026-07-19). 정량 측정·정식화는 M1에서
 - [ ] D12. 받침 ㅁ 인식(40장) + 도면 DTO 조회 → 진 식별 연결
 - [ ] D13. 획 품질 3축 스코어 + 폴백(약발동) + 먹선/날것 점 분리 확인
 
@@ -98,6 +98,7 @@
 | 2026-07 | Odin: 에디터/데이터 계층 한정, 런타임 코어 독립. SerializedScriptableObject·Dictionary 직렬화·OdinMenuEditorWindow 패턴 | Personal 라이선스, Validator 스킵 |
 | 2026-07 | 분기: 순수 플래그(필수/금지) + 카운터 2종. 원장 CSV = 단일 진실 | 분기 시스템 사양 v0.3 |
 | 2026-07 | 문서 체계: 사람용 PDF 단독 / 개발용 MD·CSV | zip 방식 대체 |
+| 2026-07-19 | 생성형 AI 스택 확정: 3D=**Meshy** / 2D·UI=**Recraft** / 사운드·음성=**ElevenLabs + SuperTone** (Hyper3D·Suno 미채택) | 사용자 결정. 키는 Tools/.env(gitignore), 4종 인증 검증 완료 — ElevenLabs는 TTS 전용 제한 키(관리용 읽기 권한 없음, 사용엔 지장 없음) |
 | 2026-07-19 | 1인칭 컨트롤러 = **StarterAssets FirstPerson 채택(프로토타입 한정)** | 사용자 제안. asmdef 없이 Assembly-CSharp 소속 — 우리 모듈에서 직접 참조 금지, 플레이스홀더 취급. D5 작도↔교전 전환 통합 시 재평가 |
 | 2026-07-19 | 작도 모드 = **키 진입 + 시간 감속, 작도 완료 시 해제·시간 복원** | 사용자 결정. D5 골격은 같은 키 토글로 해제, M1에서 자모 인식 성공 이벤트가 해제를 대신. 감속 배율 등 수치는 SpellcraftModeConfigSO([가정] 0.2배) |
 | 2026-07-18 | 작도 인식기 = PDollar **$P Point-Cloud Recognizer** 채택. 다획 자모는 획 분할 없이 $P 네이티브 처리 | S 스파이크 통과 — S1 합성 교란 98.8%·0.59ms, S2 실기 마우스 정확 인식, S3 ㅁ(1·3획)/ㅅ(1·2획) 혼재 인식. M1 게이트에서 외부 테스트로 재검증 |
@@ -123,6 +124,7 @@
 | 자모 획 인식 실패(최고 위험) | S 스파이크 통과(2026-07-18) — 1인 검증 | M1 게이트에서 외부 5인·중성/받침 확장으로 재판정 |
 | Suno 산출물 저작권 불확실성 | 상존 | 출시 전 사람 검토, 유료 상업 이용권 유지 |
 | 셰이더 에셋 URP Render Graph 비호환 | 미확인 | 구매 전 에셋별 호환 확인 |
+| ~~프로젝트 URP 파이프라인 에셋 부재~~ | 해결(2026-07-19) | `_Project/Settings/URP_PipelineAsset` 지정 완료 — 삭제 금지 |
 
 ## 프로젝트 메모 (작업하며 갱신)
 
@@ -139,6 +141,10 @@
 
 | 날짜 | 한 일 | 다음 할 일 | 특이사항 |
 |---|---|---|---|
+| 2026-07-19 | 인식 방식 개선: 합성 글자 템플릿 → **획 그룹 분할 인식**으로 교체(모든 분할점 시도, 부분 독립 정규화, 초성/중성 후보군 분리) — 침범·초성 오인식 해소, 사용자 체감 대폭 개선. API 키 4종(Meshy·Recraft·ElevenLabs·SuperTone) 인증 검증 | 일괄 커밋 → D8 잔여 | 자모 사이에는 펜을 떼야 함(이어 쓰면 분할점 없음) |
+| 2026-07-19 | 이어 그리기 인식(합성 글자 템플릿, 배치 2종·변형 16/클래스), 중성 실필기 등록 모드(F2, 1~4 저장·즉시 재구성), 획 굵기 0.006, 좌클릭 임시 시전 제거, 투사체 접촉 즉시 소멸+VFX 3초 상한(최적화), 먹선 카메라 로컬 공간(화면 추종), API 키 스캐폴딩(`Tools/.env.example`+gitignore — Meshy·Hyper3D·Recraft·Suno·ElevenLabs) | 인식률 재체감 → 일괄 커밋 | 종성 확장은 종성 템플릿 등록 후 동일 조합 방식 |
+| 2026-07-19 | 먹선 스타일(붓끝 Lerp·속도 굵기·번짐 애니·소프트 엣지 텍스처 코드 생성, 전 파라미터 [가정] 인스펙터 노출), 락온 떨림 수정(피치 로컬 회전 + 지수 감쇠 — 월드 회전 피드백 제거), 2단계 작도(초성→중성, 합성 글자 발동). 중성 템플릿 ㅏㅓㅗㅜ 합성 12개 생성(추후 실필기 교체 가능) | 통합 플레이 검증 → 일괄 커밋 | 종성 확장은 M1 D12 |
+| 2026-07-19 | 렌더 파이프라인 복구 — GraphicsSettings에 URP 미지정 상태 발견, `_Project/Settings/URP_PipelineAsset`+`URP_Renderer` 생성·Graphics/품질 6레벨 지정. 갈색 바닥·붓대(먹빛)·허수아비(회색) URP 머티리얼. 작도 시전 파이프라인(초성→ㅏ기본형 매핑), 락온(Tab·범위 20m [가정]), 작도 중 이동 허용(시점만 잠금) | 통합 플레이 검증 → 커밋 | 프리미티브 생성 시 기본 머티리얼은 Built-in이라 URP에서 마젠타 — 프로토 머티리얼로 교체할 것 |
 | 2026-07-19 | D3 플레이 검증 완료(4단 로그 확인)·커밋 00819b0. D4 — StarterAssets FPC 채택, InGame 씬 배선(플레이어 프리팹+바닥, 기본 카메라 제거), 카메라 스크린샷 확인 | D4 플레이 검증 → 커밋 → D5 | 에디트 모드 스크린샷의 카메라 위치는 Cinemachine 작동 전 상태 — 정상 |
 | 2026-07-19 | D2 완료 확인(부트 플레이 검증·Odin 임포트, 커밋 9e24011) + D3 구현 — SO 이벤트 채널 코어(제네릭+Void, 리스너, 에디터 디버그), 서비스 4종 인터페이스·스텁 DI 등록, AppEntryPoint 생성자 주입 전환. 컴파일 에러 0 | 플레이 재검증 후 D3 커밋 → D4 | 리포는 private — Odin 커밋 가능 확인 |
 | 2026-07-19 | M0 D2 구성 — VContainer 1.19.0·UniTask 2.5.11 설치, Core asmdef 참조 추가, RootLifetimeScope·AppEntryPoint 작성, Boot/InGame 씬 + 빌드 세팅 배선. 스파이크 커밋(89a4c3a) | 부트 흐름 플레이 검증·Odin 임포트(사용자) → D3 | MCP 도구가 도메인 리로드를 사이에 두면 응답이 끊기는 이슈 — 패키지 설치·스크립트 컴파일 후에는 에디터 재시작이 가장 확실. RootLifetimeScope 컴파일 누락도 재시작으로 해소 |

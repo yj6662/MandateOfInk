@@ -3,7 +3,8 @@
     "rootNamespace": "MandateOfInk.Spellcraft",
     "references": [
         "MandateOfInk.Core",
-        "MandateOfInk.Data"
+        "MandateOfInk.Data",
+        "PDollar"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -16,9 +16,14 @@ namespace MandateOfInk.Data
         [Tooltip("종성 — 없으면 빈 문자열")] public string Final;
 
         [Title("파생 속성 (자모에서 유도)")]
-        public Element Element;
-        public Polarity Polarity;
-        public FinalModifier Modifier;
+        public Element Element;          // 초성 = 오행
+        public Polarity Polarity;        // 중성 = 음양
+        public Scope Scope;              // 중성 = 천지인(단일/영역)
+        public FinalModifier Modifier;   // 종성 = 거동
+        public DiagramCategory Category; // 분류 태그
+
+        [Title("효과 설명 (일람 원문)")]
+        [TextArea] public string Description;
 
         [Title("발동")]
         [Tooltip("[가정] 먹(마석) 소비량 — 마석은 연료이지 화폐가 아님")]
