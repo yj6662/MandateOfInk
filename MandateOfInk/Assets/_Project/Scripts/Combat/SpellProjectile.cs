@@ -13,9 +13,10 @@ namespace MandateOfInk.Combat
         private ElementRelationTableSO _relationTable;
         private GameObject _hitVfxPrefab;
         private float _lifeRemaining;
+        private Color _elementColor = Color.white;
 
         public void Init(float speed, float damage, Element element,
-            ElementRelationTableSO relationTable, GameObject hitVfxPrefab, float lifetime)
+            ElementRelationTableSO relationTable, GameObject hitVfxPrefab, float lifetime, Color elementColor)
         {
             _speed = speed;
             _damage = damage;
@@ -23,6 +24,7 @@ namespace MandateOfInk.Combat
             _relationTable = relationTable;
             _hitVfxPrefab = hitVfxPrefab;
             _lifeRemaining = lifetime;
+            _elementColor = elementColor;
         }
 
         private void Update()
@@ -51,6 +53,7 @@ namespace MandateOfInk.Combat
             if (_hitVfxPrefab != null)
             {
                 var vfx = Instantiate(_hitVfxPrefab, transform.position, Quaternion.identity);
+                SpellCaster.TintVfx(vfx, _elementColor); // 명중 연출도 속성 색
                 Destroy(vfx, 3f); // [가정] VFX 잔류 상한 — 파티클 자체 소멸과 별개의 안전장치
             }
             Destroy(gameObject);

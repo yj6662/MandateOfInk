@@ -10,6 +10,7 @@ namespace MandateOfInk.Combat
         [Header("데이터")]
         [SerializeField] private ElementRelationTableSO _relationTable;
         [SerializeField] private DiagramEventChannelSO _diagramDrawn;
+        [SerializeField] private ElementPaletteSO _palette; // 속성별 연출 색
 
         [Header("연출")]
         [SerializeField] private GameObject _projectileVfxPrefab;
@@ -46,14 +47,31 @@ namespace MandateOfInk.Combat
             var rb = go.AddComponent<Rigidbody>();
             rb.isKinematic = true; // 트리거 판정용 — 물리 낙하 없음
 
+            Color elementColor = _palette != null ? _palette.GetColor(diagram.Element) : Color.white;
+
             var projectile = go.AddComponent<SpellProjectile>();
             projectile.Init(_projectileSpeed, damage, diagram.Element,
-                _relationTable, _hitVfxPrefab, _projectileLifetime);
+                _relationTable, _hitVfxPrefab, _projectileLifetime, elementColor);
 
             if (_projectileVfxPrefab != null)
-                Instantiate(_projectileVfxPrefab, go.transform.position, go.transform.rotation, go.transform);
+            {
+                var vfx = Instantiate(_projectileVfxPrefab, go.transform.position, go.transform.rotation, go.transform);
+                TintVfx(vfx, elementColor);
+            }
 
             Debug.Log($"[Spell] 「{diagram.Letter}」 시전 — {diagram.Element}, 피해 {damage}");
+        }
+
+        // VFX 프리팹의 파티클·라이트를 속성 색으로 물들인다 (프리팹 원본은 건드리지 않음)
+        public static void TintVfx(GameObject vfx, Color color)
+        {
+            foreach (var ps in vfx.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var main = ps.main;
+                main.startColor = new ParticleSystem.MinMaxGradient(color);
+            }
+            foreach (var light in vfx.GetComponentsInChildren<Light>(true))
+                light.color = color;
         }
     }
 }

@@ -7,11 +7,8 @@ using UnityEngine;
 namespace MandateOfInk.Spellcraft
 {
     // 작도 모드 입력: 글자(초성+중성)를 이어 그리면 「획 그룹 분할」로 인식해 발동한다.
-    //   한글은 초성을 먼저 쓰므로, 획 순서 기준 모든 분할점(앞=초성, 뒤=중성)을 시도하고
-    //   각 부분을 독립 정규화·인식해 합산 점수가 최고인 조합을 택한다.
-    //   -> 자모의 위치·크기·침범과 무관해지고, 자모별 인식 정확도(S2 수준)를 유지한다.
-    //   종성 확장 시 분할점 2개(3그룹)로 같은 방식을 쓴다.
-    // 먹선 표현: 붓끝 Lerp 스무딩 + 속도 기반 굵기 + 번짐 애니 + 소프트 엣지 텍스처. 파라미터는 [가정].
+    // 먹선 표현(InkStroke 메시): 붓끝 Lerp 끌림 + 속도 기반 굵기·농도 + 먹 소모(뒤 획일수록 갈필)
+    // + 비백(마른 붓 틈) + 기필(시작 눌림)·수필(끝 빼기) + 번짐. 파라미터는 전부 [가정] — 룩 판정은 사람.
     public sealed class DrawingInputController : MonoBehaviour
     {
         [Header("연결")]
@@ -26,27 +23,44 @@ namespace MandateOfInk.Spellcraft
         [SerializeField] private string _initialTemplateDir = "_Project/Data/JamoTemplates/Initials";
         [SerializeField] private string _medialTemplateDir = "_Project/Data/JamoTemplates/Medials";
 
-        [Header("[가정] 먹선 스타일")]
-        [SerializeField] private float _brushLerpSpeed = 14f;
-        [SerializeField] private float _baseWidth = 0.006f;
-        [SerializeField] private float _bleedMultiplier = 1.6f;
-        [SerializeField] private float _bleedSeconds = 0.9f;
-        [SerializeField] private float _minWidthFactor = 0.55f;
-        [SerializeField] private float _maxWidthFactor = 1.4f;
-        [SerializeField] private Color _inkColor = new Color(0.13f, 0.12f, 0.11f, 0.95f);
+        [Header("[가정] 붓 움직임")]
+        [Tooltip("붓끝이 커서를 따라오는 속도 — 낮을수록 무겁게 끌린다")]
+        [SerializeField] private float _brushLerpSpeed = 8f;
 
-        private sealed class Stroke
-        {
-            public LineRenderer Line;
-            public readonly List<float> Widths = new List<float>();
-            public float BornTime;
-        }
+        [Header("[가정] 먹선 굵기")]
+        [SerializeField] private float _baseWidth = 0.018f;
+        [Tooltip("빠른 획일수록 가늘게(min) / 느린 획일수록 굵게(max)")]
+        [SerializeField] private float _minWidthFactor = 0.45f;
+        [SerializeField] private float _maxWidthFactor = 1.5f;
+        [Tooltip("굵기에 유기적 흔들림을 주는 노이즈 진폭")]
+        [SerializeField, Range(0f, 0.5f)] private float _widthNoise = 0.22f;
+        [Tooltip("기필: 획 시작 몇 샘플 동안 눌린 굵기 배율")]
+        [SerializeField] private float _startPressFactor = 1.35f;
+        [SerializeField] private int _startPressSamples = 5;
+        [Tooltip("수필: 획 끝을 빼는 길이(m)")]
+        [SerializeField] private float _endTaperLength = 0.025f;
+
+        [Header("[가정] 먹 농도")]
+        [Tooltip("느린 획의 농도(진함)")]
+        [SerializeField, Range(0f, 1f)] private float _maxDensity = 1f;
+        [Tooltip("빠른 획의 농도(옅음)")]
+        [SerializeField, Range(0f, 1f)] private float _minDensity = 0.8f;
+        [Tooltip("한 글자 동안 먹이 마르는 총 길이(m) — 길수록 천천히 마른다")]
+        [SerializeField] private float _inkCapacity = 1.2f;
+        [Tooltip("붓자국 아틀라스(생성 텍스처) — 비우면 절차 생성 텍스처 사용")]
+        [SerializeField] private Texture2D _brushAtlas;
+        [SerializeField] private int _brushAtlasRows = 4;
+        [SerializeField] private Color _inkColor = new Color(0.02f, 0.02f, 0.02f, 1f);
+
+        [Header("[가정] 번짐")]
+        [SerializeField] private float _bleedMultiplier = 1.62f;
+        [SerializeField] private float _bleedSeconds = 1.1f;
 
         private static readonly string[] MedialKeys = { "ㅏ", "ㅓ", "ㅗ", "ㅜ" };
         private static readonly string[] MedialTags = { "a", "eo", "o", "u" };
 
         private readonly List<Point> _points = new List<Point>();
-        private readonly List<Stroke> _strokes = new List<Stroke>();
+        private readonly List<InkStroke> _strokes = new List<InkStroke>();
         private Gesture[] _initialTemplates = new Gesture[0];
         private Gesture[] _medialTemplates = new Gesture[0];
 
@@ -54,14 +68,22 @@ namespace MandateOfInk.Spellcraft
         private float _idleTimer;
         private Vector3 _brushScreenPos;
         private Vector3 _prevSample;
-        private Material _lineMaterial;
-        private bool _recordMode; // F2: 중성 실필기 등록 모드
+        private Vector3 _prevLocal;
+        private int _sampleInStroke;
+        private float _inkUsed; // 글자 단위 누적 — 획을 거듭할수록 갈필이 된다
+        private float _noiseSeed;
+        private Material _inkMaterial;
+        private bool _recordMode;
 
         private void Start()
         {
             var shader = Shader.Find("Sprites/Default");
             if (shader == null) shader = Shader.Find("Hidden/Internal-Colored");
-            _lineMaterial = new Material(shader) { mainTexture = CreateSoftEdgeTexture() };
+            _inkMaterial = new Material(shader)
+            {
+                mainTexture = _brushAtlas != null ? (Texture)_brushAtlas : InkStroke.CreateBrushAtlas()
+            };
+            if (_brushAtlas == null) _brushAtlasRows = InkStroke.ProceduralAtlasRows;
             LoadAllTemplates();
         }
 
@@ -99,7 +121,7 @@ namespace MandateOfInk.Spellcraft
             else HandleCommit();
         }
 
-        // ---- 인식 ----
+        // ---- 인식 (획 그룹 분할) ----
 
         private void HandleCommit()
         {
@@ -120,7 +142,6 @@ namespace MandateOfInk.Spellcraft
 
             if (strokeCount < 2 || _medialTemplates.Length == 0)
             {
-                // 획이 하나뿐이면 초성 단독으로 보고 ㅏ 기본형 폴백
                 Result r = PointCloudRecognizer.Classify(new Gesture(_points.ToArray()), _initialTemplates);
                 initial = r.GestureClass;
                 medial = "ㅏ";
@@ -128,8 +149,6 @@ namespace MandateOfInk.Spellcraft
             }
             else
             {
-                // 획 순서 기준 모든 분할점 시도: 앞 그룹 = 초성, 뒤 그룹 = 중성.
-                // 부분별로 독립 정규화되므로 자모의 위치·크기·침범은 판정에 영향이 없다.
                 for (int split = 1; split < strokeCount; split++)
                 {
                     var iniPts = CollectPoints(0, split);
@@ -149,7 +168,6 @@ namespace MandateOfInk.Spellcraft
             }
             sw.Stop();
 
-            // 폴백: 항상 최근접 자모 조합을 쓰므로 완전 불발은 없다
             var diagram = _library.FindByJamo(initial, medial, "") ?? _library.FindByJamo(initial, "ㅏ", "");
             Debug.Log($"[Drawing] 분할 인식 {initial}+{medial} (합산 {bestScore:F2}, {sw.Elapsed.TotalMilliseconds:F1}ms, {strokeCount}획) -> 「{(diagram != null ? diagram.Letter : "없음")}」");
 
@@ -193,10 +211,28 @@ namespace MandateOfInk.Spellcraft
             if (Input.GetMouseButtonDown(0))
             {
                 _strokeId++;
-                _strokes.Add(NewStroke());
+                // 붓자국 행 선택: 먹 잔량이 적을수록 마른 행 + 약간의 무작위 — 획마다 다른 붓자국
+                float chargeNow = 1f - Mathf.Clamp01(_inkUsed / Mathf.Max(_inkCapacity, 0.01f));
+                int row = Mathf.Clamp(
+                    Mathf.RoundToInt((1f - chargeNow) * (_brushAtlasRows - 1) + Random.Range(-0.7f, 0.7f)),
+                    0, _brushAtlasRows - 1);
+                _strokes.Add(new InkStroke(_viewCamera.transform, _inkMaterial,
+                    LayerMask.NameToLayer("ViewModel"), _inkColor, row, _brushAtlasRows, $"InkStroke_{_strokeId}"));
                 _brushScreenPos = Input.mousePosition;
                 _prevSample = _brushScreenPos;
+                _prevLocal = ScreenToLocal(_brushScreenPos);
+                _sampleInStroke = 0;
+                _noiseSeed = Random.value * 100f;
             }
+
+            if (Input.GetMouseButtonUp(0) && _strokes.Count > 0)
+            {
+                // 수필: 획 끝을 뾰족하게 뺀다
+                var stroke = _strokes[_strokes.Count - 1];
+                stroke.EndTaper(_endTaperLength);
+                stroke.Apply();
+            }
+
             if (!Input.GetMouseButton(0)) return;
 
             _idleTimer = 0f;
@@ -209,72 +245,43 @@ namespace MandateOfInk.Spellcraft
 
             _points.Add(new Point(_brushScreenPos.x, Screen.height - _brushScreenPos.y, _strokeId));
 
-            var stroke = _strokes[_strokes.Count - 1];
-            Vector3 world = _viewCamera.ScreenToWorldPoint(new Vector3(_brushScreenPos.x, _brushScreenPos.y, 0.6f));
-            Vector3 local = _viewCamera.transform.InverseTransformPoint(world);
-            var lr = stroke.Line;
-            lr.positionCount++;
-            lr.SetPosition(lr.positionCount - 1, local);
+            Vector3 local = ScreenToLocal(_brushScreenPos);
+            float segLen = Vector3.Distance(local, _prevLocal);
+            _prevLocal = local;
+            _inkUsed += segLen;
+            _sampleInStroke++;
 
             float speed01 = Mathf.InverseLerp(0f, 2200f, speed);
-            stroke.Widths.Add(Mathf.Lerp(_maxWidthFactor, _minWidthFactor, speed01) * _baseWidth);
-            RebuildWidthCurve(stroke);
+            float inkCharge = 1f - Mathf.Clamp01(_inkUsed / Mathf.Max(_inkCapacity, 0.01f)); // 1=먹 가득, 0=다 마름
+
+            // 굵기: 속도(빠르면 가늘게) x 유기적 노이즈 x 기필(시작 눌림)
+            float width = _baseWidth * Mathf.Lerp(_maxWidthFactor, _minWidthFactor, speed01);
+            width *= 1f + _widthNoise * (Mathf.PerlinNoise(_noiseSeed, _inkUsed * 25f) - 0.5f) * 2f;
+            if (_sampleInStroke <= _startPressSamples)
+                width *= Mathf.Lerp(_startPressFactor, 1f, (_sampleInStroke - 1f) / _startPressSamples);
+
+            // 농도: 속도(빠르면 옅게) x 먹 잔량(마를수록 옅게)
+            float density = Mathf.Lerp(_maxDensity, _minDensity, speed01) * Mathf.Lerp(0.85f, 1f, inkCharge);
+
+            var current = _strokes[_strokes.Count - 1];
+            current.AddSample(local, width, density);
+            current.Apply();
         }
 
-        private static void RebuildWidthCurve(Stroke stroke)
+        private Vector3 ScreenToLocal(Vector3 screenPos)
         {
-            int n = stroke.Widths.Count;
-            if (n < 2) return;
-            int keyCount = Mathf.Min(n, 32);
-            var keys = new Keyframe[keyCount];
-            for (int i = 0; i < keyCount; i++)
-            {
-                int src = Mathf.RoundToInt((float)i / (keyCount - 1) * (n - 1));
-                keys[i] = new Keyframe((float)i / (keyCount - 1), stroke.Widths[src]);
-            }
-            stroke.Line.widthCurve = new AnimationCurve(keys);
+            Vector3 world = _viewCamera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 0.6f));
+            return _viewCamera.transform.InverseTransformPoint(world);
         }
 
         private void AnimateBleed()
         {
             foreach (var stroke in _strokes)
             {
-                if (stroke.Line == null) continue;
                 float t = Mathf.Clamp01((Time.unscaledTime - stroke.BornTime) / _bleedSeconds);
-                stroke.Line.widthMultiplier = Mathf.Lerp(1f, _bleedMultiplier, Mathf.SmoothStep(0f, 1f, t));
+                stroke.SetWidthMultiplier(Mathf.Lerp(1f, _bleedMultiplier, Mathf.SmoothStep(0f, 1f, t)));
+                stroke.Apply();
             }
-        }
-
-        private Stroke NewStroke()
-        {
-            var go = new GameObject($"InkStroke_{_strokeId}");
-            go.transform.SetParent(_viewCamera.transform, false);
-            go.layer = LayerMask.NameToLayer("ViewModel");
-            var lr = go.AddComponent<LineRenderer>();
-            lr.material = _lineMaterial;
-            lr.startColor = lr.endColor = _inkColor;
-            lr.textureMode = LineTextureMode.Stretch;
-            lr.numCapVertices = 4;
-            lr.numCornerVertices = 4;
-            lr.positionCount = 0;
-            lr.useWorldSpace = false; // 카메라 로컬 공간 — 이동·회전을 따라온다
-            lr.widthMultiplier = 1f;
-            lr.startWidth = lr.endWidth = _baseWidth;
-            return new Stroke { Line = lr, BornTime = Time.unscaledTime };
-        }
-
-        private static Texture2D CreateSoftEdgeTexture()
-        {
-            const int h = 64;
-            var tex = new Texture2D(4, h, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
-            for (int y = 0; y < h; y++)
-            {
-                float d = Mathf.Abs(y - (h - 1) * 0.5f) / ((h - 1) * 0.5f);
-                float a = Mathf.SmoothStep(1f, 0f, Mathf.InverseLerp(0.45f, 1f, d));
-                for (int x = 0; x < 4; x++) tex.SetPixel(x, y, new Color(1f, 1f, 1f, a));
-            }
-            tex.Apply();
-            return tex;
         }
 
         private void ClearDrawing()
@@ -282,7 +289,8 @@ namespace MandateOfInk.Spellcraft
             _points.Clear();
             _strokeId = -1;
             _idleTimer = 0f;
-            foreach (var s in _strokes) if (s.Line != null) Destroy(s.Line.gameObject);
+            _inkUsed = 0f; // 새 글자 = 먹 다시 찍기
+            foreach (var s in _strokes) s.Destroy();
             _strokes.Clear();
         }
 
