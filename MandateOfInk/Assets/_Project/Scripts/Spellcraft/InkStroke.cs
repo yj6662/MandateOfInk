@@ -4,7 +4,7 @@ using UnityEngine;
 namespace MandateOfInk.Spellcraft
 {
     // 먹 획 하나를 절차 생성 메시로 그린다 (LineRenderer 대체).
-    // 점별 폭(굵기)·정점 알파(농도)·텍스처 아틀라스 행(마름/비백)을 제어해 붓글씨 질감을 낸다.
+    // 점별 폭(굵기)·정점 알파(농도)·붓자국 아틀라스 행을 제어해 붓글씨 질감을 낸다.
     // 셰이더 저작 없이 Sprites/Default(정점색 x 텍스처)로 동작한다.
     public sealed class InkStroke
     {
@@ -26,6 +26,7 @@ namespace MandateOfInk.Spellcraft
         private float _cumLength;
         private float _widthMultiplier = 1f;
         private bool _dirty;
+        private bool _released;
 
         public float BornTime { get; }
         public GameObject Root => _root;
@@ -43,8 +44,8 @@ namespace MandateOfInk.Spellcraft
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             mr.receiveShadows = false;
             _inkColor = inkColor;
-            _atlasRow = Mathf.Clamp(atlasRow, 0, atlasRows - 1);
             _atlasRows = Mathf.Max(atlasRows, 1);
+            _atlasRow = Mathf.Clamp(atlasRow, 0, _atlasRows - 1);
             BornTime = Time.unscaledTime;
         }
 
@@ -75,7 +76,7 @@ namespace MandateOfInk.Spellcraft
 
         public void SetWidthMultiplier(float m)
         {
-            if (Mathf.Approximately(m, _widthMultiplier)) return;
+            if (_released || Mathf.Approximately(m, _widthMultiplier)) return;
             _widthMultiplier = m;
             _dirty = true;
         }
@@ -102,7 +103,6 @@ namespace MandateOfInk.Spellcraft
                 else dir = _samples[i + 1].Center - _samples[i - 1].Center;
                 if (i > 0) len += Vector3.Distance(s.Center, _samples[i - 1].Center);
 
-                // 화면 평면(카메라 로컬 XY)에서의 수직 방향
                 Vector2 d2 = new Vector2(dir.x, dir.y).normalized;
                 var normal = new Vector3(-d2.y, d2.x, 0f);
                 float half = s.Width * _widthMultiplier * 0.5f;
@@ -115,7 +115,7 @@ namespace MandateOfInk.Spellcraft
                 colors[i * 2] = c;
                 colors[i * 2 + 1] = c;
 
-                // U = 획 시작 0 -> 끝 1 (텍스처의 기필·수필이 실제 획 양끝에 얹힌다), V = 이 획의 붓자국 행
+                // U = 획 시작 0 -> 끝 1 (붓자국의 기필·수필이 실제 획 양끝에 얹힌다), V = 이 획의 아틀라스 행
                 float v0 = (_atlasRow + 0.04f) / _atlasRows;
                 float v1 = (_atlasRow + 0.96f) / _atlasRows;
                 float u = _cumLength > 0.0001f ? len / _cumLength : 0f;
@@ -138,12 +138,23 @@ namespace MandateOfInk.Spellcraft
 
         public void Destroy()
         {
+            if (_released) return; // 소멸 연출로 넘어간 획은 페이더가 수명을 관리한다
             if (_root != null) Object.Destroy(_root);
             if (_mesh != null) Object.Destroy(_mesh);
         }
 
-        // 붓결 텍스처 아틀라스 생성 — 행이 위로 갈수록 마른 붓(비백: 세로 붓결 틈이 커짐).
-        // 가장자리는 부드럽게 빠지고, 결의 흐트러짐은 펄린 노이즈로 만든다.
+        // 판정 후 소멸 연출로 전환 — 이후 수명은 InkStrokeFader가 스스로 관리한다.
+        // 정발동: 가장자리 글로우와 함께 짧게 사라짐 / 약발동: 아무 효과 없이 서서히 사라짐.
+        public void ReleaseForFade(bool success, float duration, Color glowColor)
+        {
+            if (_root == null || _released) return;
+            Apply();
+            _released = true;
+            var fader = _root.AddComponent<InkStrokeFader>();
+            fader.Init(_mesh, duration, success, glowColor);
+        }
+
+        // 붓결 텍스처 아틀라스 절차 생성 — 생성 텍스처가 없을 때의 폴백.
         public static Texture2D CreateBrushAtlas()
         {
             const int w = 256, rowH = 32;
@@ -157,15 +168,14 @@ namespace MandateOfInk.Spellcraft
                 float dry = row / (float)(ProceduralAtlasRows - 1); // 0=먹 가득, 1=갈필
                 for (int y = 0; y < rowH; y++)
                 {
-                    float across = (y + 0.5f) / rowH;             // 0~1 획 단면 위치
-                    float edge = Mathf.Abs(across - 0.5f) * 2f;   // 0(중앙)~1(가장자리)
+                    float across = (y + 0.5f) / rowH;
+                    float edge = Mathf.Abs(across - 0.5f) * 2f;
                     float edgeAlpha = Mathf.SmoothStep(1f, 0f, Mathf.InverseLerp(0.72f, 1f, edge));
                     for (int x = 0; x < w; x++)
                     {
                         float u = x / (float)w;
-                        // 붓결: 길이 방향으로 흐르는 노이즈 결 — 마를수록 임계가 낮아져 틈(비백)이 생긴다
                         float streak = Mathf.PerlinNoise(u * 7f + row * 13.7f, across * 9f + row * 31.1f);
-                        float gap = Mathf.InverseLerp(0.35f + (1f - dry) * 0.65f, 1f, streak); // dry=0이면 gap 없음
+                        float gap = Mathf.InverseLerp(0.35f + (1f - dry) * 0.65f, 1f, streak);
                         float grain = 0.96f + 0.04f * Mathf.PerlinNoise(u * 23f, across * 17f + row * 7.3f);
                         float a = edgeAlpha * (1f - gap) * grain * (1f - 0.08f * dry);
                         tex.SetPixel(x, row * rowH + y, new Color(1f, 1f, 1f, Mathf.Clamp01(a)));
@@ -174,6 +184,84 @@ namespace MandateOfInk.Spellcraft
             }
             tex.Apply();
             return tex;
+        }
+    }
+
+    // 판정이 끝난 먹 획의 소멸을 담당하는 일회용 컴포넌트.
+    // 성공 글로우는 같은 메시의 사본을 가산 블렌드로 살짝 뒤에 겹쳐서 낸다 —
+    // 먹 중심부(불투명)에는 가려지고 부드러운 가장자리에서만 배어 나와 「테두리 글로우」로 보인다.
+    public sealed class InkStrokeFader : MonoBehaviour
+    {
+        private static Material _glowMaterial; // 공유 가산 머티리얼
+
+        private Mesh _mesh;
+        private Color32[] _inkOriginal;
+        private Mesh _glowMesh;
+        private Color32[] _glowOriginal;
+        private float _duration;
+        private float _elapsed;
+
+        public void Init(Mesh mesh, float duration, bool success, Color glowColor)
+        {
+            _mesh = mesh;
+            _inkOriginal = mesh.colors32;
+            _duration = Mathf.Max(duration, 0.05f);
+
+            if (!success) return;
+
+            if (_glowMaterial == null)
+            {
+                var shader = Shader.Find("Legacy Shaders/Particles/Additive");
+                if (shader == null) shader = Shader.Find("Sprites/Default");
+                _glowMaterial = new Material(shader);
+                var src = GetComponent<MeshRenderer>();
+                if (src != null) _glowMaterial.mainTexture = src.sharedMaterial.mainTexture;
+            }
+
+            // 글로우용 메시 사본: 먹색 정점을 글로우 색으로 (알파는 원본 모양 유지)
+            _glowMesh = Instantiate(_mesh);
+            _glowOriginal = new Color32[_inkOriginal.Length];
+            var gc = (Color32)glowColor;
+            for (int i = 0; i < _glowOriginal.Length; i++)
+                _glowOriginal[i] = new Color32(gc.r, gc.g, gc.b, (byte)(_inkOriginal[i].a * glowColor.a));
+            _glowMesh.colors32 = _glowOriginal;
+
+            var glowGo = new GameObject("InkGlow");
+            glowGo.transform.SetParent(transform, false);
+            glowGo.transform.localPosition = new Vector3(0f, 0f, 0.004f); // 먹선 살짝 뒤
+            glowGo.layer = gameObject.layer;
+            glowGo.AddComponent<MeshFilter>().sharedMesh = _glowMesh;
+            var mr = glowGo.AddComponent<MeshRenderer>();
+            mr.sharedMaterial = _glowMaterial;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            mr.receiveShadows = false;
+        }
+
+        private void Update()
+        {
+            _elapsed += Time.unscaledDeltaTime;
+            float remain = 1f - Mathf.Clamp01(_elapsed / _duration);
+            if (remain <= 0f) { Destroy(gameObject); return; }
+
+            _mesh.colors32 = ScaleAlpha(_inkOriginal, remain);
+            if (_glowMesh != null) _glowMesh.colors32 = ScaleAlpha(_glowOriginal, remain);
+        }
+
+        private static Color32[] ScaleAlpha(Color32[] source, float factor)
+        {
+            var result = new Color32[source.Length];
+            for (int i = 0; i < source.Length; i++)
+            {
+                var c = source[i];
+                result[i] = new Color32(c.r, c.g, c.b, (byte)(c.a * factor));
+            }
+            return result;
+        }
+
+        private void OnDestroy()
+        {
+            if (_mesh != null) Destroy(_mesh);
+            if (_glowMesh != null) Destroy(_glowMesh);
         }
     }
 }

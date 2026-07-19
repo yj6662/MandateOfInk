@@ -264,9 +264,12 @@ MonoBehaviour:
   _diagramDrawn: {fileID: 11400000, guid: 1dc61555d65734c4ca5002b7df822e17, type: 2}
   _library: {fileID: 11400000, guid: 298a165d582e7ab44873ab669ee47775, type: 2}
   _viewCamera: {fileID: 609849321}
-  _commitIdleSeconds: 0.6
+  _config: {fileID: 11400000, guid: 479fae067a5afe54789741a604ebbaf8, type: 2}
   _initialTemplateDir: _Project/Data/JamoTemplates/Initials
   _medialTemplateDir: _Project/Data/JamoTemplates/Medials
+  _successFadeSeconds: 0.45
+  _glowColor: {r: 1, g: 0.92, b: 0.6, a: 0.55}
+  _weakFadeSeconds: 1.2
   _brushLerpSpeed: 14
   _baseWidth: 0.018
   _minWidthFactor: 0.55

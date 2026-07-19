@@ -17,11 +17,17 @@ namespace MandateOfInk.Spellcraft
         [SerializeField] private SpellDiagramLibrarySO _library;
         [SerializeField] private Camera _viewCamera;
 
-        [Header("[가정] 판정 파라미터")]
-        [Tooltip("획 종료 후 이 시간(실시간 초) 동안 무입력이면 글자 확정")]
-        [SerializeField] private float _commitIdleSeconds = 0.7f;
+        [Header("판정 — 홀드 키를 떼면 확정 (키·임계는 SpellcraftModeConfigSO)")]
+        [SerializeField] private SpellcraftModeConfigSO _config;
         [SerializeField] private string _initialTemplateDir = "_Project/Data/JamoTemplates/Initials";
         [SerializeField] private string _medialTemplateDir = "_Project/Data/JamoTemplates/Medials";
+
+        [Header("[가정] 소멸 연출")]
+        [Tooltip("정발동: 테두리 글로우와 함께 짧게 소멸")]
+        [SerializeField] private float _successFadeSeconds = 0.45f;
+        [SerializeField] private Color _glowColor = new Color(1f, 0.92f, 0.6f, 0.55f);
+        [Tooltip("약발동: 효과 없이 서서히 소멸")]
+        [SerializeField] private float _weakFadeSeconds = 1.2f;
 
         [Header("[가정] 붓 움직임")]
         [Tooltip("붓끝이 커서를 따라오는 속도 — 낮을수록 무겁게 끌린다")]
@@ -65,7 +71,6 @@ namespace MandateOfInk.Spellcraft
         private Gesture[] _medialTemplates = new Gesture[0];
 
         private int _strokeId = -1;
-        private float _idleTimer;
         private Vector3 _brushScreenPos;
         private Vector3 _prevSample;
         private Vector3 _prevLocal;
@@ -117,19 +122,17 @@ namespace MandateOfInk.Spellcraft
             HandleStroke();
             AnimateBleed();
 
-            if (_recordMode) HandleRecordKeys();
-            else HandleCommit();
+            if (_recordMode) { HandleRecordKeys(); return; } // 등록 모드는 키를 떼도 유지(F2로 종료)
+
+            // 홀드 방식: 작도 키를 떼는 순간 그린 글자를 판정한다
+            if (_config != null && Input.GetKeyUp(_config.ToggleKey))
+            {
+                if (_points.Count >= 8) RecognizeLetter();
+                else { ClearDrawing(); _modeController.CompleteDrawing(); } // 그리다 만 것은 취소
+            }
         }
 
         // ---- 인식 (획 그룹 분할) ----
-
-        private void HandleCommit()
-        {
-            if (Input.GetMouseButton(0) || _points.Count < 8) return;
-            _idleTimer += Time.unscaledDeltaTime;
-            if (_idleTimer < _commitIdleSeconds) return;
-            RecognizeLetter();
-        }
 
         private void RecognizeLetter()
         {
@@ -138,42 +141,119 @@ namespace MandateOfInk.Spellcraft
             var sw = System.Diagnostics.Stopwatch.StartNew();
             int strokeCount = _strokeId + 1;
             string initial = null, medial = null;
-            float bestScore = float.MinValue;
+            float worstJamoDistance; // 가장 서툰 자모의 거리 — 약발동 판정 기준
 
             if (strokeCount < 2 || _medialTemplates.Length == 0)
             {
-                Result r = PointCloudRecognizer.Classify(new Gesture(_points.ToArray()), _initialTemplates);
-                initial = r.GestureClass;
+                var m = JamoMatcher.Classify(_points.ToArray(), _initialTemplates);
+                initial = m.Name;
                 medial = "ㅏ";
-                bestScore = r.Score;
+                worstJamoDistance = m.Distance;
             }
             else
             {
+                float bestMetric = float.MaxValue;
+                float bestIniDist = 0f, bestMedDist = 0f;
+                Point[] bestMedPts = null;
                 for (int split = 1; split < strokeCount; split++)
                 {
                     var iniPts = CollectPoints(0, split);
                     var medPts = CollectPoints(split, strokeCount);
                     if (iniPts.Length < 4 || medPts.Length < 4) continue;
+                    // 순수 직선 하나뿐인 중성 후보(예: ㅏ의 가로점만 떼어진 그룹)는 잘못된 분할 — 배제.
+                    // $P는 퇴화된 직선 그룹에 부당하게 좋은 거리를 주므로 구조로 걸러야 한다.
+                    if (!IsPlausibleMedialShape(medPts)) continue;
 
-                    Result ri = PointCloudRecognizer.Classify(new Gesture(iniPts), _initialTemplates);
-                    Result rm = PointCloudRecognizer.Classify(new Gesture(medPts), _medialTemplates);
-                    float score = ri.Score + rm.Score;
-                    if (score > bestScore)
+                    var mi = JamoMatcher.Classify(iniPts, _initialTemplates);
+                    var mm = JamoMatcher.Classify(medPts, _medialTemplates);
+                    float metric = mi.Distance + mm.Distance;
+                    if (metric < bestMetric)
                     {
-                        bestScore = score;
-                        initial = ri.GestureClass;
-                        medial = rm.GestureClass;
+                        bestMetric = metric;
+                        initial = mi.Name;
+                        medial = mm.Name;
+                        bestIniDist = mi.Distance;
+                        bestMedDist = mm.Distance;
+                        bestMedPts = medPts;
                     }
+                }
+                // 거울상 중성은 기하 판별로 확정 ($P는 분할 선택까지만)
+                if (bestMedPts != null)
+                {
+                    medial = ClassifyMedialByGeometry(bestMedPts, medial);
+                    worstJamoDistance = Mathf.Max(bestIniDist, bestMedDist);
+                }
+                else
+                {
+                    // 유효한 분할이 없음(중성을 안 그린 경우 등) — 전체를 초성으로 보고 ㅏ 기본형 폴백
+                    var m = JamoMatcher.Classify(_points.ToArray(), _initialTemplates);
+                    initial = m.Name;
+                    medial = "ㅏ";
+                    worstJamoDistance = float.MaxValue; // 항상 약발동
                 }
             }
             sw.Stop();
 
-            var diagram = _library.FindByJamo(initial, medial, "") ?? _library.FindByJamo(initial, "ㅏ", "");
-            Debug.Log($"[Drawing] 분할 인식 {initial}+{medial} (합산 {bestScore:F2}, {sw.Elapsed.TotalMilliseconds:F1}ms, {strokeCount}획) -> 「{(diagram != null ? diagram.Letter : "없음")}」");
+            // 약발동 판정 — 완전 불발 금지(절대 규칙): 임계 미달이면 가장 가까운 글자를 약하게 발동
+            bool isWeak = _config != null && worstJamoDistance > _config.WeakCastDistanceThreshold;
+            float power = isWeak && _config != null ? _config.WeakCastPowerMultiplier : 1f;
 
-            if (diagram != null) _diagramDrawn?.Raise(diagram);
-            ClearDrawing();
+            var diagram = _library.FindByJamo(initial, medial, "") ?? _library.FindByJamo(initial, "ㅏ", "");
+            Debug.Log($"[Drawing] 분할 인식 {initial}+{medial} (최악 자모 거리 {worstJamoDistance:F2}, {sw.Elapsed.TotalMilliseconds:F1}ms, {strokeCount}획) -> 「{(diagram != null ? diagram.Letter : "없음")}」{(isWeak ? " [약발동]" : "")}");
+
+            if (diagram != null)
+                _diagramDrawn?.Raise(new DiagramCastRequest { Diagram = diagram, IsWeak = isWeak, PowerMultiplier = power });
+
+            // 먹선 소멸 연출: 정발동 = 글로우와 함께 짧게 / 약발동 = 효과 없이 서서히
+            ReleaseStrokes(!isWeak);
             _modeController.CompleteDrawing();
+        }
+
+        // 판정이 끝난 획들을 소멸 연출로 넘기고 작도 상태만 초기화한다 (파괴는 페이더 담당)
+        private void ReleaseStrokes(bool success)
+        {
+            foreach (var s in _strokes)
+                s.ReleaseForFade(success, success ? _successFadeSeconds : _weakFadeSeconds, _glowColor);
+            _strokes.Clear();
+            _points.Clear();
+            _strokeId = -1;
+            _inkUsed = 0f;
+        }
+
+        // 중성 후보 구조 검증 — 기본 중성(ㅏㅓㅗㅜ)은 「긴 획 + 직교 짧은 획」이라
+        // 보조축 폭이 주축의 일정 비율 이상이어야 한다. (추후 ㅣ·ㅡ 특수 중성 도입 시 재설계 필요)
+        private static bool IsPlausibleMedialShape(Point[] rawPoints)
+        {
+            var pts = new Gesture(rawPoints).Points;
+            float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
+            foreach (var p in pts)
+            {
+                if (p.X < minX) minX = p.X; if (p.X > maxX) maxX = p.X;
+                if (p.Y < minY) minY = p.Y; if (p.Y > maxY) maxY = p.Y;
+            }
+            float w = maxX - minX, h = maxY - minY;
+            float major = Mathf.Max(w, h), minor = Mathf.Min(w, h);
+            return minor > major * 0.22f; // [가정] 직선 판정 임계
+        }
+
+        // 중성 기하 판별 — ㅏ/ㅓ, ㅗ/ㅜ는 거울상이라 $P 거리로는 변별이 약하다.
+        // 정규화 점구름(무게중심=원점)에서 바운딩박스 중심의 부호로 긴 획(점 많음)과 점획의 방향을 가른다.
+        // 세로형: 박스중심 x>0 이면 점이 오른쪽 = ㅏ, 왼쪽 = ㅓ. 가로형(y 아래+): y<0 이면 점이 위 = ㅗ, 아래 = ㅜ.
+        private static string ClassifyMedialByGeometry(Point[] rawPoints, string fallback)
+        {
+            var pts = new Gesture(rawPoints).Points; // 32점 균등 리샘플·정규화(무게중심 원점)
+            float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
+            foreach (var p in pts)
+            {
+                if (p.X < minX) minX = p.X; if (p.X > maxX) maxX = p.X;
+                if (p.Y < minY) minY = p.Y; if (p.Y > maxY) maxY = p.Y;
+            }
+            float w = maxX - minX, h = maxY - minY;
+            float centerX = (minX + maxX) * 0.5f, centerY = (minY + maxY) * 0.5f;
+
+            if (h > w * 1.15f) return centerX > 0f ? "ㅏ" : "ㅓ";
+            if (w > h * 1.15f) return centerY < 0f ? "ㅗ" : "ㅜ";
+            return fallback; // 종횡이 애매하면 $P 결과 유지
         }
 
         private Point[] CollectPoints(int strokeFrom, int strokeTo)
@@ -235,7 +315,6 @@ namespace MandateOfInk.Spellcraft
 
             if (!Input.GetMouseButton(0)) return;
 
-            _idleTimer = 0f;
             float k = 1f - Mathf.Exp(-_brushLerpSpeed * Time.unscaledDeltaTime);
             _brushScreenPos = Vector3.Lerp(_brushScreenPos, Input.mousePosition, k);
 
@@ -288,7 +367,6 @@ namespace MandateOfInk.Spellcraft
         {
             _points.Clear();
             _strokeId = -1;
-            _idleTimer = 0f;
             _inkUsed = 0f; // 새 글자 = 먹 다시 찍기
             foreach (var s in _strokes) s.Destroy();
             _strokes.Clear();

@@ -30,13 +30,15 @@ namespace MandateOfInk.Combat
             if (_diagramDrawn != null) _diagramDrawn.OnRaised -= Cast;
         }
 
-        private void Cast(SpellDiagramSO diagram)
+        private void Cast(DiagramCastRequest request)
         {
+            var diagram = request.Diagram;
             if (diagram == null) return;
 
             float damage = 0f;
             foreach (var effect in diagram.Effects)
                 if (effect is DamageEffect dmg) { damage = dmg.Damage; break; }
+            damage *= request.PowerMultiplier; // 약발동이면 위력이 깎인다
 
             var go = new GameObject($"Projectile_{diagram.Letter}");
             go.transform.SetPositionAndRotation(transform.position + transform.forward * 0.8f, transform.rotation);
@@ -57,9 +59,10 @@ namespace MandateOfInk.Combat
             {
                 var vfx = Instantiate(_projectileVfxPrefab, go.transform.position, go.transform.rotation, go.transform);
                 TintVfx(vfx, elementColor);
+                if (request.IsWeak) vfx.transform.localScale *= 0.6f; // [가정] 약발동은 작고 초라하게
             }
 
-            Debug.Log($"[Spell] 「{diagram.Letter}」 시전 — {diagram.Element}, 피해 {damage}");
+            Debug.Log($"[Spell] 「{diagram.Letter}」 시전 — {diagram.Element}, 피해 {damage}{(request.IsWeak ? " (약발동)" : "")}");
         }
 
         // VFX 프리팹의 파티클·라이트를 속성 색으로 물들인다 (프리팹 원본은 건드리지 않음)

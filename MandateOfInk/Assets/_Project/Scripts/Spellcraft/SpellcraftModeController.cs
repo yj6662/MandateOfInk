@@ -29,11 +29,10 @@ namespace MandateOfInk.Spellcraft
 
         private void Update()
         {
-            if (_config != null && Input.GetKeyDown(_config.ToggleKey))
-            {
-                if (Mode == SpellcraftMode.Combat) EnterDrawing();
-                else ExitDrawing();
-            }
+            // 홀드 방식: 키를 누르면 작도 진입. 해제(판정)는 DrawingInputController가
+            // 키를 뗀 시점에 인식을 마치고 CompleteDrawing()을 불러 처리한다.
+            if (Mode == SpellcraftMode.Combat && _config != null && Input.GetKeyDown(_config.ToggleKey))
+                EnterDrawing();
         }
 
         private void EnterDrawing()
