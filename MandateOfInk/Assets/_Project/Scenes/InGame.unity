@@ -265,6 +265,7 @@ MonoBehaviour:
   _library: {fileID: 11400000, guid: 298a165d582e7ab44873ab669ee47775, type: 2}
   _viewCamera: {fileID: 609849321}
   _config: {fileID: 11400000, guid: 479fae067a5afe54789741a604ebbaf8, type: 2}
+  _inkPool: {fileID: 7685886781228776626}
   _initialTemplateDir: _Project/Data/JamoTemplates/Initials
   _medialTemplateDir: _Project/Data/JamoTemplates/Medials
   _successFadeSeconds: 0.45
@@ -286,6 +287,8 @@ MonoBehaviour:
   _inkColor: {r: 0.02, g: 0.02, b: 0.02, a: 1}
   _bleedMultiplier: 1.62
   _bleedSeconds: 0.9
+  _quarterGlyphScale: 3
+  _quarterGlyphHeight: 2.4
 --- !u!4 &567837088
 Transform:
   m_ObjectHideFlags: 0
@@ -1105,12 +1108,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: MandateOfInk.Spellcraft::MandateOfInk.Spellcraft.BrushViewModel
   _modeController: {fileID: 1926037792}
   _viewCamera: {fileID: 609849321}
-  _followLerpSpeed: 12
+  _anchorLocal: {x: 0.42, y: -0.45, z: 0.5}
+  _brushLength: 0.8
   _drawPlaneDistance: 0.6
-  _tipOffset: {x: 0.02, y: -0.06, z: 0.05}
-  _restLocalPosition: {x: 0.35, y: -0.3, z: 0.7}
-  _restLocalEuler: {x: -15, y: 5, z: 0}
-  _drawLocalEuler: {x: -65, y: 0, z: 0}
+  _stretchClamp: {x: 0.55, y: 1.8}
+  _followLerpSpeed: 14
+  _restLocalPosition: {x: 0.38, y: -0.4, z: 0.55}
+  _restLocalEuler: {x: -12, y: 6, z: 0}
 --- !u!1001 &1914805859
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1121,15 +1125,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.18428437
+      value: 0.42105263
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.18428437
+      value: 0.42105263
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.18428437
+      value: 0.42105263
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1141,7 +1145,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.22
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1557,6 +1561,10 @@ GameObject:
   - component: {fileID: 7685886781228776623}
   - component: {fileID: 7685886781228776624}
   - component: {fileID: 7685886781228776625}
+  - component: {fileID: 7685886781228776626}
+  - component: {fileID: 7685886781228776629}
+  - component: {fileID: 7685886781228776628}
+  - component: {fileID: 7685886781228776627}
   m_Layer: 8
   m_Name: PlayerCapsule
   m_TagString: Player
@@ -2277,6 +2285,61 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.PlayerHealth
   _config: {fileID: 11400000, guid: 71df8e4729c586f44aa04655900a0918, type: 2}
+--- !u!114 &7685886781228776626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453084650675967582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a07eedf53fc0e845bffc6d50899d469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MandateOfInk.Spellcraft::MandateOfInk.Spellcraft.InkPool
+  _config: {fileID: 11400000, guid: 2d8ec9427fc3f5b40837c480db7224cf, type: 2}
+--- !u!114 &7685886781228776627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453084650675967582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbbacc58002e92d47b718a552b54d115, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.InkGrindController
+  _config: {fileID: 11400000, guid: 2d8ec9427fc3f5b40837c480db7224cf, type: 2}
+  _inkPool: {fileID: 7685886781228776626}
+--- !u!114 &7685886781228776628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453084650675967582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efa9a044b8acd924e8b95e68ad54cd89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.MeleeAttack
+  _config: {fileID: 11400000, guid: 2d8ec9427fc3f5b40837c480db7224cf, type: 2}
+  _modeController: {fileID: 1926037792}
+  _inkPool: {fileID: 7685886781228776626}
+--- !u!114 &7685886781228776629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453084650675967582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7df568ad4e8070843b81694f1962f6f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.DodgeController
+  _config: {fileID: 11400000, guid: 2d8ec9427fc3f5b40837c480db7224cf, type: 2}
 --- !u!114 &8967929480435846179
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -19,6 +19,7 @@ namespace MandateOfInk.Spellcraft
 
         [Header("판정 — 홀드 키를 떼면 확정 (키·임계는 SpellcraftModeConfigSO)")]
         [SerializeField] private SpellcraftModeConfigSO _config;
+        [SerializeField] private InkPool _inkPool; // 먹 소모 (없으면 무료 — 프로토 폴백)
         [SerializeField] private string _initialTemplateDir = "_Project/Data/JamoTemplates/Initials";
         [SerializeField] private string _medialTemplateDir = "_Project/Data/JamoTemplates/Medials";
 
@@ -244,6 +245,13 @@ namespace MandateOfInk.Spellcraft
             float power = isWeak && _config != null ? _config.WeakCastPowerMultiplier : 1f;
 
             var diagram = _library.FindByJamo(initial, medial, "") ?? _library.FindByJamo(initial, "ㅏ", "");
+
+            // 먹 소모 — 부족하면 쥐어짜기(잔량 비율만큼 약해진 채 발동, 잔량 전부 소모)
+            if (diagram != null && _inkPool != null)
+            {
+                float inkPower = _inkPool.TrySpendForCast(diagram.InkCost);
+                if (inkPower < 0.999f) { isWeak = true; power *= inkPower; }
+            }
             Debug.Log($"[Drawing] 분할 인식 {initial}+{medial} (최악 자모 거리 {worstJamoDistance:F2}, {sw.Elapsed.TotalMilliseconds:F1}ms, {strokeCount}획) -> 「{(diagram != null ? diagram.Letter : "없음")}」{(isWeak ? " [약발동]" : "")}");
 
             if (diagram != null)
