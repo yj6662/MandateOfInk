@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 301c0580e9c8a584dbb16c5cef18b500, type: 3}
+  m_Name: FinalModifierConfig
+  m_EditorClassIdentifier: MandateOfInk.Data::MandateOfInk.Data.FinalModifierConfigSO
+  BindMoveMultiplier: 0.25
+  BindSeconds: 2.5
+  SustainSeconds: 3
+  SustainTickInterval: 0.5
+  SustainTickFraction: 0.3
+  MarkSeconds: 8
+  TriggerBonusMultiplier: 2.2
+  TriggerBurstDiameter: 3.5
+  PierceMaxTargets: 3
+  ChainMaxJumps: 3
+  ChainRadius: 8
+  ChainDamageFalloff: 0.7

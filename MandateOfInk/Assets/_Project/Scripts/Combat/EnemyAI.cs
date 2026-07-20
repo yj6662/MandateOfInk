@@ -38,6 +38,7 @@ namespace MandateOfInk.Combat
         private Pattern _pattern;
         private float _timer;
         private EnemyHealth _health;
+        private EnemyStatus _status; // 속박(ㄱ받침) 감속 — 런타임에 부착되므로 지연 조회
         private Transform _player;
         private Renderer _renderer;
         private MaterialPropertyBlock _mpb;
@@ -74,7 +75,9 @@ namespace MandateOfInk.Combat
 
                 case State.Chase:
                     FacePlayer();
-                    transform.position += transform.forward * (def.MoveSpeed * Time.deltaTime);
+                    if (_status == null) TryGetComponent(out _status);
+                    float slow = _status != null ? _status.MoveMultiplier : 1f;
+                    transform.position += transform.forward * (def.MoveSpeed * slow * Time.deltaTime);
                     if (dist <= _attackRange) { ChoosePattern(); }
                     else if (dist > _detectRange * 1.5f) _state = State.Idle;
                     break;

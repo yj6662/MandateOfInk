@@ -16,10 +16,18 @@ namespace MandateOfInk.Combat
         private ElementRelationTableSO _relationTable;
         private Material _material;
         private Color _baseColor;
+        private FinalModifier _modifier = FinalModifier.None;
+        private FinalModifierConfigSO _config;
+        private bool _installOnly;
 
         public void Init(float radius, float expandSeconds, float damage, Element element,
-            ElementRelationTableSO relationTable, Material material)
+            ElementRelationTableSO relationTable, Material material,
+            FinalModifier modifier = FinalModifier.None, FinalModifierConfigSO config = null,
+            bool installOnly = false)
         {
+            _modifier = modifier;
+            _config = config;
+            _installOnly = installOnly;
             _maxDiameter = radius * 2f;
             _expandSeconds = Mathf.Max(expandSeconds, 0.1f);
             _damage = damage;
@@ -49,12 +57,32 @@ namespace MandateOfInk.Combat
             if (enemy == null || _alreadyHit.Contains(enemy)) return;
             _alreadyHit.Add(enemy);
 
+            // ㅁ격발 설치(광역판) — 범위 내 모든 적에게 표식만 심는다
+            if (_installOnly && _config != null)
+            {
+                EnemyStatus.GetOrAdd(enemy).InstallMark(_element,
+                    _config.MarkSeconds, _config.TriggerBonusMultiplier, _config.TriggerBurstDiameter, _baseColor);
+                return;
+            }
+
             float multiplier = 1f;
             if (_relationTable != null && enemy.Definition != null)
                 multiplier = _relationTable.GetMultiplier(_element, enemy.Definition.Element);
+            float damage = _damage * multiplier;
+
+            var status = enemy.GetComponent<EnemyStatus>();
+            if (status != null && status.TryDetonateMark(damage, out float bonus)) damage += bonus;
+
             Debug.Log($"[Spell] 광역 {_element} -> {enemy.Definition?.Element} 배율 {multiplier:F2}");
-            enemy.TakeDamage(_damage * multiplier);
+            enemy.TakeDamage(damage);
             SpellVisuals.SpawnBurst(enemy.transform.position + Vector3.up * 1f, _baseColor, 0.9f);
+
+            if (_config == null) return;
+            if (_modifier == FinalModifier.Bind)
+                EnemyStatus.GetOrAdd(enemy).ApplyBind(_config.BindMoveMultiplier, _config.BindSeconds, _baseColor);
+            else if (_modifier == FinalModifier.Sustain)
+                EnemyStatus.GetOrAdd(enemy).ApplyDot(_damage * _config.SustainTickFraction,
+                    _config.SustainTickInterval, _config.SustainSeconds, _baseColor);
         }
 
         private void OnDestroy()

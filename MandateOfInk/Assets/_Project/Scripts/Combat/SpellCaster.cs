@@ -14,6 +14,7 @@ namespace MandateOfInk.Combat
         [SerializeField] private ElementRelationTableSO _relationTable;
         [SerializeField] private DiagramEventChannelSO _diagramDrawn;
         [SerializeField] private ElementPaletteSO _palette;
+        [SerializeField] private FinalModifierConfigSO _modifierConfig; // 종성(받침) 거동 수치
 
         [Header("[가정] 투사체 (공격·단일)")]
         [SerializeField] private float _projectileSpeed = 25f;
@@ -62,6 +63,8 @@ namespace MandateOfInk.Combat
         {
             var diagram = request.Diagram;
             if (diagram == null) return;
+            if (_modifierConfig == null && diagram.Modifier != FinalModifier.None)
+                Debug.LogWarning("[Spell] FinalModifierConfig 미배선 — 받침 거동이 무시됩니다");
 
             Color color = _palette != null ? _palette.GetColor(diagram.Element) : Color.white;
             if (request.IsWeak)
@@ -82,8 +85,9 @@ namespace MandateOfInk.Combat
                     CastShield(diagram, request, color);
                     break;
                 case DiagramCategory.TriggerInstall:
-                    // 종성 인식(D12) 도입 전에는 발동 경로가 없다 — 스텁
-                    Debug.Log($"[Spell] 「{diagram.Letter}」 상합 설치는 종성 인식(D12) 후 구현 예정");
+                    // ㅁ받침: 피해 대신 격발 표식을 심는다 — 표식이 있는 적을 다음 술식으로 때리면 격발
+                    if (diagram.Scope == Scope.Area) CastAreaBlast(diagram, request, color, installOnly: true);
+                    else CastProjectile(diagram, request, color, installOnly: true);
                     break;
             }
         }
@@ -102,8 +106,8 @@ namespace MandateOfInk.Combat
             return 5f; // [가정]
         }
 
-        // 공격·단일(ㅏ): 반투명 구 투사체 + 글자
-        private void CastProjectile(SpellDiagramSO diagram, DiagramCastRequest request, Color color)
+        // 공격·단일(ㅏ): 반투명 구 투사체 + 글자. installOnly면 피해 대신 격발 표식 설치.
+        private void CastProjectile(SpellDiagramSO diagram, DiagramCastRequest request, Color color, bool installOnly = false)
         {
             float scale = request.IsWeak ? 0.5f : 1f;
             var go = SpellVisuals.CreateTranslucent(PrimitiveType.Sphere, color,
@@ -113,13 +117,14 @@ namespace MandateOfInk.Combat
             var rb = go.AddComponent<Rigidbody>();
             rb.isKinematic = true;
             go.AddComponent<SpellProjectile>().Init(_projectileSpeed, GetDamage(diagram, request),
-                diagram.Element, _relationTable, _projectileLifetime, color);
+                diagram.Element, _relationTable, _projectileLifetime, color,
+                diagram.Modifier, _modifierConfig, installOnly);
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.4f * scale, _letterColor);
-            Log(diagram, request, "투사체");
+            Log(diagram, request, installOnly ? "격발 표식 투사체" : "투사체");
         }
 
-        // 공격·영역(ㅗ): 몸 중심 팽창 파동 + 글자
-        private void CastAreaBlast(SpellDiagramSO diagram, DiagramCastRequest request, Color color)
+        // 공격·영역(ㅗ): 몸 중심 팽창 파동 + 글자. installOnly면 범위 내 적 전원에 격발 표식 설치.
+        private void CastAreaBlast(SpellDiagramSO diagram, DiagramCastRequest request, Color color, bool installOnly = false)
         {
             var origin = PlayerRoot != null ? PlayerRoot.position + Vector3.up * 1f : transform.position;
             float radius = _areaRadius * (request.IsWeak ? 0.7f : 1f);
@@ -128,9 +133,10 @@ namespace MandateOfInk.Combat
             go.transform.position = origin;
             var mat = go.GetComponent<MeshRenderer>().material;
             go.AddComponent<SpellAreaBlast>().Init(radius, _areaExpandSeconds,
-                GetDamage(diagram, request), diagram.Element, _relationTable, mat);
+                GetDamage(diagram, request), diagram.Element, _relationTable, mat,
+                diagram.Modifier, _modifierConfig, installOnly);
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.6f, _letterColor);
-            Log(diagram, request, "광역 파동");
+            Log(diagram, request, installOnly ? "격발 표식 파동" : "광역 파동");
         }
 
         // 방어(ㅓ=전방 막 / ㅜ=광역 돔): 플레이어를 따라다니는 반투명 방벽 + 글자
