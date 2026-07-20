@@ -88,9 +88,15 @@ namespace MandateOfInk.Combat
 
             var status = Target.GetComponent<EnemyStatus>();
             bool groggy = status != null && status.IsGroggy;
+            bool armed = status != null && status.HasMark; // 격발 표식 부착 = 「장전됨」(전투코어루프 §6)
             var prevColor = GUI.color;
             GUI.color = groggy ? new Color(0.98f, 0.82f, 0.25f) : Color.white;
             GUI.Label(new Rect(sp.x - 24f, Screen.height - sp.y - 20f, 48f, 40f), groggy ? "틈" : "◎", _reticleStyle);
+            if (armed && !groggy)
+            {
+                GUI.color = new Color(0.85f, 0.65f, 0.25f);
+                GUI.Label(new Rect(sp.x - 24f, Screen.height - sp.y + 12f, 48f, 30f), "장전", _reticleStyle);
+            }
             GUI.color = prevColor;
         }
     }

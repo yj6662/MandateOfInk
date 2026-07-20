@@ -32,12 +32,13 @@ namespace MandateOfInk.Combat
 
         private void OnTriggerEnter(Collider other)
         {
-            // 플레이어 방어 진 — 상극 3단 판정(받아치기/차단/막 파괴)은 방어 진의 몫
+            // 플레이어 방어 진 — 상극 3단 판정은 방어 진의 몫.
+            // 정반대 속성이면 막히지 않고(false) 그대로 뚫고 지나간다.
             var shield = other.GetComponentInParent<SpellShield>();
             if (shield != null)
             {
-                shield.ReceiveProjectile(_element, _owner, transform.position);
-                Destroy(gameObject);
+                if (shield.ReceiveProjectile(_element, _owner, transform.position, _damage))
+                    Destroy(gameObject);
                 return;
             }
             if (other.isTrigger) return;                                  // 다른 트리거 무시

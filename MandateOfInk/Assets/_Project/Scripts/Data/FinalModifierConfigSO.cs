@@ -19,10 +19,12 @@ namespace MandateOfInk.Data
         [Tooltip("틱당 피해 = 본 피해 x 이 비율")]
         [Range(0f, 1f)] public float SustainTickFraction = 0.3f;
 
-        [Header("ㅁ(토) 격발 — 표식 설치, 다음 술식 적중 시 격발")]
+        [Header("ㅁ(토) 격발 — 음 진으로 설치, 양(陽) 진이 닿으면 격발 (작도설계안 §5)")]
         public float MarkSeconds = 8f;
-        [Tooltip("격발 보너스 = 격발시킨 타격 피해 x 이 배율")]
-        public float TriggerBonusMultiplier = 2.2f;
+        [Tooltip("격발 보너스 = 대상 MaxPoise 대비 그로기 축적 비율 — M1은 그로기 대폭")]
+        [Range(0f, 1f)] public float TriggerPoiseFraction = 0.65f;
+        [Tooltip("동시에 유지되는 설치 상한 — 사방 도배 방지")]
+        public int MaxActiveMarks = 3;
         [Tooltip("격발 폭발 표현 지름")]
         public float TriggerBurstDiameter = 3.5f;
 

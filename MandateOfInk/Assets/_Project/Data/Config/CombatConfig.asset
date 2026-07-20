@@ -27,3 +27,16 @@ MonoBehaviour:
   SqueezeMinPower: 0.2
   GrindPerSecond: 30
   GrindStartDelay: 0.35
+  GroggySeconds: 3
+  GroggyDamageMultiplier: 1.5
+  PoiseRegenPerSecond: 6
+  SpellPoiseFraction: 0.1
+  MeleePoiseDamage: 1
+  ParryPoiseFraction: 0.45
+  JustParryWindowSeconds: 0.5
+  JustParryPoiseFraction: 0.75
+  ParryInkRefund: 12
+  ParryAdvantageThreshold: 1.25
+  ShieldBreakThreshold: 0.75
+  NeutralBlockDamageThrough: 0.4
+  NeutralBlockPoiseFraction: 0.1

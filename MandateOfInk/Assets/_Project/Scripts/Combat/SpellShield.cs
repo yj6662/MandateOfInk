@@ -18,7 +18,9 @@ namespace MandateOfInk.Combat
         private Element _element;
         private ElementRelationTableSO _relationTable;
         private CombatConfigSO _combatConfig;
-        private InkPool _inkPool; // 받아치기 먹 환급 — 첫 성공 시 지연 조회
+        private InkPool _inkPool;         // 저스트 먹 환급 — 첫 성공 시 지연 조회
+        private PlayerHealth _player;     // 중립 관통 피해 — 지연 조회
+        private float _spawnTime;         // 저스트 창 판정 기준(막 완성 시각)
 
         public void Init(float duration, Material material,
             Element element = Element.Water, ElementRelationTableSO relationTable = null,
@@ -30,40 +32,58 @@ namespace MandateOfInk.Combat
             _element = element;
             _relationTable = relationTable;
             _combatConfig = combatConfig;
+            _spawnTime = Time.time;
         }
 
-        // 적 투사체가 닿았을 때 (EnemyProjectile이 호출) — 상극 3단 판정
-        public void ReceiveProjectile(Element attackElement, EnemyHealth attacker, Vector3 hitPosition)
+        // 적 투사체가 닿았을 때 (EnemyProjectile이 호출) — 상극 3단 판정(전투코어루프 §3).
+        // 반환 = 막았는가. false면 투사체가 막히지 않고 그대로 통과한다(정반대 속성 = 실패).
+        public bool ReceiveProjectile(Element attackElement, EnemyHealth attacker, Vector3 hitPosition, float damage)
         {
             float advantage = _relationTable != null
                 ? _relationTable.GetMultiplier(_element, attackElement) : 1f;
 
-            // 우세: 받아치기 성공 — 공격자를 크게 휘청이게 하고, 정확한 상극 읽기를 먹으로 보상한다
+            // 상극: 완전 무효 — 깨끗이 받아낸다. 막 완성 직후면 「막 받아치기(저스트)」로 추가 보상.
             if (_combatConfig != null && advantage >= _combatConfig.ParryAdvantageThreshold)
             {
-                SpellVisuals.SpawnBurst(hitPosition, new Color(1f, 0.9f, 0.4f, 0.7f), 1.6f, 0.3f); // 금빛 쳐내기
+                bool just = Time.time - _spawnTime <= _combatConfig.JustParryWindowSeconds;
+                float fraction = just ? _combatConfig.JustParryPoiseFraction : _combatConfig.ParryPoiseFraction;
+                SpellVisuals.SpawnBurst(hitPosition, new Color(1f, 0.9f, 0.4f, 0.7f), just ? 2.4f : 1.6f, 0.3f);
                 if (attacker != null && attacker.Definition != null)
+                    EnemyStatus.GetOrAdd(attacker).AddPoise(attacker.Definition.MaxPoise * fraction, _combatConfig);
+                if (just)
                 {
-                    float poise = attacker.Definition.MaxPoise * _combatConfig.ParryPoiseFraction;
-                    EnemyStatus.GetOrAdd(attacker).AddPoise(poise, _combatConfig);
+                    // 저스트 전용 먹 환급 — 정확+과감한 타이밍의 보상(§5 교전 충전)
+                    if (_inkPool == null) _inkPool = FindFirstObjectByType<InkPool>();
+                    if (_inkPool != null) _inkPool.Add(_combatConfig.ParryInkRefund);
                 }
-                if (_inkPool == null) _inkPool = FindFirstObjectByType<InkPool>();
-                if (_inkPool != null) _inkPool.Add(_combatConfig.ParryInkRefund);
-                Debug.Log($"[Parry] 받아치기 성공! {_element} 극 {attackElement} (배율 {advantage:F2}) 먹 +{_combatConfig.ParryInkRefund}");
-                return;
+                Debug.Log($"[Parry] {(just ? "막 받아치기(저스트)!" : "받아치기 성공")} {_element} 극 {attackElement}" +
+                    $"{(just ? $" 먹 +{_combatConfig.ParryInkRefund}" : "")}");
+                return true;
             }
 
-            // 열세: 막이 깨진다
+            // 정반대(적이 강한 속성): 실패 — 막히지 않는다. 투사체가 그대로 뚫고 지나간다.
             if (_combatConfig != null && advantage <= _combatConfig.ShieldBreakThreshold)
             {
-                SpellVisuals.SpawnBurst(transform.position, _baseColor, 2.2f, 0.35f);
-                Debug.Log($"[Parry] 막 파괴 — {attackElement} 극 {_element} (배율 {advantage:F2})");
-                Destroy(gameObject);
-                return;
+                Debug.Log($"[Parry] 실패 — {attackElement}은(는) {_element} 막에 막히지 않는다");
+                return false;
             }
 
-            // 중립: 그냥 차단
+            // 상생·무관(중립): 약한 막기 — 피해 일부가 관통하고, 그로기는 작게 오른다.
             SpellVisuals.SpawnBurst(hitPosition, _baseColor, 0.7f, 0.25f);
+            if (_combatConfig != null)
+            {
+                float through = damage * _combatConfig.NeutralBlockDamageThrough;
+                if (through > 0f)
+                {
+                    if (_player == null) _player = FindFirstObjectByType<PlayerHealth>();
+                    if (_player != null) _player.TakeDamage(through);
+                }
+                if (attacker != null && attacker.Definition != null)
+                    EnemyStatus.GetOrAdd(attacker).AddPoise(
+                        attacker.Definition.MaxPoise * _combatConfig.NeutralBlockPoiseFraction, _combatConfig);
+                Debug.Log($"[Parry] 약한 막기 — 피해 {through:F1} 관통 ({_element} vs {attackElement})");
+            }
+            return true;
         }
 
         private void Update()

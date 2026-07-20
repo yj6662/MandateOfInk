@@ -119,7 +119,8 @@ namespace MandateOfInk.Combat
             rb.isKinematic = true;
             go.AddComponent<SpellProjectile>().Init(_projectileSpeed, GetDamage(diagram, request),
                 diagram.Element, _relationTable, _projectileLifetime, color,
-                diagram.Modifier, _modifierConfig, installOnly, combatConfig: _combatConfig);
+                diagram.Modifier, _modifierConfig, installOnly,
+                combatConfig: _combatConfig, polarity: diagram.Polarity);
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.4f * scale, _letterColor);
             Log(diagram, request, installOnly ? "격발 표식 투사체" : "투사체");
         }
@@ -135,7 +136,7 @@ namespace MandateOfInk.Combat
             var mat = go.GetComponent<MeshRenderer>().material;
             go.AddComponent<SpellAreaBlast>().Init(radius, _areaExpandSeconds,
                 GetDamage(diagram, request), diagram.Element, _relationTable, mat,
-                diagram.Modifier, _modifierConfig, installOnly, _combatConfig);
+                diagram.Modifier, _modifierConfig, installOnly, _combatConfig, diagram.Polarity);
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.6f, _letterColor);
             Log(diagram, request, installOnly ? "격발 표식 파동" : "광역 파동");
         }

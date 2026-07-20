@@ -20,6 +20,7 @@ namespace MandateOfInk.Combat
         private FinalModifier _modifier = FinalModifier.None;
         private FinalModifierConfigSO _config;
         private CombatConfigSO _combatConfig;
+        private Polarity _polarity = Polarity.Yang;
         private bool _installOnly;
         private int _pierceLeft = 1;
         private int _chainJumpsLeft;
@@ -29,9 +30,10 @@ namespace MandateOfInk.Combat
             ElementRelationTableSO relationTable, float lifetime, Color elementColor,
             FinalModifier modifier = FinalModifier.None, FinalModifierConfigSO config = null,
             bool installOnly = false, HashSet<EnemyHealth> visited = null, int chainJumpsLeft = -1,
-            CombatConfigSO combatConfig = null)
+            CombatConfigSO combatConfig = null, Polarity polarity = Polarity.Yang)
         {
             _combatConfig = combatConfig;
+            _polarity = polarity;
             _speed = speed;
             _damage = damage;
             _element = element;
@@ -80,11 +82,11 @@ namespace MandateOfInk.Combat
 
         private void HitEnemy(EnemyHealth enemy)
         {
-            // ㅁ격발 설치 — 피해 대신 표식만 심는다
+            // ㅁ격발 설치 — 피해 대신 표식만 심는다 (C4식 부착)
             if (_installOnly && _config != null)
             {
-                EnemyStatus.GetOrAdd(enemy).InstallMark(_element,
-                    _config.MarkSeconds, _config.TriggerBonusMultiplier, _config.TriggerBurstDiameter, _elementColor);
+                EnemyStatus.GetOrAdd(enemy).InstallMark(_element, _config.MarkSeconds,
+                    _config.TriggerPoiseFraction, _config.TriggerBurstDiameter, _elementColor, _config.MaxActiveMarks);
                 return;
             }
 
@@ -93,9 +95,9 @@ namespace MandateOfInk.Combat
                 multiplier = _relationTable.GetMultiplier(_element, enemy.Definition.Element);
             float damage = _damage * multiplier;
 
-            // 표식이 있으면 격발 — 보너스 피해 합산
+            // 양(陽) 진만 표식을 격발한다 — 보너스는 그로기 대폭(작도설계안 §5)
             var status = enemy.GetComponent<EnemyStatus>();
-            if (status != null && status.TryDetonateMark(damage, out float bonus)) damage += bonus;
+            if (status != null && _polarity == Polarity.Yang) status.TryDetonateMark(_combatConfig);
             // 그로기 중이면 받는 피해 증가
             if (status != null) damage *= status.GroggyDamageMultiplier;
 
@@ -145,7 +147,7 @@ namespace MandateOfInk.Combat
             rb.isKinematic = true;
             go.AddComponent<SpellProjectile>().Init(_speed, _damage * _config.ChainDamageFalloff,
                 _element, _relationTable, 3f, _elementColor,
-                FinalModifier.Chain, _config, false, _alreadyHit, _chainJumpsLeft - 1, _combatConfig);
+                FinalModifier.Chain, _config, false, _alreadyHit, _chainJumpsLeft - 1, _combatConfig, _polarity);
             Debug.Log($"[Spell] 연쇄 점프 -> {next.name} (남은 점프 {_chainJumpsLeft - 1})");
         }
     }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MandateOfInk.Data;
 using UnityEngine;
 
@@ -34,10 +35,11 @@ namespace MandateOfInk.Combat
         public bool IsGroggy => Time.time < _groggyUntil;
         public float GroggyDamageMultiplier => IsGroggy ? _groggyDamageMultiplier : 1f;
 
-        // 격발 표식
+        // 격발 표식 — 동시 설치 상한(도배 방지)을 위해 보유자를 전역 등록한다
+        private static readonly List<EnemyStatus> ActiveMarkHolders = new List<EnemyStatus>();
         private Element _markElement;
         private float _markUntil;
-        private float _markBonusMultiplier;
+        private float _markPoiseFraction;
         private float _markBurstDiameter;
         private Color _markColor;
         private GameObject _markVisual;
@@ -72,7 +74,7 @@ namespace MandateOfInk.Combat
             // 만료된 표시 정리
             if (_bindVisual != null && Time.time >= _slowUntil) Destroy(_bindVisual);
             if (_dotVisual != null && Time.time >= _dotUntil) Destroy(_dotVisual);
-            if (_markVisual != null && Time.time >= _markUntil) Destroy(_markVisual);
+            if (_markVisual != null && Time.time >= _markUntil) ClearMark(); // 시간 만료 = 불발
             if (_groggyVisual != null && !IsGroggy) Destroy(_groggyVisual);
         }
 
@@ -114,30 +116,55 @@ namespace MandateOfInk.Combat
             Debug.Log($"[Status] {name} 지속 피해 {seconds:F1}s (틱 {damagePerTick:F1})");
         }
 
-        // ㅁ(토) 격발 표식 설치
-        public void InstallMark(Element element, float seconds, float bonusMultiplier, float burstDiameter, Color color)
+        // ㅁ(토) 격발 표식 설치 — 동시 상한 초과 시 가장 오래된 설치가 불발로 흩어진다(처벌 없음)
+        public void InstallMark(Element element, float seconds, float poiseFraction,
+            float burstDiameter, Color color, int maxActiveMarks)
         {
+            if (!ActiveMarkHolders.Contains(this))
+            {
+                while (ActiveMarkHolders.Count >= Mathf.Max(maxActiveMarks, 1))
+                {
+                    var oldest = ActiveMarkHolders[0];
+                    Debug.Log($"[Status] {oldest.name} 설치 상한 초과 — 가장 오래된 표식 불발");
+                    oldest.ClearMark();
+                }
+                ActiveMarkHolders.Add(this);
+            }
             _markElement = element;
             _markUntil = Time.time + seconds;
-            _markBonusMultiplier = bonusMultiplier;
+            _markPoiseFraction = poiseFraction;
             _markBurstDiameter = burstDiameter;
             _markColor = color;
             RefreshVisual(ref _markVisual, "ㅁ", color, Vector3.one * 0.5f, Vector3.up * 2.8f);
             Debug.Log($"[Status] {name} 격발 표식 설치 ({element}, {seconds:F1}s)");
         }
 
-        // 표식 격발 시도 — 술식이 적중했을 때 호출. 격발했으면 보너스 피해를 돌려준다.
-        // [가정] 격발 조건 = 아무 술식 적중. 상합 5x5 매트릭스 확정 시 조건을 데이터로 교체.
-        public bool TryDetonateMark(float incomingDamage, out float bonusDamage)
+        // 표식 격발 — 양(陽) 진이 닿았을 때 호출(호출측이 음양을 가른다).
+        // 보너스는 피해가 아니라 「그로기 대폭」(작도설계안 §5, M1 사양).
+        public bool TryDetonateMark(CombatConfigSO combatConfig)
         {
-            bonusDamage = 0f;
-            if (!HasMark) return false;
+            if (!HasMark || combatConfig == null) return false;
+            float poise = (_health.Definition != null ? _health.Definition.MaxPoise : 50f) * _markPoiseFraction;
+            var color = _markColor;
+            float dia = _markBurstDiameter;
+            var element = _markElement;
+            ClearMark();
+            SpellVisuals.SpawnBurst(transform.position + Vector3.up * 1.2f, color, dia, 0.4f);
+            Debug.Log($"[Status] {name} 표식 격발! 그로기 +{poise:F1} ({element})");
+            AddPoise(poise, combatConfig);
+            return true;
+        }
+
+        private void ClearMark()
+        {
             _markUntil = 0f;
             if (_markVisual != null) Destroy(_markVisual);
-            bonusDamage = incomingDamage * _markBonusMultiplier;
-            SpellVisuals.SpawnBurst(transform.position + Vector3.up * 1.2f, _markColor, _markBurstDiameter, 0.4f);
-            Debug.Log($"[Status] {name} 표식 격발! 보너스 {bonusDamage:F1} ({_markElement})");
-            return true;
+            ActiveMarkHolders.Remove(this);
+        }
+
+        private void OnDestroy()
+        {
+            ActiveMarkHolders.Remove(this);
         }
 
         // 상태 표시: 반투명 프리미티브 + 받침 글자 (기존 표현 문법 준수)
