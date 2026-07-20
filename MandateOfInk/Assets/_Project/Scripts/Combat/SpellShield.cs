@@ -1,4 +1,5 @@
 using MandateOfInk.Data;
+using MandateOfInk.Spellcraft;
 using UnityEngine;
 
 namespace MandateOfInk.Combat
@@ -17,6 +18,7 @@ namespace MandateOfInk.Combat
         private Element _element;
         private ElementRelationTableSO _relationTable;
         private CombatConfigSO _combatConfig;
+        private InkPool _inkPool; // 받아치기 먹 환급 — 첫 성공 시 지연 조회
 
         public void Init(float duration, Material material,
             Element element = Element.Water, ElementRelationTableSO relationTable = null,
@@ -36,7 +38,7 @@ namespace MandateOfInk.Combat
             float advantage = _relationTable != null
                 ? _relationTable.GetMultiplier(_element, attackElement) : 1f;
 
-            // 우세: 받아치기 성공 — 공격자를 크게 휘청이게 한다
+            // 우세: 받아치기 성공 — 공격자를 크게 휘청이게 하고, 정확한 상극 읽기를 먹으로 보상한다
             if (_combatConfig != null && advantage >= _combatConfig.ParryAdvantageThreshold)
             {
                 SpellVisuals.SpawnBurst(hitPosition, new Color(1f, 0.9f, 0.4f, 0.7f), 1.6f, 0.3f); // 금빛 쳐내기
@@ -45,7 +47,9 @@ namespace MandateOfInk.Combat
                     float poise = attacker.Definition.MaxPoise * _combatConfig.ParryPoiseFraction;
                     EnemyStatus.GetOrAdd(attacker).AddPoise(poise, _combatConfig);
                 }
-                Debug.Log($"[Parry] 받아치기 성공! {_element} 극 {attackElement} (배율 {advantage:F2})");
+                if (_inkPool == null) _inkPool = FindFirstObjectByType<InkPool>();
+                if (_inkPool != null) _inkPool.Add(_combatConfig.ParryInkRefund);
+                Debug.Log($"[Parry] 받아치기 성공! {_element} 극 {attackElement} (배율 {advantage:F2}) 먹 +{_combatConfig.ParryInkRefund}");
                 return;
             }
 

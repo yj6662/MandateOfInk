@@ -1,8 +1,7 @@
 {
   "dependencies": {
     "com.cysharp.unitask": "2.5.11",
-    "jp.hadashikick.vcontainer": "1.19.0",
-    "com.ivanmurzak.unity.mcp": "0.84.3",
+    "com.ivanmurzak.unity.mcp": "0.85.1",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ads": "4.16.4",
@@ -20,6 +19,7 @@
     "com.unity.timeline": "1.8.10",
     "com.unity.ugui": "2.0.0",
     "com.unity.xr.legacyinputhelpers": "2.1.13",
+    "jp.hadashikick.vcontainer": "1.19.0",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.adaptiveperformance": "1.0.0",
     "com.unity.modules.ai": "1.0.0",

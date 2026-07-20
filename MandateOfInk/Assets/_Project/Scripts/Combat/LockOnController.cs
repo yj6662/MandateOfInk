@@ -73,7 +73,8 @@ namespace MandateOfInk.Combat
             Debug.Log(Target != null ? $"[LockOn] {Target.name} ({best:F1}m)" : "[LockOn] 범위 내 대상 없음");
         }
 
-        // 최소 HUD 허용 항목: 락온 레티클 (프로토 임시 표시)
+        // 최소 HUD 허용 항목: 락온 레티클 (프로토 임시 표시).
+        // 대상이 그로기면 레티클이 금빛 「틈」으로 바뀐다 — 폭딜 창을 조준선에서 바로 읽는다.
         private void OnGUI()
         {
             if (Target == null) return;
@@ -84,7 +85,13 @@ namespace MandateOfInk.Combat
 
             if (_reticleStyle == null)
                 _reticleStyle = new GUIStyle(GUI.skin.label) { fontSize = 28, alignment = TextAnchor.MiddleCenter };
-            GUI.Label(new Rect(sp.x - 20f, Screen.height - sp.y - 20f, 40f, 40f), "◎", _reticleStyle);
+
+            var status = Target.GetComponent<EnemyStatus>();
+            bool groggy = status != null && status.IsGroggy;
+            var prevColor = GUI.color;
+            GUI.color = groggy ? new Color(0.98f, 0.82f, 0.25f) : Color.white;
+            GUI.Label(new Rect(sp.x - 24f, Screen.height - sp.y - 20f, 48f, 40f), groggy ? "틈" : "◎", _reticleStyle);
+            GUI.color = prevColor;
         }
     }
 }

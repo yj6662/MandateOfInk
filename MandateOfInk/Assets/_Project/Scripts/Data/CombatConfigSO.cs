@@ -54,5 +54,7 @@ namespace MandateOfInk.Data
         public float ParryAdvantageThreshold = 1.25f;
         [Tooltip("방어->공격 상성 배율이 이 이하면 열세 = 막이 깨진다")]
         public float ShieldBreakThreshold = 0.75f;
+        [Tooltip("받아치기 성공 시 먹 환급 — 정확한 상극 읽기의 보상")]
+        public float ParryInkRefund = 12f;
     }
 }
