@@ -62,6 +62,10 @@ namespace MandateOfInk.Spellcraft
         [SerializeField] private float _bleedMultiplier = 1.62f;
         [SerializeField] private float _bleedSeconds = 1.1f;
 
+        [Header("[가정] 쿼터뷰 표시 — 1인칭이 아닐 때 글자를 머리 위에 크게 띄운다")]
+        [SerializeField] private float _quarterGlyphScale = 3f;
+        [SerializeField] private float _quarterGlyphHeight = 2.4f;
+
         private static readonly string[] MedialKeys = { "ㅏ", "ㅓ", "ㅗ", "ㅜ" };
         private static readonly string[] MedialTags = { "a", "eo", "o", "u" };
 
@@ -79,6 +83,8 @@ namespace MandateOfInk.Spellcraft
         private float _noiseSeed;
         private Material _inkMaterial;
         private bool _recordMode;
+        private Transform _strokeRoot;  // 획들을 담는 루트 — 시점에 따라 위치·크기를 바꾼다
+        private Transform _playerRoot;
 
         private void Start()
         {
@@ -89,6 +95,11 @@ namespace MandateOfInk.Spellcraft
                 mainTexture = _brushAtlas != null ? (Texture)_brushAtlas : InkStroke.CreateBrushAtlas()
             };
             if (_brushAtlas == null) _brushAtlasRows = InkStroke.ProceduralAtlasRows;
+
+            var rootGo = new GameObject("InkStrokeRoot");
+            rootGo.transform.SetParent(_viewCamera.transform, false);
+            _strokeRoot = rootGo.transform;
+
             LoadAllTemplates();
         }
 
@@ -121,6 +132,7 @@ namespace MandateOfInk.Spellcraft
 
             HandleStroke();
             AnimateBleed();
+            UpdateStrokeRootPose();
 
             if (_recordMode) { HandleRecordKeys(); return; } // 등록 모드는 키를 떼도 유지(F2로 종료)
 
@@ -130,6 +142,39 @@ namespace MandateOfInk.Spellcraft
                 if (_points.Count >= 8) RecognizeLetter();
                 else { ClearDrawing(); _modeController.CompleteDrawing(); } // 그리다 만 것은 취소
             }
+        }
+
+        // 1인칭이면 획 루트를 뷰모델 카메라에 밀착(기본), 쿼터뷰(다른 MainCamera 활성)면
+        // 플레이어 머리 위에 확대·빌보드로 띄워 어느 시점에서도 작도가 읽히게 한다.
+        private void UpdateStrokeRootPose()
+        {
+            if (_strokeRoot == null || _viewCamera == null) return;
+            var activeCam = Camera.main;
+            bool firstPerson = activeCam == null || activeCam.transform == _viewCamera.transform.parent;
+
+            if (firstPerson)
+            {
+                _strokeRoot.SetParent(_viewCamera.transform, false);
+                _strokeRoot.localPosition = Vector3.zero;
+                _strokeRoot.localRotation = Quaternion.identity;
+                _strokeRoot.localScale = Vector3.one;
+                return;
+            }
+
+            if (_playerRoot == null)
+            {
+                var cc = FindFirstObjectByType<CharacterController>();
+                if (cc != null) _playerRoot = cc.transform;
+                if (_playerRoot == null) return;
+            }
+
+            _strokeRoot.SetParent(null, true);
+            Vector3 anchor = _playerRoot.position + Vector3.up * _quarterGlyphHeight;
+            var rot = Quaternion.LookRotation(anchor - activeCam.transform.position); // 카메라가 -z 쪽 = 글자가 바로 읽힘
+            _strokeRoot.rotation = rot;
+            // 획 점들은 루트 로컬 z≈0.6 평면에 있으므로 그만큼 당겨 글자 중심을 앵커에 맞춘다
+            _strokeRoot.position = anchor - rot * (Vector3.forward * 0.6f * _quarterGlyphScale);
+            _strokeRoot.localScale = Vector3.one * _quarterGlyphScale;
         }
 
         // ---- 인식 (획 그룹 분할) ----
@@ -296,7 +341,7 @@ namespace MandateOfInk.Spellcraft
                 int row = Mathf.Clamp(
                     Mathf.RoundToInt((1f - chargeNow) * (_brushAtlasRows - 1) + Random.Range(-0.7f, 0.7f)),
                     0, _brushAtlasRows - 1);
-                _strokes.Add(new InkStroke(_viewCamera.transform, _inkMaterial,
+                _strokes.Add(new InkStroke(_strokeRoot, _inkMaterial,
                     LayerMask.NameToLayer("ViewModel"), _inkColor, row, _brushAtlasRows, $"InkStroke_{_strokeId}"));
                 _brushScreenPos = Input.mousePosition;
                 _prevSample = _brushScreenPos;

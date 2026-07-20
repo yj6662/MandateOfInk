@@ -25,6 +25,14 @@ namespace MandateOfInk.Combat
 
         private void OnTriggerEnter(Collider other)
         {
+            // 플레이어 방어 진에 막힘 — 트리거 검사보다 먼저 판정한다
+            var shield = other.GetComponentInParent<SpellShield>();
+            if (shield != null)
+            {
+                shield.OnBlocked(transform.position);
+                Destroy(gameObject);
+                return;
+            }
             if (other.isTrigger) return;                                  // 다른 트리거 무시
             if (other.GetComponentInParent<EnemyHealth>() != null) return; // 아군(적) 무시
 

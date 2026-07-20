@@ -766,6 +766,53 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1250626364}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1507704395
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1507704397}
+  - component: {fileID: 1507704396}
+  m_Layer: 0
+  m_Name: DebugTools
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1507704396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1507704395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4fff1ff2751e2b4882f4d20983437b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuarterViewDebugCamera
+  _toggleKey: 284
+  _offset: {x: 0, y: 9, z: -7}
+  _followLerpSpeed: 10
+--- !u!4 &1507704397
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1507704395}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1569272215
 GameObject:
   m_ObjectHideFlags: 0
@@ -2046,10 +2093,16 @@ MonoBehaviour:
   _relationTable: {fileID: 11400000, guid: 5a607ab4b8bb0b24483958072bfec5bb, type: 2}
   _diagramDrawn: {fileID: 11400000, guid: 1dc61555d65734c4ca5002b7df822e17, type: 2}
   _palette: {fileID: 11400000, guid: 43d6932e94e53da4b8795310a2f13826, type: 2}
-  _projectileVfxPrefab: {fileID: 3473529909581181512, guid: bc142210df3ec4545a4e3e1f21e00da7, type: 3}
-  _hitVfxPrefab: {fileID: 5162910912013668194, guid: cf82839c411151342a7b2337bda9fb34, type: 3}
   _projectileSpeed: 25
   _projectileLifetime: 5
+  _projectileDiameter: 0.5
+  _areaRadius: 4.5
+  _areaExpandSeconds: 0.45
+  _shieldWallSize: {x: 2.4, y: 1.8, z: 0.15}
+  _shieldWallDistance: 1.3
+  _shieldDomeDiameter: 4.6
+  _objectAlpha: 0.35
+  _letterColor: {r: 0.05, g: 0.05, b: 0.05, a: 0.95}
 --- !u!4 &5242107653404815106
 Transform:
   m_ObjectHideFlags: 0
@@ -2250,3 +2303,4 @@ SceneRoots:
   - {fileID: 2043874260}
   - {fileID: 567837088}
   - {fileID: 1590812558}
+  - {fileID: 1507704397}

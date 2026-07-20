@@ -3,26 +3,23 @@ using UnityEngine;
 
 namespace MandateOfInk.Combat
 {
-    // 진(도면) 투사체 — 직선 비행, 적 명중 시 상극 배율을 적용해 피해를 준다.
-    // 시전자(SpellCaster)가 Init으로 데이터를 주입한다.
+    // 단일 공격 진(ㅏ) 투사체 — 직선 비행, 적 명중 시 상극 배율 피해. 무엇이든 닿으면 즉시 소멸.
     public sealed class SpellProjectile : MonoBehaviour
     {
         private float _speed;
         private float _damage;
         private Element _element;
         private ElementRelationTableSO _relationTable;
-        private GameObject _hitVfxPrefab;
         private float _lifeRemaining;
         private Color _elementColor = Color.white;
 
         public void Init(float speed, float damage, Element element,
-            ElementRelationTableSO relationTable, GameObject hitVfxPrefab, float lifetime, Color elementColor)
+            ElementRelationTableSO relationTable, float lifetime, Color elementColor)
         {
             _speed = speed;
             _damage = damage;
             _element = element;
             _relationTable = relationTable;
-            _hitVfxPrefab = hitVfxPrefab;
             _lifeRemaining = lifetime;
             _elementColor = elementColor;
         }
@@ -36,8 +33,9 @@ namespace MandateOfInk.Combat
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.isTrigger) return; // 다른 트리거(투사체 등)는 무시
-            if (other.GetComponentInParent<CharacterController>() != null) return; // 시전자(플레이어) 무시
+            if (other.GetComponentInParent<SpellShield>() != null) return;                 // 아군 방어막 통과
+            if (other.isTrigger) return;                                                  // 다른 트리거 무시
+            if (other.GetComponentInParent<CharacterController>() != null) return;        // 시전자 무시
 
             var enemy = other.GetComponentInParent<EnemyHealth>();
             if (enemy != null)
@@ -49,13 +47,7 @@ namespace MandateOfInk.Combat
                 enemy.TakeDamage(_damage * multiplier);
             }
 
-            // 땅·벽·적 무엇이든 닿는 즉시 소멸 — 잔류 오브젝트를 남기지 않는다(최적화)
-            if (_hitVfxPrefab != null)
-            {
-                var vfx = Instantiate(_hitVfxPrefab, transform.position, Quaternion.identity);
-                SpellCaster.TintVfx(vfx, _elementColor); // 명중 연출도 속성 색
-                Destroy(vfx, 3f); // [가정] VFX 잔류 상한 — 파티클 자체 소멸과 별개의 안전장치
-            }
+            SpellVisuals.SpawnBurst(transform.position, _elementColor, 0.9f); // 명중 파열(속성 색)
             Destroy(gameObject);
         }
     }
