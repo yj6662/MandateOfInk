@@ -12,6 +12,10 @@ namespace MandateOfInk.Combat
         private float _lifeRemaining;
         private Element _element;
         private EnemyHealth _owner; // 받아치기 성공 시 포이즈 반격 대상
+        private float _slowMultiplier = 1f; // 목 속박탄: 1 미만이면 명중 시 감속
+        private float _slowSeconds;
+        private float _pullDistance;        // 수 끌물결: 0 초과면 명중 시 시전자 쪽으로 끌어당김
+        private float _pullSeconds;
 
         public void Init(float speed, float damage, float lifetime,
             Element element = Element.Metal, EnemyHealth owner = null)
@@ -21,6 +25,19 @@ namespace MandateOfInk.Combat
             _lifeRemaining = lifetime;
             _element = element;
             _owner = owner;
+        }
+
+        // 아키타입 탑재물 — 목(감속) / 수(끌어당김)
+        public void SetBindPayload(float slowMultiplier, float slowSeconds)
+        {
+            _slowMultiplier = slowMultiplier;
+            _slowSeconds = slowSeconds;
+        }
+
+        public void SetPullPayload(float distance, float seconds)
+        {
+            _pullDistance = distance;
+            _pullSeconds = seconds;
         }
 
         private void Update()
@@ -47,7 +64,15 @@ namespace MandateOfInk.Combat
             var player = other.GetComponentInParent<PlayerHealth>();
             if (player == null && other.GetComponent<CharacterController>() != null)
                 player = other.GetComponent<PlayerHealth>();
-            if (player != null) player.TakeDamage(_damage);
+            if (player != null)
+            {
+                player.TakeDamage(_damage);
+                // 아키타입 탑재물 발동 — 목: 감속 / 수: 투사체 진행 반대(=시전자) 쪽으로 끌어당김
+                if (_slowMultiplier < 1f)
+                    PlayerStatus.GetOrAdd(player.gameObject).ApplySlow(_slowMultiplier, _slowSeconds);
+                if (_pullDistance > 0f)
+                    PlayerStatus.GetOrAdd(player.gameObject).ApplyPull(-transform.forward, _pullDistance, _pullSeconds);
+            }
 
             Destroy(gameObject); // 땅·벽·플레이어 무엇이든 접촉 즉시 소멸
         }

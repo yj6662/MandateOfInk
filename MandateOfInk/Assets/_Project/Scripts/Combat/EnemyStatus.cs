@@ -33,7 +33,21 @@ namespace MandateOfInk.Combat
         private float _groggyDamageMultiplier = 1f;
         private GameObject _groggyVisual;
         public bool IsGroggy => Time.time < _groggyUntil;
-        public float GroggyDamageMultiplier => IsGroggy ? _groggyDamageMultiplier : 1f;
+
+        // 경화(화마 굳음) — 받는 피해 급감
+        private float _hardenedUntil;
+        private float _hardenedMultiplier = 1f;
+        public bool IsHardened => Time.time < _hardenedUntil;
+
+        // 받는 피해 총 배율 — 그로기(증가)와 경화(감소)를 합산. 공격측이 이 값을 곱한다.
+        public float GroggyDamageMultiplier =>
+            (IsGroggy ? _groggyDamageMultiplier : 1f) * (IsHardened ? _hardenedMultiplier : 1f);
+
+        public void SetHardened(float damageMultiplier, float seconds)
+        {
+            _hardenedMultiplier = damageMultiplier;
+            _hardenedUntil = Time.time + seconds;
+        }
 
         // 격발 표식 — 동시 설치 상한(도배 방지)을 위해 보유자를 전역 등록한다
         private static readonly List<EnemyStatus> ActiveMarkHolders = new List<EnemyStatus>();
