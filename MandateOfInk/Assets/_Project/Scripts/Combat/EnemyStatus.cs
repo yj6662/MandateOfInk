@@ -25,6 +25,15 @@ namespace MandateOfInk.Combat
         private Color _dotColor;
         private GameObject _dotVisual;
 
+        // 포이즈·그로기
+        private float _poise;
+        private float _poiseRegenPerSecond;
+        private float _groggyUntil;
+        private float _groggyDamageMultiplier = 1f;
+        private GameObject _groggyVisual;
+        public bool IsGroggy => Time.time < _groggyUntil;
+        public float GroggyDamageMultiplier => IsGroggy ? _groggyDamageMultiplier : 1f;
+
         // 격발 표식
         private Element _markElement;
         private float _markUntil;
@@ -56,10 +65,32 @@ namespace MandateOfInk.Combat
                 SpellVisuals.SpawnBurst(transform.position + Vector3.up * 1.2f, _dotColor, 0.5f, 0.25f);
             }
 
+            // 포이즈 자연 회복 (그로기 중엔 정지)
+            if (!IsGroggy && _poise > 0f)
+                _poise = Mathf.Max(0f, _poise - _poiseRegenPerSecond * Time.deltaTime);
+
             // 만료된 표시 정리
             if (_bindVisual != null && Time.time >= _slowUntil) Destroy(_bindVisual);
             if (_dotVisual != null && Time.time >= _dotUntil) Destroy(_dotVisual);
             if (_markVisual != null && Time.time >= _markUntil) Destroy(_markVisual);
+            if (_groggyVisual != null && !IsGroggy) Destroy(_groggyVisual);
+        }
+
+        // 포이즈 축적 — 한계(MaxPoise) 도달 시 그로기. 그로기 중에는 추가 축적 없음.
+        public void AddPoise(float amount, CombatConfigSO config)
+        {
+            if (IsGroggy || config == null || amount <= 0f) return;
+            _poiseRegenPerSecond = config.PoiseRegenPerSecond;
+            _poise += amount;
+            float max = _health.Definition != null ? _health.Definition.MaxPoise : 50f;
+            if (_poise < max) return;
+
+            _poise = 0f;
+            _groggyUntil = Time.time + config.GroggySeconds;
+            _groggyDamageMultiplier = config.GroggyDamageMultiplier;
+            // 「틈」 — 빈틈이 열렸다는 디제틱 표시 (금빛)
+            RefreshVisual(ref _groggyVisual, "틈", new Color(0.95f, 0.8f, 0.25f), Vector3.one * 0.6f, Vector3.up * 2.5f);
+            Debug.Log($"[Status] {name} 그로기! {config.GroggySeconds:F1}s — 받는 피해 x{config.GroggyDamageMultiplier:F1}");
         }
 
         // ㄱ(목) 속박

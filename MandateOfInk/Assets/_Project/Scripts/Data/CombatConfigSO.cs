@@ -36,5 +36,23 @@ namespace MandateOfInk.Data
         public float GrindPerSecond = 30f;
         [Tooltip("홀드 시작 후 충전이 시작되기까지 예열(초)")]
         public float GrindStartDelay = 0.35f;
+
+        [Header("그로기(포이즈) — 한계 도달 시 행동 불능 + 받는 피해 증가")]
+        public float GroggySeconds = 3f;
+        public float GroggyDamageMultiplier = 1.5f;
+        [Tooltip("그로기 아닐 때 포이즈 자연 회복(초당)")]
+        public float PoiseRegenPerSecond = 6f;
+        [Tooltip("술식 피해 -> 포이즈 축적 비율")]
+        [Range(0f, 2f)] public float SpellPoiseFraction = 0.5f;
+        [Tooltip("평타 1회 포이즈 피해")]
+        public float MeleePoiseDamage = 8f;
+
+        [Header("받아치기 — 상극 우세 방어 진으로 적 공격을 쳐낸다")]
+        [Tooltip("받아치기 성공 시 발사한 적 MaxPoise 대비 축적 비율")]
+        [Range(0f, 1f)] public float ParryPoiseFraction = 0.45f;
+        [Tooltip("방어->공격 상성 배율이 이 이상이면 우세 = 받아치기 성공")]
+        public float ParryAdvantageThreshold = 1.25f;
+        [Tooltip("방어->공격 상성 배율이 이 이하면 열세 = 막이 깨진다")]
+        public float ShieldBreakThreshold = 0.75f;
     }
 }

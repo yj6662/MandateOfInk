@@ -15,6 +15,7 @@ namespace MandateOfInk.Combat
         [SerializeField] private DiagramEventChannelSO _diagramDrawn;
         [SerializeField] private ElementPaletteSO _palette;
         [SerializeField] private FinalModifierConfigSO _modifierConfig; // 종성(받침) 거동 수치
+        [SerializeField] private CombatConfigSO _combatConfig;          // 포이즈·받아치기 수치
 
         [Header("[가정] 투사체 (공격·단일)")]
         [SerializeField] private float _projectileSpeed = 25f;
@@ -118,7 +119,7 @@ namespace MandateOfInk.Combat
             rb.isKinematic = true;
             go.AddComponent<SpellProjectile>().Init(_projectileSpeed, GetDamage(diagram, request),
                 diagram.Element, _relationTable, _projectileLifetime, color,
-                diagram.Modifier, _modifierConfig, installOnly);
+                diagram.Modifier, _modifierConfig, installOnly, combatConfig: _combatConfig);
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.4f * scale, _letterColor);
             Log(diagram, request, installOnly ? "격발 표식 투사체" : "투사체");
         }
@@ -134,7 +135,7 @@ namespace MandateOfInk.Combat
             var mat = go.GetComponent<MeshRenderer>().material;
             go.AddComponent<SpellAreaBlast>().Init(radius, _areaExpandSeconds,
                 GetDamage(diagram, request), diagram.Element, _relationTable, mat,
-                diagram.Modifier, _modifierConfig, installOnly);
+                diagram.Modifier, _modifierConfig, installOnly, _combatConfig);
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.6f, _letterColor);
             Log(diagram, request, installOnly ? "격발 표식 파동" : "광역 파동");
         }
@@ -161,7 +162,7 @@ namespace MandateOfInk.Combat
             }
             go.name = $"Shield_{diagram.Letter}";
             var mat = go.GetComponent<MeshRenderer>().material;
-            go.AddComponent<SpellShield>().Init(duration, mat);
+            go.AddComponent<SpellShield>().Init(duration, mat, diagram.Element, _relationTable, _combatConfig);
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.5f, _letterColor);
             Log(diagram, request, diagram.Scope == Scope.Area ? "광역 돔" : "전방 막");
         }

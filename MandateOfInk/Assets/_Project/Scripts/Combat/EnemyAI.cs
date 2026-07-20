@@ -64,6 +64,9 @@ namespace MandateOfInk.Combat
         private void Update()
         {
             if (_player == null || _health.Definition == null) return;
+            // 그로기 — 행동 불능(빈틈). 텔레그래프 중이었어도 얼어붙는다.
+            if (_status == null) TryGetComponent(out _status);
+            if (_status != null && _status.IsGroggy) return;
             float dist = Vector3.Distance(transform.position, _player.position);
             var def = _health.Definition;
 
@@ -75,7 +78,6 @@ namespace MandateOfInk.Combat
 
                 case State.Chase:
                     FacePlayer();
-                    if (_status == null) TryGetComponent(out _status);
                     float slow = _status != null ? _status.MoveMultiplier : 1f;
                     transform.position += transform.forward * (def.MoveSpeed * slow * Time.deltaTime);
                     if (dist <= _attackRange) { ChoosePattern(); }
@@ -163,7 +165,7 @@ namespace MandateOfInk.Combat
             col.radius = radius;
             var rb = go.AddComponent<Rigidbody>();
             rb.isKinematic = true;
-            go.AddComponent<EnemyProjectile>().Init(speed, damage, _projectileLifetime);
+            go.AddComponent<EnemyProjectile>().Init(speed, damage, _projectileLifetime, def.Element, _health);
             if (_projectileVfxPrefab != null)
             {
                 var vfx = Instantiate(_projectileVfxPrefab, go.transform.position, go.transform.rotation, go.transform);

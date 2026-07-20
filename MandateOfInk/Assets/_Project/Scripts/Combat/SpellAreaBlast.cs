@@ -18,16 +18,18 @@ namespace MandateOfInk.Combat
         private Color _baseColor;
         private FinalModifier _modifier = FinalModifier.None;
         private FinalModifierConfigSO _config;
+        private CombatConfigSO _combatConfig;
         private bool _installOnly;
 
         public void Init(float radius, float expandSeconds, float damage, Element element,
             ElementRelationTableSO relationTable, Material material,
             FinalModifier modifier = FinalModifier.None, FinalModifierConfigSO config = null,
-            bool installOnly = false)
+            bool installOnly = false, CombatConfigSO combatConfig = null)
         {
             _modifier = modifier;
             _config = config;
             _installOnly = installOnly;
+            _combatConfig = combatConfig;
             _maxDiameter = radius * 2f;
             _expandSeconds = Mathf.Max(expandSeconds, 0.1f);
             _damage = damage;
@@ -72,9 +74,12 @@ namespace MandateOfInk.Combat
 
             var status = enemy.GetComponent<EnemyStatus>();
             if (status != null && status.TryDetonateMark(damage, out float bonus)) damage += bonus;
+            if (status != null) damage *= status.GroggyDamageMultiplier;
 
             Debug.Log($"[Spell] 광역 {_element} -> {enemy.Definition?.Element} 배율 {multiplier:F2}");
             enemy.TakeDamage(damage);
+            if (_combatConfig != null)
+                EnemyStatus.GetOrAdd(enemy).AddPoise(damage * _combatConfig.SpellPoiseFraction, _combatConfig);
             SpellVisuals.SpawnBurst(enemy.transform.position + Vector3.up * 1f, _baseColor, 0.9f);
 
             if (_config == null) return;

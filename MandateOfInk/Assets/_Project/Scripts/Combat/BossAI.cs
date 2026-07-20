@@ -60,6 +60,7 @@ namespace MandateOfInk.Combat
         private float _lean;
         private int _comboRemaining;
         private EnemyHealth _health;
+        private EnemyStatus _status;
         private Transform _player;
         private Renderer[] _renderers;
         private MaterialPropertyBlock _mpb;
@@ -82,6 +83,9 @@ namespace MandateOfInk.Combat
         private void Update()
         {
             if (_player == null) return;
+            // 그로기 — 받아치기 등으로 포이즈가 무너지면 잠시 행동 불능
+            if (_status == null) TryGetComponent(out _status);
+            if (_status != null && _status.IsGroggy) return;
             float dist = Vector3.Distance(transform.position, _player.position);
             FacePlayer();
 
@@ -225,7 +229,8 @@ namespace MandateOfInk.Combat
                 col.radius = 0.25f;
                 var rb = go.AddComponent<Rigidbody>();
                 rb.isKinematic = true;
-                go.AddComponent<EnemyProjectile>().Init(_barrageProjectileSpeed, _barrageDamage, 5f);
+                go.AddComponent<EnemyProjectile>().Init(_barrageProjectileSpeed, _barrageDamage, 5f,
+                    _health.Definition != null ? _health.Definition.Element : Data.Element.Metal, _health);
                 if (_projectileVfxPrefab != null)
                     Instantiate(_projectileVfxPrefab, go.transform.position, go.transform.rotation, go.transform);
             }

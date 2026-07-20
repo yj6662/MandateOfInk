@@ -10092,6 +10092,7 @@ MonoBehaviour:
   _diagramDrawn: {fileID: 11400000, guid: 1dc61555d65734c4ca5002b7df822e17, type: 2}
   _palette: {fileID: 11400000, guid: 43d6932e94e53da4b8795310a2f13826, type: 2}
   _modifierConfig: {fileID: 11400000, guid: 35d3ad445660d254bab617a03324156f, type: 2}
+  _combatConfig: {fileID: 11400000, guid: 2d8ec9427fc3f5b40837c480db7224cf, type: 2}
   _projectileSpeed: 25
   _projectileLifetime: 5
   _projectileDiameter: 0.5

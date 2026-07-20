@@ -19,6 +19,7 @@ namespace MandateOfInk.Combat
         private Color _elementColor = Color.white;
         private FinalModifier _modifier = FinalModifier.None;
         private FinalModifierConfigSO _config;
+        private CombatConfigSO _combatConfig;
         private bool _installOnly;
         private int _pierceLeft = 1;
         private int _chainJumpsLeft;
@@ -27,8 +28,10 @@ namespace MandateOfInk.Combat
         public void Init(float speed, float damage, Element element,
             ElementRelationTableSO relationTable, float lifetime, Color elementColor,
             FinalModifier modifier = FinalModifier.None, FinalModifierConfigSO config = null,
-            bool installOnly = false, HashSet<EnemyHealth> visited = null, int chainJumpsLeft = -1)
+            bool installOnly = false, HashSet<EnemyHealth> visited = null, int chainJumpsLeft = -1,
+            CombatConfigSO combatConfig = null)
         {
+            _combatConfig = combatConfig;
             _speed = speed;
             _damage = damage;
             _element = element;
@@ -93,9 +96,14 @@ namespace MandateOfInk.Combat
             // 표식이 있으면 격발 — 보너스 피해 합산
             var status = enemy.GetComponent<EnemyStatus>();
             if (status != null && status.TryDetonateMark(damage, out float bonus)) damage += bonus;
+            // 그로기 중이면 받는 피해 증가
+            if (status != null) damage *= status.GroggyDamageMultiplier;
 
             Debug.Log($"[Spell] {_element} -> {enemy.Definition?.Element} 상성 배율 {multiplier:F2}");
             enemy.TakeDamage(damage);
+            // 술식 적중 = 포이즈 축적
+            if (_combatConfig != null)
+                EnemyStatus.GetOrAdd(enemy).AddPoise(damage * _combatConfig.SpellPoiseFraction, _combatConfig);
 
             if (_config == null) return;
             switch (_modifier)
@@ -137,7 +145,7 @@ namespace MandateOfInk.Combat
             rb.isKinematic = true;
             go.AddComponent<SpellProjectile>().Init(_speed, _damage * _config.ChainDamageFalloff,
                 _element, _relationTable, 3f, _elementColor,
-                FinalModifier.Chain, _config, false, _alreadyHit, _chainJumpsLeft - 1);
+                FinalModifier.Chain, _config, false, _alreadyHit, _chainJumpsLeft - 1, _combatConfig);
             Debug.Log($"[Spell] 연쇄 점프 -> {next.name} (남은 점프 {_chainJumpsLeft - 1})");
         }
     }
