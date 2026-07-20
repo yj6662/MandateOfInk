@@ -11,6 +11,16 @@ namespace MandateOfInk.Combat
 
         public EnemyDefinitionSO Definition => _definition;
         public float CurrentHp { get; private set; }
+        public float MaxHp => _definition != null ? _definition.MaxHp : 1f;
+        public float NormalizedHp => MaxHp > 0f ? CurrentHp / MaxHp : 0f;
+
+        // 에디터 테스트 전용 진입점 — 페이즈 전환 확인용 (EditorTools의 인스펙터 버튼이 호출)
+        public void DebugSetHpFraction(float fraction)
+        {
+            CurrentHp = MaxHp * Mathf.Clamp01(fraction);
+            Debug.Log($"[Enemy] {name} HP 강제 설정 -> {CurrentHp:F1}/{MaxHp:F1}");
+            if (CurrentHp <= 0f) Die();
+        }
 
         private void Awake()
         {
