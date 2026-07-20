@@ -88,6 +88,8 @@ namespace MandateOfInk.Spellcraft
         private int _strokeId = -1;
         private Vector3 _brushScreenPos;
         private Vector3 _prevSample;
+        private Vector3 _prevRawSample;   // 인식용 날것 점 샘플 기준 — 붓 스무딩과 분리
+        private float _letterStartTime;   // 글자 첫 획 시작(실시간) — 속도축 측정
         private Vector3 _prevLocal;
         private int _sampleInStroke;
         private float _inkUsed; // 글자 단위 누적 — 획을 거듭할수록 갈필이 된다
@@ -204,7 +206,8 @@ namespace MandateOfInk.Spellcraft
             var sw = System.Diagnostics.Stopwatch.StartNew();
             int strokeCount = _strokeId + 1;
             string initial = null, medial = null, final = "";
-            float worstJamoDistance; // 가장 서툰 자모의 거리 — 약발동 판정 기준
+            float worstJamoDistance;  // 형태축: 가장 서툰 자모의 거리 — 약발동 판정 기준
+            float chosenAvgDistance;  // 구조축: 채택된 분할의 자모 평균 거리 — 글자 전체 완성도
 
             if (strokeCount < 2 || _medialTemplates.Length == 0)
             {
@@ -212,6 +215,7 @@ namespace MandateOfInk.Spellcraft
                 initial = m.Name;
                 medial = "ㅏ";
                 worstJamoDistance = m.Distance;
+                chosenAvgDistance = m.Distance;
             }
             else
             {
@@ -281,12 +285,14 @@ namespace MandateOfInk.Spellcraft
                 {
                     initial = ini3; medial = med3; final = fin3;
                     worstJamoDistance = worst3;
+                    chosenAvgDistance = bestAvg3;
                     chosenMedPts = med3Pts;
                 }
                 else if (med2Pts != null)
                 {
                     initial = ini2; medial = med2;
                     worstJamoDistance = worst2;
+                    chosenAvgDistance = bestAvg2;
                     chosenMedPts = med2Pts;
                 }
                 else
@@ -296,6 +302,7 @@ namespace MandateOfInk.Spellcraft
                     initial = m.Name;
                     medial = "ㅏ";
                     worstJamoDistance = float.MaxValue; // 항상 약발동
+                    chosenAvgDistance = float.MaxValue;
                     chosenMedPts = null;
                 }
                 // 거울상 중성은 기하 판별로 확정 ($P는 분할 선택까지만)
@@ -307,6 +314,25 @@ namespace MandateOfInk.Spellcraft
             // 약발동 판정 — 완전 불발 금지(절대 규칙): 임계 미달이면 가장 가까운 글자를 약하게 발동
             bool isWeak = _config != null && worstJamoDistance > _config.WeakCastDistanceThreshold;
             float power = isWeak && _config != null ? _config.WeakCastPowerMultiplier : 1f;
+
+            // 획 품질 3축(D13) — 형태(최악 자모)·구조(평균)·속도(작도 시간). 정확할수록 보상.
+            float quality = 0.5f, formScore = 0f, structScore = 0f, speedScore = 0f;
+            if (_config != null)
+            {
+                float weakT = _config.WeakCastDistanceThreshold;
+                formScore = 1f - Mathf.Clamp01((worstJamoDistance - _config.FormPerfectDistance)
+                    / Mathf.Max(weakT - _config.FormPerfectDistance, 0.01f));
+                structScore = 1f - Mathf.Clamp01((chosenAvgDistance - _config.StructurePerfectDistance)
+                    / Mathf.Max(weakT - _config.StructurePerfectDistance, 0.01f));
+                float elapsed = Time.unscaledTime - _letterStartTime; // 실시간 — 시간 감속 무관(0.8초 룰)
+                float expected = _config.SpeedBaseSeconds + _config.SpeedPerStrokeSeconds * strokeCount;
+                speedScore = 1f - Mathf.Clamp01((elapsed - expected)
+                    / Mathf.Max(expected * (_config.SpeedZeroMultiplier - 1f), 0.01f));
+                Vector3 w = _config.QualityWeights;
+                float wSum = Mathf.Max(w.x + w.y + w.z, 0.001f);
+                quality = (w.x * formScore + w.y * structScore + w.z * speedScore) / wSum;
+                power *= Mathf.Lerp(_config.QualityPowerMin, _config.QualityPowerMax, quality);
+            }
 
             // 도면 조회: 정확 일치 -> 받침 도면이 없으면 무받침으로 낮춤 -> 최후엔 ㅏ 기본형 (완전 불발 금지)
             var diagram = _library.FindByJamo(initial, medial, final);
@@ -325,7 +351,8 @@ namespace MandateOfInk.Spellcraft
                 float inkPower = _inkPool.TrySpendForCast(remainingCost);
                 if (inkPower < 0.999f) { isWeak = true; power *= inkPower; }
             }
-            Debug.Log($"[Drawing] 분할 인식 {initial}+{medial}{(final != "" ? "+" + final : "")} (최악 자모 거리 {worstJamoDistance:F2}, {sw.Elapsed.TotalMilliseconds:F1}ms, {strokeCount}획) -> 「{(diagram != null ? diagram.Letter : "없음")}」{(isWeak ? " [약발동]" : "")}");
+            Debug.Log($"[Drawing] 분할 인식 {initial}+{medial}{(final != "" ? "+" + final : "")} (최악 {worstJamoDistance:F2}, {sw.Elapsed.TotalMilliseconds:F1}ms, {strokeCount}획) " +
+                $"품질 {quality:P0}(형 {formScore:F2}/구 {structScore:F2}/속 {speedScore:F2}) -> 「{(diagram != null ? diagram.Letter : "없음")}」{(isWeak ? " [약발동]" : "")}");
 
             if (diagram != null)
                 _diagramDrawn?.Raise(new DiagramCastRequest { Diagram = diagram, IsWeak = isWeak, PowerMultiplier = power });
@@ -453,6 +480,10 @@ namespace MandateOfInk.Spellcraft
                 _prevLocal = ScreenToLocal(_brushScreenPos);
                 _sampleInStroke = 0;
                 _noiseSeed = Random.value * 100f;
+                // 인식용 날것 점: 획 시작점을 즉시 기록 + 첫 획이면 글자 시간 측정 시작
+                if (_strokeId == 0) _letterStartTime = Time.unscaledTime;
+                _prevRawSample = Input.mousePosition;
+                _points.Add(new Point(Input.mousePosition.x, Screen.height - Input.mousePosition.y, _strokeId));
             }
 
             if (Input.GetMouseButtonUp(0) && _strokes.Count > 0)
@@ -465,14 +496,19 @@ namespace MandateOfInk.Spellcraft
 
             if (!Input.GetMouseButton(0)) return;
 
+            // 인식용 날것 점 — 붓 스무딩·관성과 절대 분리(전투코어루프 §11: 보정된 붓끝에서 인식 금지)
+            if (Vector3.Distance(Input.mousePosition, _prevRawSample) >= 2f)
+            {
+                _prevRawSample = Input.mousePosition;
+                _points.Add(new Point(Input.mousePosition.x, Screen.height - Input.mousePosition.y, _strokeId));
+            }
+
             float k = 1f - Mathf.Exp(-_brushLerpSpeed * Time.unscaledDeltaTime);
             _brushScreenPos = Vector3.Lerp(_brushScreenPos, Input.mousePosition, k);
 
             if (Vector3.Distance(_brushScreenPos, _prevSample) < 2f) return;
             float speed = Vector3.Distance(_brushScreenPos, _prevSample) / Mathf.Max(Time.unscaledDeltaTime, 0.001f);
             _prevSample = _brushScreenPos;
-
-            _points.Add(new Point(_brushScreenPos.x, Screen.height - _brushScreenPos.y, _strokeId));
 
             Vector3 local = ScreenToLocal(_brushScreenPos);
             float segLen = Vector3.Distance(local, _prevLocal);

@@ -19,5 +19,21 @@ namespace MandateOfInk.Data
         public float WeakCastDistanceThreshold = 1.8f;
         [Tooltip("약발동 위력 배율")]
         [Range(0f, 1f)] public float WeakCastPowerMultiplier = 0.5f;
+
+        [Header("[가정] 획 품질 3축 — 형태·구조·속도 (D13, 축 정의는 [제안])")]
+        [Tooltip("형태축: 최악 자모 거리가 이 값 이하면 만점")]
+        public float FormPerfectDistance = 0.8f;
+        [Tooltip("구조축: 자모 평균 거리가 이 값 이하면 만점 (임계는 약발동 값 공유)")]
+        public float StructurePerfectDistance = 0.7f;
+        [Tooltip("속도축: 기대 시간 = 기본 + 획당 가산 (실제 경과가 기대 이하면 만점)")]
+        public float SpeedBaseSeconds = 0.3f;
+        public float SpeedPerStrokeSeconds = 0.18f;
+        [Tooltip("기대 시간의 이 배수에서 속도 점수 0")]
+        public float SpeedZeroMultiplier = 2.5f;
+        [Tooltip("축 가중치 (형태/구조/속도) — 합으로 정규화된다")]
+        public Vector3 QualityWeights = new Vector3(0.5f, 0.25f, 0.25f);
+        [Tooltip("품질 0 -> 1일 때 위력 배율 범위 — 정확할수록 보상(전투코어루프 §3)")]
+        public float QualityPowerMin = 0.85f;
+        public float QualityPowerMax = 1.1f;
     }
 }
