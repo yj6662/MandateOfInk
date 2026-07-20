@@ -17,6 +17,7 @@ namespace MandateOfInk.Data
         [Tooltip("[가정]")] public float MoveSpeed = 3f;
         [Tooltip("[가정]")] public float AttackDamage = 10f;
         [Tooltip("[가정] 그로기 한계치")] public float MaxPoise = 50f;
+        [Tooltip("[가정] 처치 시 조선통보 — 통보는 화폐, 마석(먹)과 절대 분리")] public int CoinDrop = 15;
 
         [Title("텔레그래프 어휘 3종 (전투코어루프 v0.3 — 기준 0.8~1.2초)")]
         [Tooltip("[가정] 느린 예비 동작 — 강타. 받아치기 유도")]

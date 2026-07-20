@@ -9,7 +9,9 @@ namespace MandateOfInk.Combat
         [SerializeField] private PlayerConfigSO _config;
 
         public float CurrentHp { get; private set; }
+        public bool IsDead { get; private set; }
         public event System.Action OnDamaged; // 피격 알림 (갈기 취소 등)
+        public event System.Action OnDied;    // 사망 알림 — 사망 루프(DeathRespawn)가 받는다
         private float MaxHp => _config != null ? _config.MaxHp : 100f;
         private float _invulnerableUntil;
 
@@ -26,6 +28,7 @@ namespace MandateOfInk.Combat
 
         public void TakeDamage(float amount)
         {
+            if (IsDead) return; // 죽은 뒤 추가 피격 무시 (사망 스팸 방지)
             if (Time.time < _invulnerableUntil)
             {
                 Debug.Log("[Player] 무적 프레임 — 회피 성공");
@@ -35,7 +38,19 @@ namespace MandateOfInk.Combat
             OnDamaged?.Invoke();
             Debug.Log($"[Player] 피해 {amount:F1} -> HP {CurrentHp:F1}");
             if (CurrentHp <= 0f)
-                Debug.Log("[Player] 사망 — 사망 루프(드롭·회수)는 M2에서 구현");
+            {
+                IsDead = true;
+                Debug.Log("[Player] 사망");
+                OnDied?.Invoke();
+            }
+        }
+
+        // 부활 — 사망 루프(DeathRespawn)가 호출
+        public void ResetFull(float invulnerableSeconds)
+        {
+            CurrentHp = MaxHp;
+            IsDead = false;
+            SetInvulnerable(invulnerableSeconds);
         }
 
         // 최소 HUD 허용 항목: HP (프로토 임시 표시)

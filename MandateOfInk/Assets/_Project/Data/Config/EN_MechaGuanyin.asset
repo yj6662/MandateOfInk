@@ -28,4 +28,10 @@ MonoBehaviour:
   MoveSpeed: 0
   AttackDamage: 15
   MaxPoise: 50
-  TelegraphSeconds: 1
+  CoinDrop: 300
+  SlowTelegraphSeconds: 1.2
+  FastTelegraphSeconds: 0.8
+  FeintTelegraphSeconds: 0.7
+  FeintPauseSeconds: 0.5
+  SlowDamageMultiplier: 1.6
+  FastDamageMultiplier: 0.7

@@ -37,6 +37,12 @@ namespace MandateOfInk.Combat
         private void Die()
         {
             Debug.Log($"[Enemy] {name} 격파");
+            // 조선통보 지급 — 소울류처럼 처치 즉시 획득 (통보=화폐, 마석과 분리)
+            if (_definition != null && _definition.CoinDrop > 0)
+            {
+                var wallet = FindFirstObjectByType<PlayerWallet>();
+                if (wallet != null) wallet.Add(_definition.CoinDrop);
+            }
             if (_deathVfxPrefab != null)
             {
                 var vfx = Instantiate(_deathVfxPrefab, transform.position, Quaternion.identity);

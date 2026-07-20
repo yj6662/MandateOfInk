@@ -3160,6 +3160,37 @@ Transform:
   - {fileID: 389544792}
   m_Father: {fileID: 634470236}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &620457457
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 620457458}
+  m_Layer: 0
+  m_Name: RespawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &620457458
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 620457457}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -22.210217, y: 9.086317, z: -23.948788}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &634470234
 GameObject:
   m_ObjectHideFlags: 0
@@ -9563,6 +9594,8 @@ GameObject:
   - component: {fileID: 7685886781228776628}
   - component: {fileID: 7685886781228776627}
   - component: {fileID: 7685886781228776630}
+  - component: {fileID: 7685886781228776632}
+  - component: {fileID: 7685886781228776631}
   m_Layer: 8
   m_Name: PlayerCapsule
   m_TagString: Player
@@ -10362,6 +10395,35 @@ MonoBehaviour:
     Count: 2
   - Diagram: {fileID: 11400000, guid: f6133a2233b43a24fb79b988fee8129a, type: 2}
     Count: 2
+--- !u!114 &7685886781228776631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453084650675967582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ebe004cb7ddec843af7a5557acb643f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.DeathRespawn
+  _health: {fileID: 7685886781228776625}
+  _wallet: {fileID: 7685886781228776632}
+  _inkPool: {fileID: 7685886781228776626}
+  _config: {fileID: 11400000, guid: 71df8e4729c586f44aa04655900a0918, type: 2}
+  _respawnPoint: {fileID: 620457458}
+--- !u!114 &7685886781228776632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453084650675967582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cd7f2160532d7e4891b110aee888260, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.PlayerWallet
 --- !u!114 &8967929480435846179
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10392,3 +10454,4 @@ SceneRoots:
   - {fileID: 595068664}
   - {fileID: 1409178073}
   - {fileID: 862379999}
+  - {fileID: 620457458}
