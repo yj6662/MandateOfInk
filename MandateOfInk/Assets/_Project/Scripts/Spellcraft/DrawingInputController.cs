@@ -76,10 +76,14 @@ namespace MandateOfInk.Spellcraft
         private static readonly string[] MedialKeys = { "ㅏ", "ㅓ", "ㅗ", "ㅜ" };
         private static readonly string[] MedialTags = { "a", "eo", "o", "u" };
 
+        // 종성 후보 5종(속성별 1개): ㄱ속박 ㄴ지속 ㅁ격발 ㅅ관통 ㅇ연쇄 — 초성 템플릿을 걸러 재사용
+        private static readonly string[] FinalCandidates = { "ㄱ", "ㄴ", "ㅁ", "ㅅ", "ㅇ" };
+
         private readonly List<Point> _points = new List<Point>();
         private readonly List<InkStroke> _strokes = new List<InkStroke>();
         private Gesture[] _initialTemplates = new Gesture[0];
         private Gesture[] _medialTemplates = new Gesture[0];
+        private Gesture[] _finalTemplates = new Gesture[0];
 
         private int _strokeId = -1;
         private Vector3 _brushScreenPos;
@@ -115,6 +119,12 @@ namespace MandateOfInk.Spellcraft
         {
             _initialTemplates = LoadTemplates(_initialTemplateDir, "초성");
             _medialTemplates = LoadTemplates(_medialTemplateDir, "중성");
+            // 종성은 초성과 같은 자음 형태 — 별도 템플릿 없이 후보 5종만 걸러 쓴다
+            var finals = new List<Gesture>();
+            foreach (var t in _initialTemplates)
+                if (System.Array.IndexOf(FinalCandidates, t.Name) >= 0) finals.Add(t);
+            _finalTemplates = finals.ToArray();
+            Debug.Log($"[Drawing] 종성 템플릿 {_finalTemplates.Length}개 (초성에서 재사용)");
         }
 
         private Gesture[] LoadTemplates(string relativeDir, string label)
@@ -193,7 +203,7 @@ namespace MandateOfInk.Spellcraft
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
             int strokeCount = _strokeId + 1;
-            string initial = null, medial = null;
+            string initial = null, medial = null, final = "";
             float worstJamoDistance; // 가장 서툰 자모의 거리 — 약발동 판정 기준
 
             if (strokeCount < 2 || _medialTemplates.Length == 0)
@@ -205,9 +215,10 @@ namespace MandateOfInk.Spellcraft
             }
             else
             {
-                float bestMetric = float.MaxValue;
-                float bestIniDist = 0f, bestMedDist = 0f;
-                Point[] bestMedPts = null;
+                // --- 2분할 (초성|중성) ---
+                float bestAvg2 = float.MaxValue, worst2 = 0f;
+                string ini2 = null, med2 = null;
+                Point[] med2Pts = null;
                 for (int split = 1; split < strokeCount; split++)
                 {
                     var iniPts = CollectPoints(0, split);
@@ -219,22 +230,64 @@ namespace MandateOfInk.Spellcraft
 
                     var mi = JamoMatcher.Classify(iniPts, _initialTemplates);
                     var mm = JamoMatcher.Classify(medPts, _medialTemplates);
-                    float metric = mi.Distance + mm.Distance;
-                    if (metric < bestMetric)
+                    float avg = (mi.Distance + mm.Distance) * 0.5f;
+                    if (avg < bestAvg2)
                     {
-                        bestMetric = metric;
-                        initial = mi.Name;
-                        medial = mm.Name;
-                        bestIniDist = mi.Distance;
-                        bestMedDist = mm.Distance;
-                        bestMedPts = medPts;
+                        bestAvg2 = avg;
+                        ini2 = mi.Name;
+                        med2 = mm.Name;
+                        worst2 = Mathf.Max(mi.Distance, mm.Distance);
+                        med2Pts = medPts;
                     }
                 }
-                // 거울상 중성은 기하 판별로 확정 ($P는 분할 선택까지만)
-                if (bestMedPts != null)
+
+                // --- 3분할 (초성|중성|종성) — 그룹 수가 달라 거리 「합」은 불공평하므로 「그룹당 평균」으로 겨룬다 ---
+                float bestAvg3 = float.MaxValue, worst3 = 0f;
+                string ini3 = null, med3 = null, fin3 = null;
+                Point[] med3Pts = null;
+                if (strokeCount >= 3 && _finalTemplates.Length > 0)
                 {
-                    medial = ClassifyMedialByGeometry(bestMedPts, medial);
-                    worstJamoDistance = Mathf.Max(bestIniDist, bestMedDist);
+                    for (int s1 = 1; s1 < strokeCount - 1; s1++)
+                    for (int s2 = s1 + 1; s2 < strokeCount; s2++)
+                    {
+                        var iniPts = CollectPoints(0, s1);
+                        var medPts = CollectPoints(s1, s2);
+                        var finPts = CollectPoints(s2, strokeCount);
+                        if (iniPts.Length < 4 || medPts.Length < 4 || finPts.Length < 4) continue;
+                        if (!IsPlausibleMedialShape(medPts)) continue;
+                        // 공간 게이트: 받침은 반드시 초성·중성보다 아래 — 이게 없으면
+                        // 무받침 글자의 획 일부를 받침으로 오인하기 쉽다.
+                        if (!IsFinalBelow(iniPts, medPts, finPts)) continue;
+
+                        var mi = JamoMatcher.Classify(iniPts, _initialTemplates);
+                        var mm = JamoMatcher.Classify(medPts, _medialTemplates);
+                        var mf = JamoMatcher.Classify(finPts, _finalTemplates);
+                        float avg = (mi.Distance + mm.Distance + mf.Distance) / 3f;
+                        if (avg < bestAvg3)
+                        {
+                            bestAvg3 = avg;
+                            ini3 = mi.Name;
+                            med3 = mm.Name;
+                            fin3 = mf.Name;
+                            worst3 = Mathf.Max(mi.Distance, Mathf.Max(mm.Distance, mf.Distance));
+                            med3Pts = medPts;
+                        }
+                    }
+                }
+
+                // --- 선택: 평균 거리가 더 좋은 쪽 [가정: 직접 비교] ---
+                Point[] chosenMedPts;
+                if (med3Pts != null && (med2Pts == null || bestAvg3 < bestAvg2))
+                {
+                    initial = ini3; medial = med3; final = fin3;
+                    worstJamoDistance = worst3;
+                    chosenMedPts = med3Pts;
+                }
+                else if (med2Pts != null)
+                {
+                    initial = ini2; medial = med2;
+                    worstJamoDistance = worst2;
+                    chosenMedPts = med2Pts;
                 }
                 else
                 {
@@ -243,7 +296,11 @@ namespace MandateOfInk.Spellcraft
                     initial = m.Name;
                     medial = "ㅏ";
                     worstJamoDistance = float.MaxValue; // 항상 약발동
+                    chosenMedPts = null;
                 }
+                // 거울상 중성은 기하 판별로 확정 ($P는 분할 선택까지만)
+                if (chosenMedPts != null)
+                    medial = ClassifyMedialByGeometry(chosenMedPts, medial);
             }
             sw.Stop();
 
@@ -251,7 +308,14 @@ namespace MandateOfInk.Spellcraft
             bool isWeak = _config != null && worstJamoDistance > _config.WeakCastDistanceThreshold;
             float power = isWeak && _config != null ? _config.WeakCastPowerMultiplier : 1f;
 
-            var diagram = _library.FindByJamo(initial, medial, "") ?? _library.FindByJamo(initial, "ㅏ", "");
+            // 도면 조회: 정확 일치 -> 받침 도면이 없으면 무받침으로 낮춤 -> 최후엔 ㅏ 기본형 (완전 불발 금지)
+            var diagram = _library.FindByJamo(initial, medial, final);
+            if (diagram == null && final != "")
+            {
+                diagram = _library.FindByJamo(initial, medial, "");
+                if (diagram != null) Debug.Log($"[Drawing] 받침 「{final}」 도면 없음 — 무받침 「{diagram.Letter}」로 낮춤");
+            }
+            if (diagram == null) diagram = _library.FindByJamo(initial, "ㅏ", "");
 
             // 먹 정산 — 그리며 이미 소모한 만큼을 비용에서 차감, 잔여분만 청구.
             // 잔여분조차 부족하면 쥐어짜기(잔량 비율 위력·전량 소모·불발 없음).
@@ -261,7 +325,7 @@ namespace MandateOfInk.Spellcraft
                 float inkPower = _inkPool.TrySpendForCast(remainingCost);
                 if (inkPower < 0.999f) { isWeak = true; power *= inkPower; }
             }
-            Debug.Log($"[Drawing] 분할 인식 {initial}+{medial} (최악 자모 거리 {worstJamoDistance:F2}, {sw.Elapsed.TotalMilliseconds:F1}ms, {strokeCount}획) -> 「{(diagram != null ? diagram.Letter : "없음")}」{(isWeak ? " [약발동]" : "")}");
+            Debug.Log($"[Drawing] 분할 인식 {initial}+{medial}{(final != "" ? "+" + final : "")} (최악 자모 거리 {worstJamoDistance:F2}, {sw.Elapsed.TotalMilliseconds:F1}ms, {strokeCount}획) -> 「{(diagram != null ? diagram.Letter : "없음")}」{(isWeak ? " [약발동]" : "")}");
 
             if (diagram != null)
                 _diagramDrawn?.Raise(new DiagramCastRequest { Diagram = diagram, IsWeak = isWeak, PowerMultiplier = power });
@@ -281,6 +345,29 @@ namespace MandateOfInk.Spellcraft
             _strokeId = -1;
             _inkUsed = 0f;
             _letterInkSpent = 0f;
+        }
+
+        // 종성 공간 게이트 — 받침 후보 그룹의 무게중심이 초성·중성 무게중심보다
+        // 글자 전체 높이의 10% [가정] 이상 아래에 있어야 한다. (저장된 화면 y는 아래로 증가)
+        private static bool IsFinalBelow(Point[] ini, Point[] med, Point[] fin)
+        {
+            float iniY = MeanY(ini), medY = MeanY(med), finY = MeanY(fin);
+            float minY = float.MaxValue, maxY = float.MinValue;
+            foreach (var arr in new[] { ini, med, fin })
+                foreach (var p in arr)
+                {
+                    if (p.Y < minY) minY = p.Y;
+                    if (p.Y > maxY) maxY = p.Y;
+                }
+            float height = Mathf.Max(maxY - minY, 1f);
+            return finY > Mathf.Max(iniY, medY) + height * 0.1f;
+        }
+
+        private static float MeanY(Point[] pts)
+        {
+            float sum = 0f;
+            foreach (var p in pts) sum += p.Y;
+            return sum / pts.Length;
         }
 
         // 중성 후보 구조 검증 — 기본 중성(ㅏㅓㅗㅜ)은 「긴 획 + 직교 짧은 획」이라
@@ -449,7 +536,7 @@ namespace MandateOfInk.Spellcraft
             if (_modeController == null || _modeController.Mode != SpellcraftMode.Drawing) return;
             string msg = _recordMode
                 ? "[등록 모드] 중성을 그리고 1=ㅏ 2=ㅓ 3=ㅗ 4=ㅜ 로 저장 | F2 = 등록 종료"
-                : "작도: 글자를 이어 그리세요 (예: 가 = ㄱ+ㅏ, 노 = ㄴ+ㅗ) — 잠시 멈추면 발동 | F2 = 중성 등록";
+                : "작도: 글자를 이어 그리세요 (예: 가 = ㄱ+ㅏ, 검 = ㄱ+ㅓ+ㅁ받침) — 키를 떼면 발동 | F2 = 중성 등록";
             GUI.Label(new Rect(10, Screen.height - 30, 900, 24), msg);
         }
     }
