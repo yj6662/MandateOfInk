@@ -64,7 +64,13 @@ namespace MandateOfInk.Combat
             if (diagram == null) return;
 
             Color color = _palette != null ? _palette.GetColor(diagram.Element) : Color.white;
-            color.a = _objectAlpha * (request.IsWeak ? 0.6f : 1f); // 약발동은 더 흐릿하게
+            if (request.IsWeak)
+            {
+                // 연한 먹: 색이 바래고(회백 쪽으로) 훨씬 흐릿하게 — 정발동과 한눈에 구분
+                color = Color.Lerp(color, new Color(0.78f, 0.78f, 0.74f), 0.55f);
+                color.a = _objectAlpha * 0.4f;
+            }
+            else color.a = _objectAlpha;
 
             switch (diagram.Category)
             {
@@ -99,7 +105,7 @@ namespace MandateOfInk.Combat
         // 공격·단일(ㅏ): 반투명 구 투사체 + 글자
         private void CastProjectile(SpellDiagramSO diagram, DiagramCastRequest request, Color color)
         {
-            float scale = request.IsWeak ? 0.6f : 1f;
+            float scale = request.IsWeak ? 0.5f : 1f;
             var go = SpellVisuals.CreateTranslucent(PrimitiveType.Sphere, color,
                 Vector3.one * (_projectileDiameter * scale), keepColliderAsTrigger: true);
             go.name = $"Projectile_{diagram.Letter}";

@@ -54,6 +54,12 @@ namespace MandateOfInk.Spellcraft
         [SerializeField, Range(0f, 1f)] private float _minDensity = 0.8f;
         [Tooltip("한 글자 동안 먹이 마르는 총 길이(m) — 길수록 천천히 마른다")]
         [SerializeField] private float _inkCapacity = 1.2f;
+        [Tooltip("작도 중 실시간 먹 소모(획 1m당) — 시전 비용에서 차감 정산된다")]
+        [SerializeField] private float _drawInkPerMeter = 12f;
+        [Tooltip("먹이 다 마른 붓의 농도 하한 — 낮을수록 마른 획이 연해진다")]
+        [SerializeField, Range(0.05f, 1f)] private float _dryDensityFloor = 0.25f;
+        [Tooltip("이 잔량 비율까지는 항상 진하게, 그 아래부터 급격히 연해진다")]
+        [SerializeField, Range(0.02f, 0.5f)] private float _paleThreshold = 0.1f;
         [Tooltip("붓자국 아틀라스(생성 텍스처) — 비우면 절차 생성 텍스처 사용")]
         [SerializeField] private Texture2D _brushAtlas;
         [SerializeField] private int _brushAtlasRows = 4;
@@ -81,6 +87,7 @@ namespace MandateOfInk.Spellcraft
         private Vector3 _prevLocal;
         private int _sampleInStroke;
         private float _inkUsed; // 글자 단위 누적 — 획을 거듭할수록 갈필이 된다
+        private float _letterInkSpent; // 이 글자를 그리며 이미 소모한 먹 (시전 시 차감 정산)
         private float _noiseSeed;
         private Material _inkMaterial;
         private bool _recordMode;
@@ -246,10 +253,12 @@ namespace MandateOfInk.Spellcraft
 
             var diagram = _library.FindByJamo(initial, medial, "") ?? _library.FindByJamo(initial, "ㅏ", "");
 
-            // 먹 소모 — 부족하면 쥐어짜기(잔량 비율만큼 약해진 채 발동, 잔량 전부 소모)
+            // 먹 정산 — 그리며 이미 소모한 만큼을 비용에서 차감, 잔여분만 청구.
+            // 잔여분조차 부족하면 쥐어짜기(잔량 비율 위력·전량 소모·불발 없음).
             if (diagram != null && _inkPool != null)
             {
-                float inkPower = _inkPool.TrySpendForCast(diagram.InkCost);
+                float remainingCost = Mathf.Max(0f, diagram.InkCost - _letterInkSpent);
+                float inkPower = _inkPool.TrySpendForCast(remainingCost);
                 if (inkPower < 0.999f) { isWeak = true; power *= inkPower; }
             }
             Debug.Log($"[Drawing] 분할 인식 {initial}+{medial} (최악 자모 거리 {worstJamoDistance:F2}, {sw.Elapsed.TotalMilliseconds:F1}ms, {strokeCount}획) -> 「{(diagram != null ? diagram.Letter : "없음")}」{(isWeak ? " [약발동]" : "")}");
@@ -271,6 +280,7 @@ namespace MandateOfInk.Spellcraft
             _points.Clear();
             _strokeId = -1;
             _inkUsed = 0f;
+            _letterInkSpent = 0f;
         }
 
         // 중성 후보 구조 검증 — 기본 중성(ㅏㅓㅗㅜ)은 「긴 획 + 직교 짧은 획」이라
@@ -383,8 +393,15 @@ namespace MandateOfInk.Spellcraft
             _inkUsed += segLen;
             _sampleInStroke++;
 
+            // 실시간 먹 소모 — 미터가 그리는 동안 눈에 띄게 줄어든다
+            if (_inkPool != null)
+                _letterInkSpent += _inkPool.ConsumeDrawing(segLen * _drawInkPerMeter);
+
             float speed01 = Mathf.InverseLerp(0f, 2200f, speed);
-            float inkCharge = 1f - Mathf.Clamp01(_inkUsed / Mathf.Max(_inkCapacity, 0.01f)); // 1=먹 가득, 0=다 마름
+            // 농도는 「풀 잔량」의 비선형 곡선만 따른다: 임계 이상 = 항상 진하게 / 미만 = 급격히 연해짐.
+            // 글자 내 갈필 진행(비백 텍스처)은 획 시작 시의 행 선택이 따로 담당한다.
+            float n = _inkPool != null ? _inkPool.Normalized : 1f;
+            float inkCharge = n >= _paleThreshold ? 1f : n / Mathf.Max(_paleThreshold, 0.001f);
 
             // 굵기: 속도(빠르면 가늘게) x 유기적 노이즈 x 기필(시작 눌림)
             float width = _baseWidth * Mathf.Lerp(_maxWidthFactor, _minWidthFactor, speed01);
@@ -393,7 +410,7 @@ namespace MandateOfInk.Spellcraft
                 width *= Mathf.Lerp(_startPressFactor, 1f, (_sampleInStroke - 1f) / _startPressSamples);
 
             // 농도: 속도(빠르면 옅게) x 먹 잔량(마를수록 옅게)
-            float density = Mathf.Lerp(_maxDensity, _minDensity, speed01) * Mathf.Lerp(0.85f, 1f, inkCharge);
+            float density = Mathf.Lerp(_maxDensity, _minDensity, speed01) * Mathf.Lerp(_dryDensityFloor, 1f, inkCharge);
 
             var current = _strokes[_strokes.Count - 1];
             current.AddSample(local, width, density);
@@ -421,6 +438,7 @@ namespace MandateOfInk.Spellcraft
             _points.Clear();
             _strokeId = -1;
             _inkUsed = 0f; // 새 글자 = 먹 다시 찍기
+            _letterInkSpent = 0f;
             foreach (var s in _strokes) s.Destroy();
             _strokes.Clear();
         }

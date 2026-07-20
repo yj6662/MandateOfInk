@@ -11,6 +11,7 @@ namespace MandateOfInk.Spellcraft
 
         public float Current { get; private set; }
         public float Max => _config != null ? _config.MaxInk : 100f;
+        public float Normalized => Max > 0f ? Current / Max : 0f; // 0=마름, 1=가득
 
         private void Awake()
         {
@@ -26,6 +27,14 @@ namespace MandateOfInk.Spellcraft
         public void Add(float amount)
         {
             Current = Mathf.Clamp(Current + amount, 0f, Max);
+        }
+
+        // 작도 중 실시간 소모(획 길이 비례). 실제로 빠진 양을 돌려준다 — 바닥나면 0.
+        public float ConsumeDrawing(float amount)
+        {
+            float consumed = Mathf.Min(amount, Current);
+            Current -= consumed;
+            return consumed;
         }
 
         // 시전 소모. 잔량이 비용 이상이면 정상(1) — 부족하면 「쥐어짜기」:
