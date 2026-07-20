@@ -18,8 +18,16 @@ namespace MandateOfInk.Data
         [Tooltip("[가정]")] public float AttackDamage = 10f;
         [Tooltip("[가정] 그로기 한계치")] public float MaxPoise = 50f;
 
-        [Title("텔레그래프")]
-        [Tooltip("[가정] 예비 동작 시간(초) — 기준 0.8~1.2")]
-        [Range(0.3f, 3f)] public float TelegraphSeconds = 1f;
+        [Title("텔레그래프 어휘 3종 (전투코어루프 v0.3 — 기준 0.8~1.2초)")]
+        [Tooltip("[가정] 느린 예비 동작 — 강타. 받아치기 유도")]
+        [Range(0.3f, 3f)] public float SlowTelegraphSeconds = 1.2f;
+        [Tooltip("[가정] 빠른 예비 동작 — 회피 강제")]
+        [Range(0.3f, 3f)] public float FastTelegraphSeconds = 0.8f;
+        [Tooltip("[가정] 페인트 예비 동작 — 느린 것처럼 보이다가 멈칫")]
+        [Range(0.3f, 3f)] public float FeintTelegraphSeconds = 0.7f;
+        [Tooltip("[가정] 페인트 멈칫 길이 — 이 사이 성급한 회피를 처벌")]
+        [Range(0.1f, 2f)] public float FeintPauseSeconds = 0.5f;
+        [Tooltip("[가정] 느린 강타 피해 배율")] public float SlowDamageMultiplier = 1.6f;
+        [Tooltip("[가정] 빠른 공격 피해 배율")] public float FastDamageMultiplier = 0.7f;
     }
 }
