@@ -11,6 +11,7 @@ namespace MandateOfInk.Combat
         [SerializeField] private CombatConfigSO _config;
         [SerializeField] private SpellcraftModeController _modeController;
         [SerializeField] private InkPool _inkPool;
+        [SerializeField] private BrushViewModel _brushViewModel; // 자루끝 내지르기 디제틱 (선택)
 
         private float _cooldownRemaining;
 
@@ -23,6 +24,7 @@ namespace MandateOfInk.Combat
             if (_modeController != null && _modeController.Mode != SpellcraftMode.Combat) return;
             if (!Input.GetMouseButtonDown(0) || _cooldownRemaining > 0f) return;
             _cooldownRemaining = _config.MeleeCooldown;
+            if (_brushViewModel != null) _brushViewModel.PlayMeleeSwing(); // 붓을 뒤집어 자루로 후려치는 그림
             Swing();
         }
 
@@ -41,7 +43,9 @@ namespace MandateOfInk.Combat
                     enemy.TakeDamage(_config.MeleeDamage * status.GroggyDamageMultiplier);
                     status.AddPoise(_config.MeleePoiseDamage, _config); // 평타도 포이즈를 깎는다
                     if (_inkPool != null) _inkPool.Add(_config.MeleeInkRefund);
-                    SpellVisuals.SpawnBurst(hit.point, new Color(0.15f, 0.14f, 0.13f, 0.6f), 0.5f, 0.2f); // 먹빛 타격감
+                    // 타격감: 먹빛 파열 + 석경 공명의 가벼운 화면 울림
+                    SpellVisuals.SpawnBurst(hit.point, new Color(0.15f, 0.14f, 0.13f, 0.7f), 0.9f, 0.22f);
+                    CameraShake.Shake(0.12f, 0.18f);
                     Debug.Log($"[Melee] 자루끝 적중 — 피해 {_config.MeleeDamage}, 먹 +{_config.MeleeInkRefund}");
                     return;
                 }

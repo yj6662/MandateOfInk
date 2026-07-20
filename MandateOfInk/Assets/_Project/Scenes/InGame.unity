@@ -7876,12 +7876,20 @@ MonoBehaviour:
   _modeController: {fileID: 1926037792}
   _viewCamera: {fileID: 609849321}
   _anchorLocal: {x: 0.42, y: -0.45, z: 0.5}
-  _brushLength: 0.8
+  _brushLength: 1.1995201
   _drawPlaneDistance: 0.6
-  _stretchClamp: {x: 0.55, y: 1.8}
+  _stretchClamp: {x: 0.25, y: 2.2}
   _followLerpSpeed: 14
+  _springFrequency: 9
+  _springDamping: 0.55
   _restLocalPosition: {x: 0.38, y: -0.4, z: 0.55}
   _restLocalEuler: {x: -12, y: 6, z: 0}
+  _reverseLocalPosition: {x: 0.3, y: -0.14, z: 0.5}
+  _reverseLocalEuler: {x: 40, y: 120, z: 10}
+  _swingSeconds: 0.3
+  _swingArcDegrees: 100
+  _swingDipDegrees: 25
+  _swingPunch: 0.22
 --- !u!114 &1790781029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8413,27 +8421,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.42105263
+      value: 0.6315789
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.42105263
+      value: 0.6315789
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.42105263
+      value: 0.6315789
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.0006160736
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.00056266785
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.4
+      value: 0.5992073
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 21bafdd2cf85535469cc6fbe585c8b87, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10319,6 +10327,7 @@ MonoBehaviour:
   _config: {fileID: 11400000, guid: 2d8ec9427fc3f5b40837c480db7224cf, type: 2}
   _modeController: {fileID: 1926037792}
   _inkPool: {fileID: 7685886781228776626}
+  _brushViewModel: {fileID: 1790781028}
 --- !u!114 &7685886781228776629
 MonoBehaviour:
   m_ObjectHideFlags: 0
