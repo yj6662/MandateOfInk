@@ -9,6 +9,8 @@ namespace MandateOfInk.Combat
         [SerializeField] private EnemyDefinitionSO _definition;
         [SerializeField] private GameObject _deathVfxPrefab; // 사망 연출(임시)
         [SerializeField] private float _deathDestroySeconds; // [가정] 사망 애니 재생 여유 — 0이면 즉시 파괴
+        [Tooltip("처치 시 적 Id를 발신 — 사냥 방(榜) 집계 등이 구독")]
+        [SerializeField] private MandateOfInk.Core.Events.StringEventChannelSO _enemyKilledChannel;
 
         /// <summary>사망 확정 순간 — 프레젠테이션(사망 애니메이션)이 구독한다.</summary>
         public event System.Action Died;
@@ -60,6 +62,8 @@ namespace MandateOfInk.Combat
                 Destroy(vfx, 3f); // [가정] VFX 잔류 상한
             }
             Died?.Invoke();
+            if (_enemyKilledChannel != null && _definition != null && !string.IsNullOrEmpty(_definition.Id))
+                _enemyKilledChannel.Raise(_definition.Id);
             // 사망 애니 여유가 있으면 행동·충돌만 끄고 지연 파괴(시체 잔류)
             if (_deathDestroySeconds > 0f)
             {

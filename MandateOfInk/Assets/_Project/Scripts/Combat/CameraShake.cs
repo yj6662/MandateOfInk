@@ -7,6 +7,9 @@ namespace MandateOfInk.Combat
     // Time.time 기반이라 작도 중 시간 감속이면 흔들림도 같이 느려진다.
     public static class CameraShake
     {
+        /// <summary>접근성 설정 — 흔들림 전역 배율(0=끔). 설정 화면이 조정한다.</summary>
+        public static float GlobalScale = 1f;
+
         private static float _strength;
         private static float _duration;
         private static float _endTime;
@@ -36,7 +39,7 @@ namespace MandateOfInk.Combat
             var offset = new Vector3(
                 Mathf.PerlinNoise(t, 0.31f) - 0.5f,
                 Mathf.PerlinNoise(0.73f, t) - 0.5f,
-                0f) * (2f * _strength * k * k);
+                0f) * (2f * _strength * GlobalScale * k * k);
             cam.transform.position += cam.transform.rotation * offset;
         }
     }

@@ -8,11 +8,15 @@ namespace MandateOfInk.Combat
     {
         public int Coins { get; private set; }
 
+        /// <summary>잔액 변동 알림(증감량) — HUD 팽창 연출 등이 구독.</summary>
+        public event System.Action<int> OnChanged;
+
         public void Add(int amount)
         {
             if (amount <= 0) return;
             Coins += amount;
             Debug.Log($"[통보] +{amount} -> {Coins}");
+            OnChanged?.Invoke(amount);
         }
 
         // 사망 드롭용 — 전액을 꺼내고 0으로 만든다
@@ -20,14 +24,8 @@ namespace MandateOfInk.Combat
         {
             int taken = Coins;
             Coins = 0;
+            if (taken > 0) OnChanged?.Invoke(-taken);
             return taken;
-        }
-
-        // 임시 표시 — 통보는 최소 HUD 허용 목록에 없어 정식 표시는 미결(차패 상태창 후보).
-        // 프로토 디버그 용도로만 띄운다.
-        private void OnGUI()
-        {
-            GUI.Label(new Rect(10, 58, 300, 24), $"통보 {Coins}");
         }
     }
 }

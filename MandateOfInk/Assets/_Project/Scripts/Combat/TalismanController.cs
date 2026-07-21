@@ -20,6 +20,8 @@ namespace MandateOfInk.Combat
         [SerializeField] private SpellcraftModeController _modeController;
         [SerializeField] private List<Slot> _slots = new List<Slot>();
 
+        public IReadOnlyList<Slot> Slots => _slots; // HUD 표시용
+
         private void Update()
         {
             // 작도 중엔 숫자 키가 등록 모드와 겹치므로 교전 모드 한정 [가정]
@@ -46,18 +48,6 @@ namespace MandateOfInk.Combat
             }
         }
 
-        // 허용 HUD 항목: 부적 수 (임시 표시)
-        private void OnGUI()
-        {
-            var sb = new System.Text.StringBuilder("부적: ");
-            for (int i = 0; i < _slots.Count; i++)
-            {
-                var slot = _slots[i];
-                sb.Append(i + 1).Append('=')
-                  .Append(slot.Diagram != null ? slot.Diagram.Letter : "-")
-                  .Append('x').Append(slot.Count).Append("  ");
-            }
-            GUI.Label(new Rect(10, 58, 500, 24), sb.ToString());
-        }
+        // 부적 수 표시는 HudController(캔버스)가 담당한다
     }
 }

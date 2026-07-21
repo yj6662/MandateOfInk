@@ -11,6 +11,7 @@ namespace MandateOfInk.Combat
         [SerializeField] private bool _godMode;
 
         public float CurrentHp { get; private set; }
+        public float MaxHpValue => MaxHp; // HUD 게이지용
         public bool IsDead { get; private set; }
         public event System.Action OnDamaged; // 피격 알림 (갈기 취소 등)
         public event System.Action OnDied;    // 사망 알림 — 사망 루프(DeathRespawn)가 받는다
@@ -61,10 +62,6 @@ namespace MandateOfInk.Combat
             SetInvulnerable(invulnerableSeconds);
         }
 
-        // 최소 HUD 허용 항목: HP (프로토 임시 표시)
-        private void OnGUI()
-        {
-            GUI.Label(new Rect(10, 10, 300, 24), $"HP {CurrentHp:F0} / {MaxHp:F0}");
-        }
+        // HP 표시는 HudController(캔버스 먹획 게이지)가 담당한다
     }
 }

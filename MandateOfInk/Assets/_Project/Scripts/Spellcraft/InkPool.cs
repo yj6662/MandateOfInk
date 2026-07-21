@@ -53,10 +53,6 @@ namespace MandateOfInk.Spellcraft
             return ratio;
         }
 
-        // 임시 잉크 미터 (HP 아래)
-        private void OnGUI()
-        {
-            GUI.Label(new Rect(10, 34, 300, 24), $"먹 {Current:F0} / {Max:F0}");
-        }
+        // 먹 미터 표시는 HudController(캔버스 먹획 게이지)가 담당한다
     }
 }
