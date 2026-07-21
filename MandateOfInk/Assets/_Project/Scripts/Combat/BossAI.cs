@@ -17,6 +17,7 @@ namespace MandateOfInk.Combat
         [Header("연결 (선택)")]
         [SerializeField] private BossArmRig _armRig; // 있으면 팔 내려찍기 패턴 사용
         [SerializeField] private float _slamMaxRange = 16f; // [가정] 이 거리 안이면 내려찍기 후보
+        [SerializeField] private float _slamMinRadius = 9f; // [가정] 대좌 반경 + 여유 — 이 안쪽은 조준하지 않는다
         [SerializeField] private float _slamReach = 6.5f;   // [가정] 팔이 실제 땅에 닿는 수평 도달 거리 — 타깃을 여기까지로 클램프
         [SerializeField] private float _leanDegrees = 6f;   // [가정] 내려찍을 때 몸통이 타격 방향으로 숙는 각도
 
@@ -175,7 +176,15 @@ namespace MandateOfInk.Combat
         {
             Vector3 flat = playerPos - transform.position;
             flat.y = 0f;
-            return flat.magnitude > _slamReach
+            float dist = flat.magnitude;
+            // 최소 반경: 연꽃 대좌 안쪽(발밑)은 노리지 않는다 — 팔이 본체를 뚫는 것 방지.
+            // 대좌에 붙는 전략에는 "발밑이 안전지대가 아니라 링 바깥으로 밀려나는 조준"으로 답한다.
+            if (dist < _slamMinRadius)
+            {
+                Vector3 dir = dist < 0.01f ? -transform.forward : flat.normalized;
+                return transform.position + dir * _slamMinRadius;
+            }
+            return dist > _slamReach
                 ? transform.position + flat.normalized * _slamReach
                 : playerPos;
         }

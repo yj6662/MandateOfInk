@@ -21,33 +21,42 @@ namespace MandateOfInk.Combat
         [SerializeField] private float _handLength = 1.8f; // 손목 -> 손끝 거리
         [SerializeField] private Transform _elbowRod;      // 어깨-팔꿈치 황동 피스톤 로드
         [SerializeField] private Transform _wristRod;      // 팔꿈치-손목 황동 피스톤 로드
-        [SerializeField] private float _extendFactor = 1.55f; // 타격 시 관절 신장 배율(텔레스코픽)
+        [SerializeField] private Transform _forearmSleeve; // 전완 슬리브 컨테이너 — 신장 시 손목을 추적해 늘어난다(분리 방지)
+        [SerializeField] private float _extendFactor = 2.2f;  // 타격 시 관절 신장 배율(텔레스코픽)
         [SerializeField] private float _primeFactor = 1.08f;  // 홀드 중 예열 신장(치익)
 
-        [Header("[가정] 타이밍")]
-        [SerializeField] private float _raiseSeconds = 0.7f;   // 텔레그래프(느린 계열)
-        [SerializeField] private float _holdSeconds = 0.28f;   // 정점에서 떨며 멈칫
-        [SerializeField] private float _slamSeconds = 0.13f;
-        [SerializeField] private float _recoilSeconds = 0.15f;
-        [SerializeField] private float _plantSeconds = 0.35f;  // 땅에 꽂힌 채 유지
-        [SerializeField] private float _returnSeconds = 1.2f;
+        [Header("[가정] 타이밍 — 육중함: 느린 예비·긴 홀드·짧은 낙하·긴 꽂힘")]
+        [SerializeField] private float _raiseSeconds = 1.3f;   // 텔레그래프(느린 계열)
+        [SerializeField] private float _holdSeconds = 0.5f;    // 정점에서 떨며 멈칫
+        [SerializeField] private float _slamSeconds = 0.28f; // 스톱모션 단이 읽히는 최소 길이
+        [SerializeField] private float _recoilSeconds = 0.22f;
+        [SerializeField] private float _plantSeconds = 0.75f;  // 땅에 꽂힌 채 유지
+        [SerializeField] private float _returnSeconds = 1.8f;
 
         [Header("[가정] 조형")]
         [SerializeField] private float _armLength = 6f;        // 피벗->손끝 거리 (관절 미연결 시 폴백)
         [SerializeField] private float _raiseForwardTilt = 0.3f;  // 치켜들기: 몸통 위 방향에 섞을 앞쏠림
         [SerializeField] private float _raiseSideSpread = 0.35f;  // 치켜들기: 팔 원위치 쪽으로 벌려 겹침 방지
-        [SerializeField] private Vector3 _elbowRaiseEuler = new Vector3(-38f, 0f, 0f); // 접힘
+        [SerializeField] private Vector3 _elbowRaiseEuler = new Vector3(-95f, 0f, 0f); // 깊은 접힘 — 망치 장전(손이 어깨 위로 걸린다)
         [SerializeField] private Vector3 _wristRaiseEuler = new Vector3(55f, 0f, 0f);  // 손목 젖힘 — 손바닥이 바닥을 향한다
         [SerializeField] private Vector3 _elbowSlamEuler = new Vector3(16f, 0f, 0f);   // 펴짐(살짝 과신전)
         [SerializeField] private Vector3 _wristSlamEuler = new Vector3(-55f, 0f, 0f);  // 따귀 스냅 — 손바닥이 지면으로 후려친다
         [SerializeField] private float _quiverDegrees = 1.8f;    // 홀드 중 떨림 폭
         [SerializeField] private float _overshootDegrees = 7f;   // 목표 너머로 꽂히는 과회전
+        [Tooltip("스톱모션 경련 낙하 — 낙하 보간을 이 단수로 뚝뚝 끊는다. 0=부드럽게")]
+        [SerializeField] private int _slamSteps = 5;
         [SerializeField] private Color _telegraphColor = new Color(0.9f, 0.2f, 0.1f);
 
         [Header("[가정] 착지 연출")]
-        [SerializeField] private float _shakeStrength = 0.55f;
-        [SerializeField] private float _shakeSeconds = 0.45f;
+        [SerializeField] private float _shakeStrength = 0.8f;
+        [SerializeField] private float _shakeSeconds = 0.6f;
         [SerializeField] private float _shakeFalloffRange = 30f; // 이 거리 밖이면 흔들림 없음
+
+        [Header("[가정] 증기 분출 — 관절 배기구(조립 시 배선)")]
+        [SerializeField] private ParticleSystem[] _steamVents;
+        [SerializeField] private int _steamBurstRaise = 10;    // 치켜들기 시작 — 기동 배기
+        [SerializeField] private int _steamBurstPrime = 16;    // 홀드 진입 — 피스톤 예열 치익
+        [SerializeField] private int _steamBurstImpact = 34;   // 착지 — 전 관절 대분출
 
         [Header("[가정] 유휴 물결 — 팔마다 위상을 다르게 심는다")]
         [SerializeField] private float _idlePhase;
@@ -60,6 +69,19 @@ namespace MandateOfInk.Combat
         [SerializeField] private float _idleTwitchDegrees = 6f;    // 이따금 터지는 경련
 
         public bool IsBusy => _phase != Phase.Rest;
+
+        /// <summary>완전 신장 시 손끝까지의 월드 도달 거리 — 배차 게이트용.</summary>
+        public float MaxReachWorld => (_armLength * _extendFactor + _handLength) * transform.lossyScale.z;
+
+        /// <summary>휴식 자세의 월드 방향(부챗살 바깥쪽) — 목표와 방향이 맞는 팔만 배차한다.</summary>
+        public Vector3 RestOutwardDirection
+        {
+            get
+            {
+                var parentRot = transform.parent != null ? transform.parent.rotation : Quaternion.identity;
+                return parentRot * _restLocalRotation * Vector3.forward;
+            }
+        }
 
         // 보스 몸통 기울임 가중치(0~1) — BossAI가 집계해 타격 방향으로 상체를 숙인다
         public float LeanWeight => _phase switch
@@ -74,6 +96,7 @@ namespace MandateOfInk.Combat
 
         private Phase _phase = Phase.Rest;
         private float _timer;
+        private bool _raiseVented;
         private float _paceScale = 1f; // 1=평시, 0.6=과부하(빠른 예비 동작)
         private Quaternion _restLocalRotation;
         private Quaternion _elbowRest;
@@ -84,6 +107,11 @@ namespace MandateOfInk.Combat
         private float _wristRestZ;
         private Quaternion _slamWorldRotation;
         private Quaternion _overshootWorldRotation;
+        private Quaternion _slamStartRotation;
+        private Quaternion _elbowSlamStart;
+        private Quaternion _wristSlamStart;
+        private int _lastSlamStep = -1;
+        private Vector3 _forearmSleeveBaseScale = Vector3.one;
         private Vector3 _targetPoint;
         private float _damage;
         private float _impactRadius;
@@ -101,7 +129,13 @@ namespace MandateOfInk.Combat
             _restSideX = (_restLocalRotation * Vector3.forward).x;
             if (_elbow != null) _elbowRestZ = _elbow.localPosition.z;
             if (_wrist != null) _wristRestZ = _wrist.localPosition.z;
-            _renderers = GetComponentsInChildren<Renderer>();
+            if (_forearmSleeve != null) _forearmSleeveBaseScale = _forearmSleeve.localScale;
+            // 파티클(증기)은 틴트 제외 — 텔레그래프 적색이 증기를 물들이지 않게 항상 흰 증기 유지
+            var all = GetComponentsInChildren<Renderer>();
+            var meshOnly = new System.Collections.Generic.List<Renderer>();
+            foreach (var r in all)
+                if (!(r is ParticleSystemRenderer)) meshOnly.Add(r);
+            _renderers = meshOnly.ToArray();
             _mpb = new MaterialPropertyBlock();
         }
 
@@ -114,6 +148,7 @@ namespace MandateOfInk.Combat
             _damage = damage;
             _impactRadius = impactRadius;
             _paceScale = frantic ? 0.6f : 1f;
+            _raiseVented = false;
             _raiseStartWorldRotation = transform.rotation;
             _timer = -Mathf.Max(0f, delaySeconds); // 음수 타이머 = 대기. IsBusy는 즉시 참이라 중복 배차가 안 된다.
             _phase = Phase.Raise;
@@ -128,6 +163,7 @@ namespace MandateOfInk.Combat
             {
                 case Phase.Raise:
                 {
+                    if (!_raiseVented && _timer > 0f) { Vent(_steamBurstRaise); _raiseVented = true; }
                     float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(_timer / (_raiseSeconds * _paceScale)));
                     // 어느 팔이든 몸통 위쪽으로 치켜든다 — 목표는 매 프레임 몸통 기준으로 재계산
                     transform.rotation = Quaternion.Slerp(_raiseStartWorldRotation, RaisedWorldRotation(), t);
@@ -138,7 +174,7 @@ namespace MandateOfInk.Combat
                         _wrist.localRotation = Quaternion.Slerp(_wristRest,
                             _wristRest * Quaternion.Euler(_wristRaiseEuler), t);
                     SetTint(Color.Lerp(Color.white, _telegraphColor, t));
-                    if (_timer >= _raiseSeconds * _paceScale) { _timer = 0f; _phase = Phase.Hold; }
+                    if (_timer >= _raiseSeconds * _paceScale) { _timer = 0f; _phase = Phase.Hold; Vent(_steamBurstPrime); }
                     break;
                 }
                 case Phase.Hold:
@@ -162,6 +198,11 @@ namespace MandateOfInk.Combat
                             (_targetPoint - transform.position).normalized, rollHint);
                         // 목표보다 더 깊이 꽂히는 과회전 — 땅을 뚫을 기세
                         _overshootWorldRotation = _slamWorldRotation * Quaternion.Euler(_overshootDegrees, 0f, 0f);
+                        // 스톱모션 낙하 기준 자세 고정(자기참조 보간 금지 — 단이 균일해야 경련답다)
+                        _slamStartRotation = transform.rotation;
+                        _elbowSlamStart = _elbow != null ? _elbow.localRotation : Quaternion.identity;
+                        _wristSlamStart = _wrist != null ? _wrist.localRotation : Quaternion.identity;
+                        _lastSlamStep = -1;
                         _timer = 0f;
                         _phase = Phase.Slam;
                     }
@@ -171,13 +212,21 @@ namespace MandateOfInk.Combat
                 {
                     float t = Mathf.Clamp01(_timer / _slamSeconds);
                     float a = t * t * t; // 급가속 낙하
-                    transform.rotation = Quaternion.Slerp(transform.rotation, _overshootWorldRotation, a);
+                    // 스톱모션 경련 — 보간을 단수로 양자화해 필름 끊긴 괴물처럼 뚝뚝 떨어진다
+                    if (_slamSteps > 0)
+                    {
+                        float q = Mathf.Floor(a * _slamSteps) / _slamSteps;
+                        int step = (int)(a * _slamSteps);
+                        if (step != _lastSlamStep) { _lastSlamStep = step; Vent(3); } // 경련마다 칙
+                        a = t >= 1f ? 1f : q;
+                    }
+                    transform.rotation = Quaternion.Slerp(_slamStartRotation, _overshootWorldRotation, a);
                     SetExtension(Mathf.Lerp(_primeFactor, _extendFactor, a)); // 피스톤 사출 — 쾅
                     if (_elbow != null)
-                        _elbow.localRotation = Quaternion.Slerp(_elbow.localRotation,
+                        _elbow.localRotation = Quaternion.Slerp(_elbowSlamStart,
                             _elbowRest * Quaternion.Euler(_elbowSlamEuler), a);
                     if (_wrist != null)
-                        _wrist.localRotation = Quaternion.Slerp(_wrist.localRotation,
+                        _wrist.localRotation = Quaternion.Slerp(_wristSlamStart,
                             _wristRest * Quaternion.Euler(_wristSlamEuler), a);
                     if (t >= 1f) Impact(); // -> Recoil
                     break;
@@ -261,6 +310,12 @@ namespace MandateOfInk.Combat
             }
             StretchRod(_elbowRod, _elbow != null ? _elbow.localPosition.z : 0f);
             StretchRod(_wristRod, _wrist != null ? _wrist.localPosition.z : 0f);
+            // 전완 슬리브가 손목을 정확히 추적 — 손목 분리 방지(피스톤은 측면에서 계속 노출)
+            if (_forearmSleeve != null)
+            {
+                var s = _forearmSleeveBaseScale;
+                _forearmSleeve.localScale = new Vector3(s.x, s.y, s.z * factor);
+            }
         }
 
         private static void StretchRod(Transform rod, float spanZ)
@@ -302,8 +357,16 @@ namespace MandateOfInk.Combat
                 else Debug.Log("[BossArm] 내려찍기 빗나감");
             }
 
+            Vent(_steamBurstImpact); // 착지 — 전 관절 증기 대분출
             _timer = 0f;
             _phase = Phase.Recoil;
+        }
+
+        private void Vent(int count)
+        {
+            if (_steamVents == null) return;
+            foreach (var v in _steamVents)
+                if (v != null) v.Emit(count);
         }
 
         private void SetTint(Color c)

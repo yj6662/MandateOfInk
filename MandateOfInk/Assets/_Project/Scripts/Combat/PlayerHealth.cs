@@ -7,6 +7,8 @@ namespace MandateOfInk.Combat
     public sealed class PlayerHealth : MonoBehaviour
     {
         [SerializeField] private PlayerConfigSO _config;
+        [Tooltip("디버그 — 켜면 피해를 받지 않는다(피격 알림은 유지). 테스트 전용")]
+        [SerializeField] private bool _godMode;
 
         public float CurrentHp { get; private set; }
         public bool IsDead { get; private set; }
@@ -29,6 +31,12 @@ namespace MandateOfInk.Combat
         public void TakeDamage(float amount)
         {
             if (IsDead) return; // 죽은 뒤 추가 피격 무시 (사망 스팸 방지)
+            if (_godMode)
+            {
+                OnDamaged?.Invoke(); // 피격 반응(갈기 취소 등)은 살려서 감각 테스트 유지
+                Debug.Log($"[Player] 무적(디버그) — 피해 {amount:F1} 무시");
+                return;
+            }
             if (Time.time < _invulnerableUntil)
             {
                 Debug.Log("[Player] 무적 프레임 — 회피 성공");

@@ -18,6 +18,10 @@ namespace MandateOfInk.Combat
         [SerializeField] private float _pointMemorySeconds = 2.5f; // 이 시간 안의 지점과는 겹치지 않는다
         [SerializeField] private float _volleyStaggerSeconds = 0.09f; // 볼리 팔 간 시차
 
+        [Header("[가정] 배차 게이트 — 몸통 관통 방지")]
+        [Tooltip("팔 원위치와 목표의 수평 방위각 허용치 — 넘으면 그 팔은 배차하지 않는다(반대편 팔이 몸을 가로지르는 것 방지)")]
+        [SerializeField] private float _dispatchAngleLimit = 75f;
+
         private readonly List<Vector3> _recentPoints = new List<Vector3>();
         private readonly List<float> _recentTimes = new List<float>();
 
@@ -52,7 +56,7 @@ namespace MandateOfInk.Combat
         // 최근 타격 지점과 겹치면 근처의 빈 자리로 밀려난다 — 연속 콤보도 자동으로 안 겹친다.
         public bool SlamRandomArm(Vector3 targetPoint, bool frantic = false)
         {
-            var idle = CollectIdle();
+            var idle = CollectCandidates(targetPoint);
             if (idle.Count == 0) return false;
             var chosen = idle[Random.Range(0, idle.Count)];
             chosen.SlamAt(PickNonOverlapping(targetPoint), _slamDamage, _impactRadius, 0f, frantic);
@@ -64,7 +68,7 @@ namespace MandateOfInk.Combat
         // 서로 절대 겹치지 않는다. 팔마다 시차를 둬서 과부하 드럼롤처럼 떨어진다.
         public int SlamVolley(Vector3 centerPoint, int count, float spreadRadius)
         {
-            var idle = CollectIdle();
+            var idle = CollectCandidates(centerPoint);
             int started = 0;
             for (int i = 0; i < count && idle.Count > 0; i++)
             {
@@ -85,6 +89,27 @@ namespace MandateOfInk.Combat
             var idle = new List<BossArm>();
             foreach (var arm in _arms) if (arm != null && !arm.IsBusy) idle.Add(arm);
             return idle;
+        }
+
+        // 배차 게이트: 목표 쪽을 향해 걸려 있고(각도) 실제로 닿는(도달) 유휴 팔만 후보로.
+        // 반대편·꼭대기 팔이 몸통을 가로질러 내려오는 상황을 배차 단계에서 원천 차단한다.
+        private List<BossArm> CollectCandidates(Vector3 target)
+        {
+            var list = new List<BossArm>();
+            foreach (var arm in _arms)
+            {
+                if (arm == null || arm.IsBusy) continue;
+                Vector3 toTarget = target - arm.transform.position;
+                // 방위각만 비교(수평 평면) — 어깨가 높아 목표가 늘 아래에 있으므로 3D 각은 부적합.
+                // 기준은 보스 중심: 피벗 기준이면 중앙 목표가 모든 팔에서 "반대쪽"으로 비껴 보여 탈락한다.
+                Vector3 flatOut = arm.RestOutwardDirection; flatOut.y = 0f;
+                Vector3 flatTo = target - transform.position; flatTo.y = 0f;
+                if (flatOut.sqrMagnitude > 0.001f && flatTo.sqrMagnitude > 0.001f
+                    && Vector3.Angle(flatOut, flatTo) > _dispatchAngleLimit) continue;
+                if (toTarget.magnitude > arm.MaxReachWorld * 0.95f) continue;
+                list.Add(arm);
+            }
+            return list;
         }
 
         // 원하는 지점이 최근 타격 지점과 최소 이격 미만이면, 주변에서 빈 자리를 다시 뽑는다.
