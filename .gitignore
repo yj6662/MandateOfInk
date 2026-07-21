@@ -2,3 +2,10 @@
 # API 키·시크릿 — 절대 커밋 금지 (실제 키는 Tools/.env 에 둔다)
 .env
 Tools/.env
+
+# 대형 서드파티 에셋 — 리포 비대화 방지, 각 기기에서 재임포트 (Unity AssetStore/외부 배포)
+# 이미 커밋된 House Of Changwon·GabrielAguiarProductions는 히스토리 유지를 위해 제외하지 않음
+MandateOfInk/Assets/KoreanTraditionalPattern_Effect/
+MandateOfInk/Assets/KoreanTraditionalPattern_Effect.meta
+MandateOfInk/Assets/KoreanTraditional_SmartMaterials Vol.4/
+MandateOfInk/Assets/KoreanTraditional_SmartMaterials Vol.4.meta

@@ -16,6 +16,7 @@ namespace MandateOfInk.Combat
         [SerializeField] private ElementPaletteSO _palette;
         [SerializeField] private FinalModifierConfigSO _modifierConfig; // 종성(받침) 거동 수치
         [SerializeField] private CombatConfigSO _combatConfig;          // 포이즈·받아치기 수치
+        [SerializeField] private SpellPatternSetSO _patternSet;         // 오행→문양 이펙트 프리팹 (없으면 구체 폴백)
 
         [Header("[가정] 투사체 (공격·단일)")]
         [SerializeField] private float _projectileSpeed = 25f;
@@ -121,6 +122,14 @@ namespace MandateOfInk.Combat
                 diagram.Element, _relationTable, _projectileLifetime, color,
                 diagram.Modifier, _modifierConfig, installOnly,
                 combatConfig: _combatConfig, polarity: diagram.Polarity);
+
+            // 문양 발사체로 완전 교체 — 판정 구는 숨기고 문양을 얹는다(약발동은 색 폴백 유지)
+            var flyPrefab = !request.IsWeak && _patternSet != null ? _patternSet.GetProjectile(diagram.Element) : null;
+            if (flyPrefab != null)
+            {
+                SpellVisuals.HideRenderer(go);
+                SpellVisuals.AttachProjectilePattern(go.transform, flyPrefab, _projectileDiameter * 2.4f * scale, ElementTint(diagram.Element));
+            }
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.4f * scale, _letterColor);
             Log(diagram, request, installOnly ? "격발 표식 투사체" : "투사체");
         }
@@ -137,6 +146,15 @@ namespace MandateOfInk.Combat
             go.AddComponent<SpellAreaBlast>().Init(radius, _areaExpandSeconds,
                 GetDamage(diagram, request), diagram.Element, _relationTable, mat,
                 diagram.Modifier, _modifierConfig, installOnly, _combatConfig, diagram.Polarity);
+
+            // 바닥 문양 진 — 발밑에 깔린다(팽창 구는 판정만, 문양이 룩 담당)
+            var groundPrefab = !request.IsWeak && _patternSet != null ? _patternSet.GetGroundCircle(diagram.Element) : null;
+            if (groundPrefab != null)
+            {
+                SpellVisuals.HideRenderer(go);
+                var fx = SpellVisuals.AttachGroundPattern(go.transform, groundPrefab, radius * 2f, followParent: true, ElementTint(diagram.Element));
+                if (fx != null) fx.transform.localPosition = Vector3.down * 0.9f; // 지면 근처로 내림
+            }
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.6f, _letterColor);
             Log(diagram, request, installOnly ? "격발 표식 파동" : "광역 파동");
         }
@@ -164,8 +182,46 @@ namespace MandateOfInk.Combat
             go.name = $"Shield_{diagram.Letter}";
             var mat = go.GetComponent<MeshRenderer>().material;
             go.AddComponent<SpellShield>().Init(duration, mat, diagram.Element, _relationTable, _combatConfig);
+
+            // 방어 진 문양 — 돔은 발밑 바닥 진, 전방 막은 세워서(수직) 부착
+            var shieldPrefab = !request.IsWeak && _patternSet != null ? _patternSet.GetGroundCircle(diagram.Element) : null;
+            if (shieldPrefab != null)
+            {
+                SpellVisuals.HideRenderer(go);
+                if (diagram.Scope == Scope.Area)
+                {
+                    var fx = SpellVisuals.AttachGroundPattern(go.transform, shieldPrefab, _shieldDomeDiameter, followParent: true, ElementTint(diagram.Element));
+                    if (fx != null) fx.transform.localPosition = Vector3.down * 0.9f;
+                }
+                else
+                {
+                    // 전방 막: 진을 세워 벽처럼 — X축 90도 회전, 막 크기에 맞춤
+                    var fx = SpellVisuals.AttachGroundPattern(go.transform, shieldPrefab, _shieldWallSize.x, followParent: true, ElementTint(diagram.Element));
+                    if (fx != null) fx.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                }
+            }
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.5f, _letterColor);
             Log(diagram, request, diagram.Scope == Scope.Area ? "광역 돔" : "전방 막");
+        }
+
+        // 문양 틴트용 오방색 — 팔레트 색을 불투명 순색으로(알파·명도 영향 제거). 팔레트 없으면 오방색 기본값.
+        private Color ElementTint(Element element)
+        {
+            if (_palette != null)
+            {
+                var c = _palette.GetColor(element);
+                c.a = 1f;
+                return c;
+            }
+            return element switch
+            {
+                Element.Wood => new Color(0.25f, 0.85f, 0.45f),  // 청(청록 계열)
+                Element.Fire => new Color(0.95f, 0.25f, 0.15f),  // 적
+                Element.Earth => new Color(0.95f, 0.8f, 0.2f),   // 황
+                Element.Metal => new Color(0.92f, 0.94f, 0.98f), // 백
+                Element.Water => new Color(0.2f, 0.45f, 0.95f),  // 짙청
+                _ => Color.white,
+            };
         }
 
         private static void Log(SpellDiagramSO diagram, DiagramCastRequest request, string kind)

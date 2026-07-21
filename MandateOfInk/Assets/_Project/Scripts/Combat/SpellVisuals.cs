@@ -74,6 +74,92 @@ namespace MandateOfInk.Combat
             go.AddComponent<SpellBillboard>();
         }
 
+        // 판정용 프리미티브를 시각적으로 숨긴다(렌더러 비활성) — 콜라이더·스크립트는 유지.
+        // 문양 프리팹으로 완전 교체할 때 판정 구는 보이지 않게만 둔다.
+        public static void HideRenderer(GameObject go)
+        {
+            var mr = go.GetComponent<MeshRenderer>();
+            if (mr != null) mr.enabled = false;
+        }
+
+        // 문양 진 프리팹을 부모에 부착해 바닥에 깐다(수평, 지름 맞춤).
+        // tint를 주면 파티클 색을 오방색으로 밀어준다(에셋은 청록·주황 위주라 오행 색과 어긋나므로).
+        public static GameObject AttachGroundPattern(Transform parent, GameObject prefab, float worldDiameter, bool followParent, Color? tint = null)
+        {
+            if (prefab == null) return null;
+            var fx = Object.Instantiate(prefab);
+            fx.name = "PatternCircle";
+            if (followParent)
+            {
+                fx.transform.SetParent(parent, false);
+                fx.transform.localPosition = Vector3.zero;
+                fx.transform.localRotation = Quaternion.identity;
+            }
+            else
+            {
+                fx.transform.position = parent.position;
+            }
+            // 에셋 진은 XZ 평면(바닥)을 상정 — 부모 스케일 영향을 지우고 월드 지름으로 정규화
+            NormalizePatternScale(fx.transform, parent, worldDiameter);
+            if (tint.HasValue) ApplyTint(fx, tint.Value);
+            return fx;
+        }
+
+        // 발사체 문양을 투사체에 부착(진행 방향 정렬)
+        public static GameObject AttachProjectilePattern(Transform parent, GameObject prefab, float worldDiameter, Color? tint = null)
+        {
+            if (prefab == null) return null;
+            var fx = Object.Instantiate(prefab);
+            fx.name = "PatternProjectile";
+            fx.transform.SetParent(parent, false);
+            fx.transform.localPosition = Vector3.zero;
+            fx.transform.localRotation = Quaternion.identity;
+            NormalizePatternScale(fx.transform, parent, worldDiameter);
+            if (tint.HasValue) ApplyTint(fx, tint.Value);
+            return fx;
+        }
+
+        // 문양의 모든 파티클 startColor를 오방색으로 물들인다 — 명도는 살리되 색상은 tint로 곱한다.
+        private static void ApplyTint(GameObject fx, Color tint)
+        {
+            foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var main = ps.main;
+                var sc = main.startColor;
+                if (sc.mode == ParticleSystemGradientMode.Color)
+                {
+                    main.startColor = MultiplyKeepValue(sc.color, tint);
+                }
+                else if (sc.mode == ParticleSystemGradientMode.TwoColors)
+                {
+                    main.startColor = new ParticleSystem.MinMaxGradient(
+                        MultiplyKeepValue(sc.colorMin, tint), MultiplyKeepValue(sc.colorMax, tint));
+                }
+                else
+                {
+                    main.startColor = tint;
+                }
+            }
+        }
+
+        // 원래 색의 명도(밝기)는 유지하고 색상만 tint로 교체 — 흰 하이라이트가 죽지 않게.
+        private static Color MultiplyKeepValue(Color original, Color tint)
+        {
+            float value = Mathf.Max(original.r, Mathf.Max(original.g, original.b)); // 원래 밝기
+            Color.RGBToHSV(tint, out float h, out float s, out _);
+            Color tinted = Color.HSVToRGB(h, s, value);
+            tinted.a = original.a;
+            return tinted;
+        }
+
+        private static void NormalizePatternScale(Transform fx, Transform parent, float worldDiameter)
+        {
+            Vector3 ls = parent.lossyScale;
+            float inv = worldDiameter / Mathf.Max(0.01f,
+                Mathf.Max(Mathf.Abs(ls.x), Mathf.Max(Mathf.Abs(ls.y), Mathf.Abs(ls.z))));
+            fx.localScale = Vector3.one * inv;
+        }
+
         // 명중·소멸 등에 쓰는 팽창-소멸 구
         public static void SpawnBurst(Vector3 position, Color color, float maxDiameter, float seconds = 0.3f)
         {
