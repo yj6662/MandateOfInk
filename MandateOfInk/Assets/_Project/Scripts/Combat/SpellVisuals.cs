@@ -119,7 +119,18 @@ namespace MandateOfInk.Combat
             return fx;
         }
 
-        // 문양의 모든 파티클 startColor를 오방색으로 물들인다 — 명도는 살리되 색상은 tint로 곱한다.
+        // 수묵담채 톤 — 담채(옅은 색)라 채도를 크게 낮추고, 명도도 눌러 네온기를 뺀다. [가정]
+        // 진 이펙트 전역 룩 노브: 값이 작을수록 먹빛에 가까워진다.
+        // 가산 혼합(Additive) 문양은 밝은 배경에서 흰색으로 날아가므로 명도를 특히 낮게 잡는다.
+        private const float InkSaturation = 0.35f;  // 담채 채도 상한(옅게)
+        private const float InkValueScale = 0.5f;   // 명도 눌림(먹의 어두움)
+
+        private static readonly int TintColorId = Shader.PropertyToID("_TintColor");
+        private static readonly int ColorId = Shader.PropertyToID("_Color");
+        private static readonly int BaseColorId2 = Shader.PropertyToID("_BaseColor");
+
+        // 문양의 파티클 startColor + 렌더러 머티리얼 색을 오방색 담채로 물들인다.
+        // 흰 문양 선(Pattern 렌더러의 _Color=흰색/HDR)까지 눌러야 네온기가 빠진다.
         private static void ApplyTint(GameObject fx, Color tint)
         {
             foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
@@ -127,27 +138,36 @@ namespace MandateOfInk.Combat
                 var main = ps.main;
                 var sc = main.startColor;
                 if (sc.mode == ParticleSystemGradientMode.Color)
-                {
-                    main.startColor = MultiplyKeepValue(sc.color, tint);
-                }
+                    main.startColor = InkTint(sc.color, tint);
                 else if (sc.mode == ParticleSystemGradientMode.TwoColors)
-                {
                     main.startColor = new ParticleSystem.MinMaxGradient(
-                        MultiplyKeepValue(sc.colorMin, tint), MultiplyKeepValue(sc.colorMax, tint));
-                }
+                        InkTint(sc.colorMin, tint), InkTint(sc.colorMax, tint));
                 else
+                    main.startColor = InkTint(Color.white, tint);
+            }
+
+            // 렌더러 머티리얼 색(_Color/_TintColor/_BaseColor) — 흰 선·HDR 밝기를 담채로 억제.
+            // 인스턴스 머티리얼로 복제해 원본 에셋을 오염시키지 않는다.
+            foreach (var r in fx.GetComponentsInChildren<Renderer>(true))
+            {
+                var mat = r.material; // 인스턴스화
+                foreach (var id in new[] { ColorId, TintColorId, BaseColorId2 })
                 {
-                    main.startColor = tint;
+                    if (!mat.HasProperty(id)) continue;
+                    Color c = mat.GetColor(id);
+                    mat.SetColor(id, InkTint(c, tint));
                 }
             }
         }
 
-        // 원래 색의 명도(밝기)는 유지하고 색상만 tint로 교체 — 흰 하이라이트가 죽지 않게.
-        private static Color MultiplyKeepValue(Color original, Color tint)
+        // 원래 명도를 기준 삼되 눌러서, tint의 색상을 옅은 담채로 얹는다(수묵담채).
+        // HDR 밝기(>1)는 1로 클램프해 네온 발광을 억제하고, 채도는 담채 상한으로 낮춘다.
+        private static Color InkTint(Color original, Color tint)
         {
-            float value = Mathf.Max(original.r, Mathf.Max(original.g, original.b)); // 원래 밝기
+            float rawValue = Mathf.Max(original.r, Mathf.Max(original.g, original.b));
+            float value = Mathf.Clamp01(rawValue) * InkValueScale;
             Color.RGBToHSV(tint, out float h, out float s, out _);
-            Color tinted = Color.HSVToRGB(h, s, value);
+            Color tinted = Color.HSVToRGB(h, Mathf.Min(s, InkSaturation), value);
             tinted.a = original.a;
             return tinted;
         }
@@ -212,6 +232,65 @@ namespace MandateOfInk.Combat
         private void OnDestroy()
         {
             if (_material != null) Destroy(_material);
+        }
+    }
+
+    // 문양 진의 부드러운 시작·종료 — 판정 렌더러를 숨긴 문양은 색 페이드를 못 받으므로 별도 처리.
+    // 시작: 스케일이 살짝 부풀며 등장(펼쳐지는 진). 종료: 방출을 끊어 입자가 자연 소멸(뚝 끊김 방지).
+    public sealed class PatternFade : MonoBehaviour
+    {
+        private ParticleSystem[] _systems;
+        private float _bornAt;
+        private float _fadeOutAt = -1f;  // 이 시각부터 방출 중단
+        private float _destroyAt = -1f;
+        private const float FadeInSeconds = 0.35f; // 펼쳐지는 등장
+        private Vector3 _targetScale;
+
+        // lifeSeconds: 총 지속(0 이하면 무한 — 외부가 Destroy). tailSeconds: 방출 끊고 잔류 소멸 여유.
+        public void Init(float lifeSeconds, float tailSeconds = 1.2f)
+        {
+            _systems = GetComponentsInChildren<ParticleSystem>(true);
+            _bornAt = Time.time;
+            _targetScale = transform.localScale;
+            if (lifeSeconds > 0f)
+            {
+                _fadeOutAt = _bornAt + Mathf.Max(0.1f, lifeSeconds - tailSeconds);
+                _destroyAt = _bornAt + lifeSeconds;
+            }
+        }
+
+        private void Update()
+        {
+            // 등장: 스케일 0.85→1.0 스무스
+            float since = Time.time - _bornAt;
+            if (since < FadeInSeconds)
+            {
+                float t = Mathf.SmoothStep(0f, 1f, since / FadeInSeconds);
+                transform.localScale = _targetScale * Mathf.Lerp(0.85f, 1f, t);
+            }
+            else if (transform.localScale != _targetScale)
+            {
+                transform.localScale = _targetScale;
+            }
+
+            // 종료: 방출 중단 → 잔류 입자 자연 소멸
+            if (_fadeOutAt > 0f && Time.time >= _fadeOutAt)
+            {
+                foreach (var ps in _systems)
+                {
+                    if (ps == null) continue;
+                    var em = ps.emission;
+                    if (em.enabled) em.enabled = false;
+                }
+            }
+            if (_destroyAt > 0f && Time.time >= _destroyAt) Destroy(gameObject);
+        }
+
+        // 외부(방어막 소멸 등)가 즉시 페이드아웃을 걸 때
+        public void BeginFadeOut(float tailSeconds = 1.2f)
+        {
+            _fadeOutAt = Time.time;
+            _destroyAt = Time.time + tailSeconds;
         }
     }
 }

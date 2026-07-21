@@ -22,10 +22,14 @@ namespace MandateOfInk.Combat
         [SerializeField] private float _projectileSpeed = 25f;
         [SerializeField] private float _projectileLifetime = 5f;
         [SerializeField] private float _projectileDiameter = 0.5f;
+        [Tooltip("발사 시작점 — 붓끝 근처(카메라 로컬). z=앞, y=아래로 살짝, x=오른쪽")]
+        [SerializeField] private Vector3 _muzzleLocalOffset = new Vector3(0.25f, -0.15f, 0.9f);
 
         [Header("[가정] 광역 파동 (공격·영역)")]
         [SerializeField] private float _areaRadius = 4.5f;
         [SerializeField] private float _areaExpandSeconds = 0.45f;
+        [Tooltip("바닥 진 문양이 지면에 남는 시간(파동 판정과 별개) — 끊김 방지")]
+        [SerializeField] private float _groundPatternSeconds = 3.5f;
 
         [Header("[가정] 방어 진")]
         [SerializeField] private Vector3 _shieldWallSize = new Vector3(2.4f, 1.8f, 0.15f);
@@ -115,7 +119,9 @@ namespace MandateOfInk.Combat
             var go = SpellVisuals.CreateTranslucent(PrimitiveType.Sphere, color,
                 Vector3.one * (_projectileDiameter * scale), keepColliderAsTrigger: true);
             go.name = $"Projectile_{diagram.Letter}";
-            go.transform.SetPositionAndRotation(transform.position + transform.forward * 0.8f, transform.rotation);
+            // 붓끝 근처에서 발사 — 카메라 로컬 오프셋을 월드로 변환
+            Vector3 muzzle = transform.TransformPoint(_muzzleLocalOffset);
+            go.transform.SetPositionAndRotation(muzzle, transform.rotation);
             var rb = go.AddComponent<Rigidbody>();
             rb.isKinematic = true;
             go.AddComponent<SpellProjectile>().Init(_projectileSpeed, GetDamage(diagram, request),
@@ -152,8 +158,15 @@ namespace MandateOfInk.Combat
             if (groundPrefab != null)
             {
                 SpellVisuals.HideRenderer(go);
+                // 바닥 진을 부모(판정 구)에서 떼어내 지면에 남긴다 — 구가 사라져도 진은 자연 소멸
                 var fx = SpellVisuals.AttachGroundPattern(go.transform, groundPrefab, radius * 2f, followParent: true, ElementTint(diagram.Element));
-                if (fx != null) fx.transform.localPosition = Vector3.down * 0.9f; // 지면 근처로 내림
+                if (fx != null)
+                {
+                    var groundPos = origin + Vector3.down * 0.9f;
+                    fx.transform.SetParent(null, true);
+                    fx.transform.position = groundPos;
+                    fx.AddComponent<PatternFade>().Init(_groundPatternSeconds);
+                }
             }
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.6f, _letterColor);
             Log(diagram, request, installOnly ? "격발 표식 파동" : "광역 파동");
@@ -177,27 +190,42 @@ namespace MandateOfInk.Combat
             {
                 go = SpellVisuals.CreateTranslucent(PrimitiveType.Cube, color, _shieldWallSize, keepColliderAsTrigger: true);
                 go.transform.SetParent(PlayerRoot, false);
-                go.transform.localPosition = Vector3.up * 1.1f + Vector3.forward * _shieldWallDistance;
+                // 시야를 덜 가리게 더 앞·아래로 — 눈앞이 아니라 앞쪽 바닥에서 솟은 벽
+                go.transform.localPosition = Vector3.up * 0.7f + Vector3.forward * _shieldWallDistance;
             }
             go.name = $"Shield_{diagram.Letter}";
             var mat = go.GetComponent<MeshRenderer>().material;
             go.AddComponent<SpellShield>().Init(duration, mat, diagram.Element, _relationTable, _combatConfig);
 
-            // 방어 진 문양 — 돔은 발밑 바닥 진, 전방 막은 세워서(수직) 부착
+            // 방어 진 문양 — 돔은 발밑 바닥 진, 전방 막은 세워서(수직) 부착. 페이드로 부드럽게 소멸.
             var shieldPrefab = !request.IsWeak && _patternSet != null ? _patternSet.GetGroundCircle(diagram.Element) : null;
             if (shieldPrefab != null)
             {
                 SpellVisuals.HideRenderer(go);
+                GameObject fx;
                 if (diagram.Scope == Scope.Area)
                 {
-                    var fx = SpellVisuals.AttachGroundPattern(go.transform, shieldPrefab, _shieldDomeDiameter, followParent: true, ElementTint(diagram.Element));
+                    // 광역 돔: 발밑 바닥 진
+                    fx = SpellVisuals.AttachGroundPattern(go.transform, shieldPrefab, _shieldDomeDiameter, followParent: true, ElementTint(diagram.Element));
                     if (fx != null) fx.transform.localPosition = Vector3.down * 0.9f;
                 }
                 else
                 {
-                    // 전방 막: 진을 세워 벽처럼 — X축 90도 회전, 막 크기에 맞춤
-                    var fx = SpellVisuals.AttachGroundPattern(go.transform, shieldPrefab, _shieldWallSize.x, followParent: true, ElementTint(diagram.Element));
-                    if (fx != null) fx.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                    // 전방 막: 세우지 않고 플레이어 앞쪽 바닥에 진을 깐다(원형 문양은 바닥이 자연).
+                    // 판정 큐브는 벽으로 서있고, 문양은 그 앞 지면에서 '앞을 막는 진'으로 읽힌다.
+                    fx = SpellVisuals.AttachGroundPattern(go.transform, shieldPrefab, _shieldWallSize.x * 1.5f, followParent: true, ElementTint(diagram.Element));
+                    if (fx != null) fx.transform.localPosition = new Vector3(0f, -1.0f, _shieldWallSize.z * 2f);
+                }
+                // 문양을 판정 구에서 떼어 PlayerRoot 자식으로 — 방어막이 파괴돼도 문양은 남아
+                // 페이드로 자연 소멸(뚝 끊김 방지). 플레이어를 계속 따라다닌다.
+                if (fx != null)
+                {
+                    Vector3 worldPos = fx.transform.position;
+                    Quaternion worldRot = fx.transform.rotation;
+                    Vector3 worldScale = fx.transform.lossyScale;
+                    fx.transform.SetParent(PlayerRoot, worldPositionStays: true);
+                    fx.transform.SetPositionAndRotation(worldPos, worldRot);
+                    fx.AddComponent<PatternFade>().Init(duration);
                 }
             }
             SpellVisuals.AttachLetter(go.transform, diagram.Letter, 0.5f, _letterColor);
