@@ -12,10 +12,12 @@ namespace MandateOfInk.Data
         public struct ElementPatterns
         {
             public Element Element;
-            [Tooltip("바닥 진 — 광역 파동·돔·전방 막·격발 파동에 깔린다")]
+            [Tooltip("바닥 진(Bottom) — 광역 파동·돔·전방 막·격발 파동에 깔린다. 명중 폭발 시에도 함께 각인된다")]
             public GameObject GroundCircle;
-            [Tooltip("발사체 — 단일 투사체에 부착된다")]
+            [Tooltip("발사체 비행 몸체(Fly Projectile 분해본) — 단일 투사체에 부착")]
             public GameObject Projectile;
+            [Tooltip("명중 폭발(Fly Explosion 분해본) — 투사체 명중·벽 충돌 지점에 재생")]
+            public GameObject Explosion;
         }
 
         [SerializeField] private ElementPatterns[] _patterns;
@@ -32,6 +34,13 @@ namespace MandateOfInk.Data
             foreach (var p in _patterns)
                 if (p.Element == element) return p.Projectile;
             return _patterns.Length > 0 ? _patterns[0].Projectile : null;
+        }
+
+        public GameObject GetExplosion(Element element)
+        {
+            foreach (var p in _patterns)
+                if (p.Element == element) return p.Explosion;
+            return _patterns.Length > 0 ? _patterns[0].Explosion : null;
         }
     }
 }

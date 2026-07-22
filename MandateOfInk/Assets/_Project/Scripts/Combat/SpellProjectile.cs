@@ -26,23 +26,30 @@ namespace MandateOfInk.Combat
         private int _chainJumpsLeft;
         private HashSet<EnemyHealth> _alreadyHit; // 관통·연쇄가 같은 적을 두 번 때리지 않게 (연쇄 계보가 공유)
         private float _armDelay = 0.06f; // 스폰 직후 충돌 유예 — 붓끝·시전자 근처 벽 오탐 방지 [가정]
-        private GameObject _explosionPrefab; // 명중·충돌 시 그 지점에 재생할 폭발 문양(Fly Explosion 그룹)
+        private GameObject _explosionPrefab; // 명중·충돌 시 그 지점에 재생할 폭발 문양(Fly Explosion 분해본)
+        private GameObject _explosionBottomPrefab; // 폭발과 함께 명중 지점에 각인될 바닥 문양(Bottom)
         private Color _explosionTint = Color.white;
         private float _explosionDiameter = 1.5f;
 
-        // 폭발 문양 배선 — 명중·벽 충돌 시 SpellVisuals.SpawnPatternExplosion으로 재생된다.
-        public void SetExplosionPattern(GameObject prefab, Color tint, float diameter)
+        // 폭발 문양 배선 — 명중·벽 충돌 시 폭발(Explosion) + 바닥 문양(Bottom)이 그 지점에 함께 재생된다.
+        public void SetExplosionPattern(GameObject explosionPrefab, GameObject bottomPrefab, Color tint, float diameter)
         {
-            _explosionPrefab = prefab;
+            _explosionPrefab = explosionPrefab;
+            _explosionBottomPrefab = bottomPrefab;
             _explosionTint = tint;
             _explosionDiameter = diameter;
         }
 
-        // 폭발 이펙트 재생 — 문양 폭발이 배선돼 있으면 문양을, 아니면 기존 팽창 구를 쓴다.
+        // 폭발 이펙트 재생 — 폭발 문양 + 바닥 전통 문양이 함께 터진다(배선 없으면 팽창 구 폴백).
         private void PlayImpact(Vector3 at)
         {
             if (_explosionPrefab != null)
+            {
                 SpellVisuals.SpawnPatternExplosion(_explosionPrefab, at, _explosionDiameter, _explosionTint);
+                // 명중 지점 바닥에 전통 문양 각인 — 폭발과 함께 터지며 잠깐 남았다 사라진다
+                if (_explosionBottomPrefab != null)
+                    SpellVisuals.SpawnGroundStamp(_explosionBottomPrefab, at, _explosionDiameter * 1.3f, _explosionTint);
+            }
             else
                 SpellVisuals.SpawnBurst(at, _elementColor, 0.9f);
         }

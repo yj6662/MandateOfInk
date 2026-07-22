@@ -105,13 +105,10 @@ namespace MandateOfInk.Combat
             return fx;
         }
 
-        // Fly 프리팹은 발사→비행→폭발이 3개 최상위 그룹으로 나뉜다:
-        //   Charge(발사 준비) / Projectile(비행 몸체) / Explosion(명중 폭발)
-        // 비행 중엔 Projectile만, 명중·충돌 시엔 Explosion만 그 지점에서 재생한다.
-        private const string ProjectileGroup = "Projectile";
-        private const string ExplosionGroup = "Explosion";
+        // 이 프리팹들은 에디터에서 미리 분해된 순수본이다(SplitFly/): Element_Projectile(비행 몸체만),
+        // Element_Explosion(명중 폭발만). Animator·타임라인·불필요 그룹이 이미 제거돼 있어 그냥 붙이면 된다.
 
-        // 발사체 문양을 투사체에 부착 — 비행 몸체(Projectile 그룹)만 남긴다.
+        // 비행 몸체 문양을 투사체에 부착.
         public static GameObject AttachProjectilePattern(Transform parent, GameObject prefab, float worldDiameter, Color? tint = null)
         {
             if (prefab == null) return null;
@@ -120,14 +117,12 @@ namespace MandateOfInk.Combat
             fx.transform.SetParent(parent, false);
             fx.transform.localPosition = Vector3.zero;
             fx.transform.localRotation = Quaternion.identity;
-
-            KeepOnlyGroup(fx.transform, ProjectileGroup);
             NormalizePatternScale(fx.transform, parent, worldDiameter);
             if (tint.HasValue) ApplyTint(fx, tint.Value);
             return fx;
         }
 
-        // 명중·충돌 지점에 폭발 문양(Explosion 그룹)만 재생하고 자동 소멸한다.
+        // 명중·충돌 지점에 폭발 문양을 재생하고 자동 소멸한다.
         public static void SpawnPatternExplosion(GameObject prefab, Vector3 position, float worldDiameter, Color? tint = null)
         {
             if (prefab == null) return;
@@ -135,44 +130,42 @@ namespace MandateOfInk.Combat
             fx.name = "PatternExplosion";
             fx.transform.position = position;
             fx.transform.localRotation = Quaternion.identity;
-
-            KeepOnlyGroup(fx.transform, ExplosionGroup);
-            // 폭발 지름 — Fly 프리팹 폭발은 원본이 크므로(±4.8 규모) worldDiameter 기준으로 축소.
+            // 폭발 원본이 크므로(±4.8 규모) worldDiameter 기준으로 축소 [가정 — 원본 대략 4m]
             fx.transform.localScale = Vector3.one * (worldDiameter / 4f);
             if (tint.HasValue) ApplyTint(fx, tint.Value);
             Object.Destroy(fx, 3f); // [가정] 폭발 잔류 상한
         }
 
-        // 최상위 그룹 중 이름이 keepGroup인 것만 남기고 나머지 최상위 그룹은 제거.
-        // 남긴 그룹은 로컬 원점(0,0,0)으로 옮겨 fx 위치에서 재생되게 한다.
-        // Fly 프리팹은 루트 Animator가 Charge→Projectile→Explosion을 타임라인으로 켰다 껐다 하므로,
-        // Animator를 제거해 간섭을 끊고 남긴 그룹을 강제 활성화한다(안 그러면 그룹이 꺼진 채 안 보임).
-        private static void KeepOnlyGroup(Transform fx, string keepGroup)
+        // 바닥 문양(Bottom)을 명중 지점 바닥에 눕혀 잠깐 각인한다(폭발과 함께). 지름은 월드 기준.
+        public static void SpawnGroundStamp(GameObject bottomPrefab, Vector3 position, float worldDiameter, Color? tint = null)
         {
-            foreach (var anim in fx.GetComponentsInChildren<Animator>(true))
-                Object.Destroy(anim);
+            if (bottomPrefab == null) return;
+            var fx = Object.Instantiate(bottomPrefab);
+            fx.name = "GroundStamp";
+            fx.transform.position = position + Vector3.up * 0.05f; // 지면 살짝 위(z파이팅 방지)
+            fx.transform.localRotation = Quaternion.identity; // Bottom은 XZ 평면(바닥)이 기본
+            // Bottom 원본 지름을 실측해 목표 지름으로 정규화
+            float src = MeasureDiameter(fx);
+            fx.transform.localScale = Vector3.one * (worldDiameter / Mathf.Max(0.5f, src));
+            if (tint.HasValue) ApplyTint(fx, tint.Value);
+            Object.Destroy(fx, 2.5f); // [가정] 각인 잔류 상한
+        }
 
-            var children = new System.Collections.Generic.List<Transform>();
-            foreach (Transform c in fx) children.Add(c);
-            foreach (var c in children)
-            {
-                if (c.name == keepGroup)
-                {
-                    c.localPosition = Vector3.zero;
-                    c.gameObject.SetActive(true); // Animator가 꺼둔 것을 되살린다
-                }
-                else Object.Destroy(c.gameObject);
-            }
-            // 남긴 그룹의 하위 파티클 오브젝트도 전부 활성화(타임라인이 꺼둔 것 포함)
-            foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
-                ps.gameObject.SetActive(true);
+        // 파티클·렌더러 바운드로 대략적 지름을 잰다(스케일 1 기준).
+        private static float MeasureDiameter(GameObject go)
+        {
+            var rends = go.GetComponentsInChildren<Renderer>(true);
+            if (rends.Length == 0) return 1f;
+            var b = rends[0].bounds;
+            foreach (var r in rends) b.Encapsulate(r.bounds);
+            return Mathf.Max(b.size.x, b.size.z);
         }
 
         // 수묵담채 톤 — 담채(옅은 색)라 채도를 크게 낮추고, 명도도 눌러 네온기를 뺀다. [가정]
         // 진 이펙트 전역 룩 노브: 값이 작을수록 먹빛에 가까워진다.
         // 가산 혼합(Additive) 문양은 밝은 배경에서 흰색으로 날아가므로 명도를 특히 낮게 잡는다.
-        private const float InkSaturation = 0.35f;  // 담채 채도 상한(옅게)
-        private const float InkValueScale = 0.5f;   // 명도 눌림(먹의 어두움)
+        private const float InkSaturation = 0.7f;   // [테스트] 채도 상향 — 오방색 잘 보이게(수묵담채는 나중 결정)
+        private const float InkValueScale = 0.85f;  // [테스트] 명도 상향
 
         private static readonly int TintColorId = Shader.PropertyToID("_TintColor");
         private static readonly int ColorId = Shader.PropertyToID("_Color");

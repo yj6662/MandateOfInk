@@ -134,14 +134,18 @@ namespace MandateOfInk.Combat
                 diagram.Modifier, _modifierConfig, installOnly,
                 combatConfig: _combatConfig, polarity: diagram.Polarity);
 
-            // 문양 발사체로 완전 교체 — 판정 구는 숨기고 비행 몸체 문양만 얹는다(약발동은 색 폴백 유지)
-            var flyPrefab = !request.IsWeak && _patternSet != null ? _patternSet.GetProjectile(diagram.Element) : null;
-            if (flyPrefab != null)
+            // 문양 발사체로 완전 교체 — 판정 구는 숨기고 비행 몸체(분해본 Projectile)만 얹는다(약발동은 색 폴백)
+            var projPrefab = !request.IsWeak && _patternSet != null ? _patternSet.GetProjectile(diagram.Element) : null;
+            if (projPrefab != null)
             {
+                var tint = ElementTint(diagram.Element);
                 SpellVisuals.HideRenderer(go);
-                SpellVisuals.AttachProjectilePattern(go.transform, flyPrefab, _projectileDiameter * 2.4f * scale, ElementTint(diagram.Element));
-                // 폭발 문양은 명중·벽 충돌 시에만 그 지점에서 재생 (같은 Fly 프리팹의 Explosion 그룹)
-                projectile.SetExplosionPattern(flyPrefab, ElementTint(diagram.Element), _projectileDiameter * 4f * scale);
+                SpellVisuals.AttachProjectilePattern(go.transform, projPrefab, _projectileDiameter * 2.4f * scale, tint);
+                // 명중·벽 충돌 시 그 지점에 폭발(분해본 Explosion) + 바닥 전통 문양(Bottom)이 함께 터진다
+                projectile.SetExplosionPattern(
+                    _patternSet.GetExplosion(diagram.Element),
+                    _patternSet.GetGroundCircle(diagram.Element),
+                    tint, _projectileDiameter * 4f * scale);
             }
             Log(diagram, request, installOnly ? "격발 표식 투사체" : "투사체");
         }
