@@ -105,10 +105,13 @@ namespace MandateOfInk.Combat
             return fx;
         }
 
-        // 발사체 문양을 투사체에 부착.
-        // Fly 프리팹은 발사→비행→폭발 시퀀스를 로컬 공간에 펼쳐 배치해뒀다(Charge -4.8 / Projectile -4.8
-        // / Explosion +4.8 등). 우리는 투사체 위치에 통째로 붙이므로, 시퀀스로 오프셋된 자식들을
-        // 전부 로컬 원점(0,0,0)으로 모아 한 자리에서 재생되게 한다.
+        // Fly 프리팹은 발사→비행→폭발이 3개 최상위 그룹으로 나뉜다:
+        //   Charge(발사 준비) / Projectile(비행 몸체) / Explosion(명중 폭발)
+        // 비행 중엔 Projectile만, 명중·충돌 시엔 Explosion만 그 지점에서 재생한다.
+        private const string ProjectileGroup = "Projectile";
+        private const string ExplosionGroup = "Explosion";
+
+        // 발사체 문양을 투사체에 부착 — 비행 몸체(Projectile 그룹)만 남긴다.
         public static GameObject AttachProjectilePattern(Transform parent, GameObject prefab, float worldDiameter, Color? tint = null)
         {
             if (prefab == null) return null;
@@ -118,19 +121,40 @@ namespace MandateOfInk.Combat
             fx.transform.localPosition = Vector3.zero;
             fx.transform.localRotation = Quaternion.identity;
 
-            // 시퀀스로 좌우로 벌려둔 자식들을 원점으로 정렬 — |오프셋|이 큰(0.3m 초과) 직속 자식만.
-            // 파티클 시스템을 가진 자식 중 로컬 위치가 튄 것들을 0으로 모은다.
-            foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
-            {
-                var t = ps.transform;
-                if (t == fx.transform) continue;
-                if (t.localPosition.sqrMagnitude > 0.09f) // 0.3m 초과
-                    t.localPosition = Vector3.zero;
-            }
-
+            KeepOnlyGroup(fx.transform, ProjectileGroup);
             NormalizePatternScale(fx.transform, parent, worldDiameter);
             if (tint.HasValue) ApplyTint(fx, tint.Value);
             return fx;
+        }
+
+        // 명중·충돌 지점에 폭발 문양(Explosion 그룹)만 재생하고 자동 소멸한다.
+        public static void SpawnPatternExplosion(GameObject prefab, Vector3 position, float worldDiameter, Color? tint = null)
+        {
+            if (prefab == null) return;
+            var fx = Object.Instantiate(prefab);
+            fx.name = "PatternExplosion";
+            fx.transform.position = position;
+            fx.transform.localRotation = Quaternion.identity;
+
+            KeepOnlyGroup(fx.transform, ExplosionGroup);
+            // 폭발 지름 — Fly 프리팹 폭발은 원본이 크므로(±4.8 규모) worldDiameter 기준으로 축소.
+            fx.transform.localScale = Vector3.one * (worldDiameter / 4f);
+            if (tint.HasValue) ApplyTint(fx, tint.Value);
+            Object.Destroy(fx, 3f); // [가정] 폭발 잔류 상한
+        }
+
+        // 최상위 그룹 중 이름이 keepGroup인 것만 남기고 나머지 최상위 그룹은 제거.
+        // 남긴 그룹은 로컬 원점(0,0,0)으로 옮겨 fx 위치에서 재생되게 한다.
+        private static void KeepOnlyGroup(Transform fx, string keepGroup)
+        {
+            // 자식을 배열로 복사(순회 중 파괴 대비)
+            var children = new System.Collections.Generic.List<Transform>();
+            foreach (Transform c in fx) children.Add(c);
+            foreach (var c in children)
+            {
+                if (c.name == keepGroup) c.localPosition = Vector3.zero;
+                else Object.Destroy(c.gameObject);
+            }
         }
 
         // 수묵담채 톤 — 담채(옅은 색)라 채도를 크게 낮추고, 명도도 눌러 네온기를 뺀다. [가정]

@@ -26,6 +26,26 @@ namespace MandateOfInk.Combat
         private int _chainJumpsLeft;
         private HashSet<EnemyHealth> _alreadyHit; // 관통·연쇄가 같은 적을 두 번 때리지 않게 (연쇄 계보가 공유)
         private float _armDelay = 0.06f; // 스폰 직후 충돌 유예 — 붓끝·시전자 근처 벽 오탐 방지 [가정]
+        private GameObject _explosionPrefab; // 명중·충돌 시 그 지점에 재생할 폭발 문양(Fly Explosion 그룹)
+        private Color _explosionTint = Color.white;
+        private float _explosionDiameter = 1.5f;
+
+        // 폭발 문양 배선 — 명중·벽 충돌 시 SpellVisuals.SpawnPatternExplosion으로 재생된다.
+        public void SetExplosionPattern(GameObject prefab, Color tint, float diameter)
+        {
+            _explosionPrefab = prefab;
+            _explosionTint = tint;
+            _explosionDiameter = diameter;
+        }
+
+        // 폭발 이펙트 재생 — 문양 폭발이 배선돼 있으면 문양을, 아니면 기존 팽창 구를 쓴다.
+        private void PlayImpact(Vector3 at)
+        {
+            if (_explosionPrefab != null)
+                SpellVisuals.SpawnPatternExplosion(_explosionPrefab, at, _explosionDiameter, _explosionTint);
+            else
+                SpellVisuals.SpawnBurst(at, _elementColor, 0.9f);
+        }
 
         public void Init(float speed, float damage, Element element,
             ElementRelationTableSO relationTable, float lifetime, Color elementColor,
@@ -55,7 +75,7 @@ namespace MandateOfInk.Combat
             transform.position += transform.forward * (_speed * Time.deltaTime);
             _lifeRemaining -= Time.deltaTime;
             if (_armDelay > 0f) _armDelay -= Time.deltaTime;
-            if (_lifeRemaining <= 0f) Destroy(gameObject);
+            if (_lifeRemaining <= 0f) Destroy(gameObject); // 수명만료(허공)는 폭발 없이 조용히 소멸
         }
 
         private void OnTriggerEnter(Collider other)
@@ -74,12 +94,12 @@ namespace MandateOfInk.Combat
                 // ㅅ관통: 소멸하지 않고 계속 직진
                 if (_modifier == FinalModifier.Pierce && --_pierceLeft > 0)
                 {
-                    SpellVisuals.SpawnBurst(transform.position, _elementColor, 0.5f, 0.2f);
+                    PlayImpact(transform.position); // 관통 중 각 적중 지점에도 폭발
                     return;
                 }
             }
 
-            SpellVisuals.SpawnBurst(transform.position, _elementColor, 0.9f); // 명중 파열(속성 색)
+            PlayImpact(transform.position); // 명중·벽 충돌 지점에 폭발 문양
             Destroy(gameObject);
         }
 
