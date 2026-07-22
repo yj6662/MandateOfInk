@@ -287,7 +287,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: bff506b7b77adae499e95746cc932816, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &2694440
@@ -10676,7 +10676,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: 07cd19e46e26012458eab65c07f81dac, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!136 &57541556
@@ -51597,7 +51597,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: 7b54ceee84cfe3a40acbd924d1f9cc02, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &298963641
@@ -61803,7 +61803,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: 7b54ceee84cfe3a40acbd924d1f9cc02, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &351243179
@@ -72386,7 +72386,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: 608e0884e72ab524192a6880b2161f2b, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &394280499
@@ -108615,7 +108615,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: bb3b66bc57c731445b8f03bf0f4d14fa, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &595068661
@@ -181324,7 +181324,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: ead5baa60f03be049a0a56e36f57ef39, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &937459410
@@ -187946,7 +187946,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: 7b54ceee84cfe3a40acbd924d1f9cc02, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &1080207346
@@ -259937,7 +259937,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: c0cc91fff9e6cb04da9d7ddfe9043d50, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &1481855335
@@ -297009,7 +297009,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: 1412f2016c85ec240a95dc99c67333f7, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 2.5
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &1739179226
@@ -311940,7 +311940,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: 7b54ceee84cfe3a40acbd924d1f9cc02, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &1773431156
@@ -368932,7 +368932,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MandateOfInk.Combat::MandateOfInk.Combat.EnemyHealth
   _definition: {fileID: 11400000, guid: bb3b66bc57c731445b8f03bf0f4d14fa, type: 2}
-  _deathVfxPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
+  _deathVfxPrefab: {fileID: 0}
   _deathDestroySeconds: 0
   _enemyKilledChannel: {fileID: 11400000, guid: 17b9b12f50d02f246b15f72cc6c260ae, type: 2}
 --- !u!23 &2043874257

@@ -56,8 +56,11 @@ namespace MandateOfInk.Combat
                 if (wallet != null) wallet.Add(coins);
                 if (BonusCoins > 0) Debug.Log($"[Enemy] {name} — 훔친 통보 {BonusCoins} 회수");
             }
+            // 사망 연출 — 수묵 먹빛 번짐(오행부 미학). 화염 폭발 프리팹은 폐기, 코드 파티클로 대체.
+            SpellVisuals.SpawnInkDeathBurst(transform.position);
             if (_deathVfxPrefab != null)
             {
+                // 별도 사망 VFX 프리팹이 배선돼 있으면 함께 재생(현재 씬 배선은 비움 — 수묵 연출만 사용)
                 var vfx = Instantiate(_deathVfxPrefab, transform.position, Quaternion.identity);
                 Destroy(vfx, 3f); // [가정] VFX 잔류 상한
             }

@@ -43,12 +43,10 @@ namespace MandateOfInk.Combat
         // 폭발 이펙트 재생 — 속성에 맞는 폭발 + 바닥 전통 문양이 함께 터진다(배선 없으면 팽창 구 폴백).
         private void PlayImpact(Vector3 at)
         {
-            // 목(木): [임시] 나뭇가지가 사방으로 뻗어나가는 폭발(화염 아님). 정식 에셋은 추후.
+            // 목(木): [임시] 나뭇가지가 사방으로 뻗어나가는 폭발(화염 아님). 바닥 원반 진은 제거(사용자 결정) — 가지만.
             if (_element == Element.Wood)
             {
                 SpellVisuals.SpawnBranchBurst(at, _explosionDiameter, _explosionTint);
-                if (_explosionBottomPrefab != null)
-                    SpellVisuals.SpawnGroundStamp(_explosionBottomPrefab, at, _explosionDiameter * 1.3f, _explosionTint);
                 return;
             }
 
@@ -115,8 +113,19 @@ namespace MandateOfInk.Combat
                 }
             }
 
+            KillFlightVisual();             // 명중 순간 비행 본체(화염 트레일) 잔류 불빛 퍼프 제거
             PlayImpact(transform.position); // 명중·벽 충돌 지점에 폭발 문양
             Destroy(gameObject);
+        }
+
+        // 명중 시 붙어있는 비행 본체 문양(PatternProjectile — Fly 화염 트레일)의 파티클을 즉시 멈추고 지운다.
+        // 그냥 부모를 Destroy하면 명중 지점에 화염/불빛이 퍼프처럼 잠깐 남으므로, 방출 중단 + 기존 입자 클리어로 없앤다.
+        private void KillFlightVisual()
+        {
+            var pattern = transform.Find("PatternProjectile");
+            if (pattern == null) return;
+            foreach (var ps in pattern.GetComponentsInChildren<ParticleSystem>(true))
+                ps.Clear(true); // 기존 입자 제거 + 방출 정지 효과(부모가 곧 파괴되므로 재방출 없음)
         }
 
         private void HitEnemy(EnemyHealth enemy)
