@@ -145,16 +145,27 @@ namespace MandateOfInk.Combat
 
         // 최상위 그룹 중 이름이 keepGroup인 것만 남기고 나머지 최상위 그룹은 제거.
         // 남긴 그룹은 로컬 원점(0,0,0)으로 옮겨 fx 위치에서 재생되게 한다.
+        // Fly 프리팹은 루트 Animator가 Charge→Projectile→Explosion을 타임라인으로 켰다 껐다 하므로,
+        // Animator를 제거해 간섭을 끊고 남긴 그룹을 강제 활성화한다(안 그러면 그룹이 꺼진 채 안 보임).
         private static void KeepOnlyGroup(Transform fx, string keepGroup)
         {
-            // 자식을 배열로 복사(순회 중 파괴 대비)
+            foreach (var anim in fx.GetComponentsInChildren<Animator>(true))
+                Object.Destroy(anim);
+
             var children = new System.Collections.Generic.List<Transform>();
             foreach (Transform c in fx) children.Add(c);
             foreach (var c in children)
             {
-                if (c.name == keepGroup) c.localPosition = Vector3.zero;
+                if (c.name == keepGroup)
+                {
+                    c.localPosition = Vector3.zero;
+                    c.gameObject.SetActive(true); // Animator가 꺼둔 것을 되살린다
+                }
                 else Object.Destroy(c.gameObject);
             }
+            // 남긴 그룹의 하위 파티클 오브젝트도 전부 활성화(타임라인이 꺼둔 것 포함)
+            foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
+                ps.gameObject.SetActive(true);
         }
 
         // 수묵담채 톤 — 담채(옅은 색)라 채도를 크게 낮추고, 명도도 눌러 네온기를 뺀다. [가정]
