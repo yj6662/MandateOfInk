@@ -25,6 +25,7 @@ namespace MandateOfInk.Combat
         private int _pierceLeft = 1;
         private int _chainJumpsLeft;
         private HashSet<EnemyHealth> _alreadyHit; // 관통·연쇄가 같은 적을 두 번 때리지 않게 (연쇄 계보가 공유)
+        private float _armDelay = 0.06f; // 스폰 직후 충돌 유예 — 붓끝·시전자 근처 벽 오탐 방지 [가정]
 
         public void Init(float speed, float damage, Element element,
             ElementRelationTableSO relationTable, float lifetime, Color elementColor,
@@ -53,11 +54,13 @@ namespace MandateOfInk.Combat
         {
             transform.position += transform.forward * (_speed * Time.deltaTime);
             _lifeRemaining -= Time.deltaTime;
+            if (_armDelay > 0f) _armDelay -= Time.deltaTime;
             if (_lifeRemaining <= 0f) Destroy(gameObject);
         }
 
         private void OnTriggerEnter(Collider other)
         {
+            if (_armDelay > 0f) return;                                                    // 스폰 직후 유예 — 붓끝·근처 벽 오탐 무시
             if (other.GetComponentInParent<SpellShield>() != null) return;                 // 아군 방어막 통과
             if (other.isTrigger) return;                                                  // 다른 트리거 무시
             if (other.GetComponentInParent<CharacterController>() != null) return;        // 시전자 무시

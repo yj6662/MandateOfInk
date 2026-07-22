@@ -105,7 +105,10 @@ namespace MandateOfInk.Combat
             return fx;
         }
 
-        // 발사체 문양을 투사체에 부착(진행 방향 정렬)
+        // 발사체 문양을 투사체에 부착.
+        // Fly 프리팹은 발사→비행→폭발 시퀀스를 로컬 공간에 펼쳐 배치해뒀다(Charge -4.8 / Projectile -4.8
+        // / Explosion +4.8 등). 우리는 투사체 위치에 통째로 붙이므로, 시퀀스로 오프셋된 자식들을
+        // 전부 로컬 원점(0,0,0)으로 모아 한 자리에서 재생되게 한다.
         public static GameObject AttachProjectilePattern(Transform parent, GameObject prefab, float worldDiameter, Color? tint = null)
         {
             if (prefab == null) return null;
@@ -114,6 +117,17 @@ namespace MandateOfInk.Combat
             fx.transform.SetParent(parent, false);
             fx.transform.localPosition = Vector3.zero;
             fx.transform.localRotation = Quaternion.identity;
+
+            // 시퀀스로 좌우로 벌려둔 자식들을 원점으로 정렬 — |오프셋|이 큰(0.3m 초과) 직속 자식만.
+            // 파티클 시스템을 가진 자식 중 로컬 위치가 튄 것들을 0으로 모은다.
+            foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var t = ps.transform;
+                if (t == fx.transform) continue;
+                if (t.localPosition.sqrMagnitude > 0.09f) // 0.3m 초과
+                    t.localPosition = Vector3.zero;
+            }
+
             NormalizePatternScale(fx.transform, parent, worldDiameter);
             if (tint.HasValue) ApplyTint(fx, tint.Value);
             return fx;
