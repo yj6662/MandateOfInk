@@ -151,6 +151,132 @@ namespace MandateOfInk.Combat
             Object.Destroy(fx, 2.5f); // [가정] 각인 잔류 상한
         }
 
+        // [임시] 목(木) 나뭇가지 폭발 — 갈색 주가지가 뻗고, 그 끝에서 잔가지가 갈라져 나오며, 끝갈래는 초록(새순).
+        // 정식 에셋/생성 API로 교체 예정. 2단 구조를 Sub Emitter(주가지 소멸 시 잔가지 방출)로 만든다.
+        // tint(오방색)는 여기서 무시 — 목은 갈색→초록 고정 색이 정체성이라 [가정].
+        public static void SpawnBranchBurst(Vector3 position, float worldDiameter, Color tint)
+        {
+            var bark = new Color(0.55f, 0.38f, 0.2f);    // 나뭇가지 갈색(밝게 — 배경 대비)
+            var sprout = new Color(0.45f, 0.9f, 0.35f);  // 새순 초록(선명하게)
+
+            var go = new GameObject("BranchBurst");
+            go.transform.position = position + Vector3.up * 0.1f;
+
+            // 잔가지(Sub Emitter) — 주가지 파티클이 죽는 지점에서 갈라져 나온다
+            var twigGo = new GameObject("Twigs");
+            twigGo.transform.SetParent(go.transform, false);
+            var twig = twigGo.AddComponent<ParticleSystem>();
+            ConfigureBranch(twig, worldDiameter * 0.55f, 0.35f, 0.55f, bark, sprout, burstCount: 2, isSub: true);
+
+            // 주가지 — 크게 뻗도록 reach 확대
+            var ps = go.AddComponent<ParticleSystem>();
+            ConfigureBranch(ps, worldDiameter * 1.8f, 0.5f, 0.8f, bark, sprout, burstCount: 12, isSub: false);
+            // Sub Emitter 연결 — 주가지가 죽을 때(Death) 잔가지 방출
+            var sub = ps.subEmitters;
+            sub.enabled = true;
+            sub.AddSubEmitter(twig, ParticleSystemSubEmitterType.Death, ParticleSystemSubEmitterProperties.InheritColor);
+
+            ps.Play();
+            Object.Destroy(go, 1.6f);
+        }
+
+        // 가지 파티클 하나를 구성 — stretched billboard로 뻗고, 끝에서 초록으로 물든다.
+        private static void ConfigureBranch(ParticleSystem ps, float reach, float lifeMin, float lifeMax,
+            Color bark, Color sprout, int burstCount, bool isSub)
+        {
+            ps.Stop();
+            var main = ps.main;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(lifeMin, lifeMax);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(reach * 3f, reach * 5.5f);
+            main.startSize = new ParticleSystem.MinMaxCurve(reach * 0.05f, reach * 0.1f);
+            main.startColor = bark;
+            main.gravityModifier = isSub ? 0.02f : 0f; // 잔가지는 살짝 처짐
+            main.maxParticles = 60;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.playOnAwake = false;
+
+            var emission = ps.emission;
+            emission.rateOverTime = 0f;
+            if (!isSub) // 주가지만 자체 버스트, 잔가지는 Sub Emitter가 트리거
+                emission.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)burstCount, (short)(burstCount + 6)) });
+
+            var shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = isSub ? ParticleSystemShapeType.Cone : ParticleSystemShapeType.Sphere;
+            if (isSub) { shape.angle = 55f; shape.radius = 0.01f; } // 잔가지는 부모 방향 원뿔로 갈라짐
+            else shape.radius = reach * 0.06f;
+
+            var damp = ps.limitVelocityOverLifetime;
+            damp.enabled = true;
+            damp.dampen = 0.45f;
+
+            var renderer = ps.GetComponent<ParticleSystemRenderer>();
+            renderer.renderMode = ParticleSystemRenderMode.Stretch;
+            renderer.velocityScale = 0.32f;
+            renderer.lengthScale = 4.5f;
+            renderer.material = BranchMaterial();
+
+            // 굵기: 밑동 굵고 끝 뾰족 (뾰족 텍스처 + 끝 가늘어짐)
+            var sol = ps.sizeOverLifetime;
+            sol.enabled = true;
+            var sizeCurve = new AnimationCurve();
+            sizeCurve.AddKey(0f, 0.4f);
+            sizeCurve.AddKey(0.35f, 1f);
+            sizeCurve.AddKey(1f, 0.05f); // 끝 뾰족
+            sol.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
+
+            // 색: 갈색 밑동 → 끝갈래(수명 끝) 초록 새순
+            var col = ps.colorOverLifetime;
+            col.enabled = true;
+            var grad = new Gradient();
+            grad.SetKeys(
+                new[] { new GradientColorKey(bark, 0f), new GradientColorKey(bark, 0.55f), new GradientColorKey(sprout, 1f) },
+                new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 0.7f), new GradientAlphaKey(0f, 1f) });
+            col.color = grad;
+        }
+
+        // 뾰족한 가지 텍스처 — 세로로 긴 다이아몬드(끝이 뾰족한 잎/가지 실루엣)를 코드로 생성.
+        private static Material _branchMat;
+        private static Texture2D _branchTex;
+        private static Material BranchMaterial()
+        {
+            if (_branchMat == null)
+            {
+                if (_branchTex == null) _branchTex = MakeSpikeTexture();
+                var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+                _branchMat = new Material(shader);
+                _branchMat.SetTexture("_BaseMap", _branchTex);
+                _branchMat.SetFloat("_Surface", 1f);
+                _branchMat.SetFloat("_Blend", 0f);
+                _branchMat.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                _branchMat.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                _branchMat.SetFloat("_ZWrite", 0f);
+                _branchMat.renderQueue = 3000;
+            }
+            return _branchMat;
+        }
+
+        // 세로 방향으로 뾰족한 실루엣(위 끝이 뾰족, 아래는 넓음) — stretch 방향과 맞물려 가지 끝이 뾰족해진다.
+        private static Texture2D MakeSpikeTexture()
+        {
+            int w = 32, h = 128;
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            for (int y = 0; y < h; y++)
+            {
+                float t = (float)y / (h - 1);       // 0=밑동, 1=끝
+                float halfWidth = Mathf.Lerp(0.5f, 0.02f, Mathf.Pow(t, 0.7f)); // 위로 갈수록 뾰족
+                for (int x = 0; x < w; x++)
+                {
+                    float dx = Mathf.Abs((float)x / (w - 1) - 0.5f);
+                    float a = dx <= halfWidth ? 1f - Mathf.SmoothStep(halfWidth * 0.6f, halfWidth, dx) : 0f;
+                    a *= Mathf.SmoothStep(0f, 0.15f, t); // 밑동 끝 살짝 페이드
+                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, a));
+                }
+            }
+            tex.Apply();
+            return tex;
+        }
+
         // 파티클·렌더러 바운드로 대략적 지름을 잰다(스케일 1 기준).
         private static float MeasureDiameter(GameObject go)
         {

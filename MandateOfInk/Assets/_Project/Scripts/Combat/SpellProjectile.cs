@@ -40,13 +40,22 @@ namespace MandateOfInk.Combat
             _explosionDiameter = diameter;
         }
 
-        // 폭발 이펙트 재생 — 폭발 문양 + 바닥 전통 문양이 함께 터진다(배선 없으면 팽창 구 폴백).
+        // 폭발 이펙트 재생 — 속성에 맞는 폭발 + 바닥 전통 문양이 함께 터진다(배선 없으면 팽창 구 폴백).
         private void PlayImpact(Vector3 at)
         {
+            // 목(木): [임시] 나뭇가지가 사방으로 뻗어나가는 폭발(화염 아님). 정식 에셋은 추후.
+            if (_element == Element.Wood)
+            {
+                SpellVisuals.SpawnBranchBurst(at, _explosionDiameter, _explosionTint);
+                if (_explosionBottomPrefab != null)
+                    SpellVisuals.SpawnGroundStamp(_explosionBottomPrefab, at, _explosionDiameter * 1.3f, _explosionTint);
+                return;
+            }
+
+            // 그 외 속성: Fly Explosion(현재 화염 계열) + 바닥 문양. 속성별 폭발 다양화는 추후.
             if (_explosionPrefab != null)
             {
                 SpellVisuals.SpawnPatternExplosion(_explosionPrefab, at, _explosionDiameter, _explosionTint);
-                // 명중 지점 바닥에 전통 문양 각인 — 폭발과 함께 터지며 잠깐 남았다 사라진다
                 if (_explosionBottomPrefab != null)
                     SpellVisuals.SpawnGroundStamp(_explosionBottomPrefab, at, _explosionDiameter * 1.3f, _explosionTint);
             }
