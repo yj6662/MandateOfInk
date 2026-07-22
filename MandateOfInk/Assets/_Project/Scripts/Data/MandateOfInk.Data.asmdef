@@ -1,0 +1,16 @@
+{
+    "name": "MandateOfInk.Data",
+    "rootNamespace": "MandateOfInk.Data",
+    "references": [
+        "MandateOfInk.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

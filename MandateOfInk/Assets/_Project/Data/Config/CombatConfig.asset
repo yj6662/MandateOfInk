@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39de69cd008bec44fa36b7914c645046, type: 3}
+  m_Name: CombatConfig
+  m_EditorClassIdentifier: MandateOfInk.Data::MandateOfInk.Data.CombatConfigSO
+  DodgeTapThreshold: 0.25
+  DodgeDuration: 0.18
+  DodgeSpeed: 14
+  DodgeInvulnerableSeconds: 0.35
+  DodgeCooldown: 0.6
+  MeleeDamage: 3
+  MeleeRange: 2.2
+  MeleeRadius: 0.6
+  MeleeCooldown: 0.5
+  MeleeInkRefund: 6
+  MaxInk: 100
+  TricklePerSecond: 0.3
+  SqueezeMinPower: 0.2
+  GrindPerSecond: 30
+  GrindStartDelay: 0.35
+  GroggySeconds: 3
+  GroggyDamageMultiplier: 1.5
+  PoiseRegenPerSecond: 6
+  SpellPoiseFraction: 0.1
+  MeleePoiseDamage: 1
+  ParryPoiseFraction: 0.45
+  JustParryWindowSeconds: 0.5
+  JustParryPoiseFraction: 0.75
+  ParryInkRefund: 12
+  ParryAdvantageThreshold: 1.25
+  ShieldBreakThreshold: 0.75
+  NeutralBlockDamageThrough: 0.4
+  NeutralBlockPoiseFraction: 0.1

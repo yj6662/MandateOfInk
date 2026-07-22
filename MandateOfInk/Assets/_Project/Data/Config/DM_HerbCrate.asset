@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3bae0b2d3f3bd547ad7f92960da0e55, type: 3}
+  m_Name: DM_HerbCrate
+  m_EditorClassIdentifier: MandateOfInk.Data::MandateOfInk.Data.DeliveryMissionSO
+  Id: dm_herb_crate
+  DisplayName: "\uC57D\uC7AC \uC0C1\uC790"
+  Description: "\uC57D\uC7AC \uC0C1\uC790\uB97C \uC0C1\uD558\uC9C0 \uC54A\uAC8C \uCC3D\uACE0\uAE4C\uC9C0
+    [\uAC00\uC815]"
+  BaseRewardCoins: 40
+  ConditionLossPerHit: 15
+  MinRewardFraction: 0.3

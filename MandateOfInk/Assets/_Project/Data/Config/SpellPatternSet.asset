@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50c0e406b0671544c89d84aa02dbeb1d, type: 3}
+  m_Name: SpellPatternSet
+  m_EditorClassIdentifier: MandateOfInk.Data::MandateOfInk.Data.SpellPatternSetSO
+  _patterns:
+  - Element: 0
+    GroundCircle: {fileID: 8506898660812760767, guid: 372522a6155174746ad459bc9c66c702, type: 3}
+    Projectile: {fileID: 8730759233633060005, guid: 98453448e7db14b4ca95519f05cdda6c, type: 3}
+    Explosion: {fileID: 6406792584905637520, guid: c4957e6542ddefa48ae1dd264b4eb492, type: 3}
+  - Element: 1
+    GroundCircle: {fileID: 4314384631146734955, guid: 6087684790c5ac14ab33c7b8dede4b3f, type: 3}
+    Projectile: {fileID: 5518946265509577039, guid: 324284f9a7005e54c9a6b187a751dbfb, type: 3}
+    Explosion: {fileID: 558422720422238841, guid: dddd990ae9208f64bab92c69ea670027, type: 3}
+  - Element: 2
+    GroundCircle: {fileID: 78486053563953332, guid: d30462c312406d143ab7a0a815dc11e1, type: 3}
+    Projectile: {fileID: 5965679468964124849, guid: 9f4d633ce39993941a7e3531805b1b67, type: 3}
+    Explosion: {fileID: 5346381091003429328, guid: 50db24532cfef8b48a3f2911fc91f00c, type: 3}
+  - Element: 3
+    GroundCircle: {fileID: 7787240435455923879, guid: 83232d7f3e4021a428d5f63ef3fa1dce, type: 3}
+    Projectile: {fileID: 4014798341753011537, guid: 7a36c05a4a5b0e045a55f5338a135d4c, type: 3}
+    Explosion: {fileID: 5090912815036615731, guid: d5785ea08c056cc49876ef10d8f9a986, type: 3}
+  - Element: 4
+    GroundCircle: {fileID: 966935461222130422, guid: 9e990b3870f843e4dbd80afedee9a471, type: 3}
+    Projectile: {fileID: 3868854892281556691, guid: 7f2d3125dff03024ab1816a6015f6b81, type: 3}
+    Explosion: {fileID: 8671150622454988144, guid: be39d1bedbb34304d88baef4f8642a06, type: 3}

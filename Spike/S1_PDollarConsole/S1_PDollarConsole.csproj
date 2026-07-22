@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>MandateOfInk.Spike.S1</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Unity 프로젝트의 PDollar 원본을 수정 없이 그대로 링크해서 컴파일한다 (Demo.cs는 MonoBehaviour라 제외) -->
+  <ItemGroup>
+    <Compile Include="..\..\MandateOfInk\Assets\PDollar\Scripts\*.cs"
+             Exclude="..\..\MandateOfInk\Assets\PDollar\Scripts\Demo.cs"
+             LinkBase="PDollar" />
+  </ItemGroup>
+
+</Project>

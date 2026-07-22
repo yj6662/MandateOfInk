@@ -524,7 +524,10 @@ PlayerSettings:
       m_Height: 720
       m_Kind: 1
       m_SubKind: 
-  m_BuildTargetBatching: []
+  m_BuildTargetBatching:
+  - m_BuildTarget: Standalone
+    m_StaticBatching: 1
+    m_DynamicBatching: 0
   m_BuildTargetShaderSettings: []
   m_BuildTargetGraphicsJobs: []
   m_BuildTargetGraphicsJobMode: []
@@ -534,6 +537,9 @@ PlayerSettings:
     m_Automatic: 1
   - m_BuildTarget: AndroidPlayer
     m_APIs: 150000000b000000
+    m_Automatic: 0
+  - m_BuildTarget: WindowsStandaloneSupport
+    m_APIs: 0200000012000000
     m_Automatic: 0
   m_BuildTargetVRSettings: []
   m_DefaultShaderChunkSizeInMB: 16
@@ -825,7 +831,26 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Android: UNITY_MCP_READY
+    EmbeddedLinux: UNITY_MCP_READY
+    GameCoreScarlett: UNITY_MCP_READY
+    GameCoreXboxOne: UNITY_MCP_READY
+    Kepler: UNITY_MCP_READY
+    LinuxHeadlessSimulation: UNITY_MCP_READY
+    Nintendo Switch: UNITY_MCP_READY
+    Nintendo Switch 2: UNITY_MCP_READY
+    PS4: UNITY_MCP_READY
+    PS5: UNITY_MCP_READY
+    QNX: UNITY_MCP_READY
+    Server: UNITY_MCP_READY
+    Standalone: ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_INSPECTOR_3_2;ODIN_INSPECTOR_3_3;ODIN_VALIDATOR;ODIN_VALIDATOR_3_1;ODIN_VALIDATOR_3_2;ODIN_VALIDATOR_3_3;UNITY_MCP_READY
+    VisionOS: UNITY_MCP_READY
+    WebGL: UNITY_MCP_READY
+    Windows Store Apps: UNITY_MCP_READY
+    XboxOne: UNITY_MCP_READY
+    iPhone: UNITY_MCP_READY
+    tvOS: UNITY_MCP_READY
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -902,7 +927,8 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -922,7 +948,7 @@ PlayerSettings:
   qnxGraphicConfPath: 
   apiCompatibilityLevel: 6
   captureStartupLogs: {}
-  activeInputHandler: 1
+  activeInputHandler: 2
   windowsGamepadBackendHint: 0
   cloudProjectId: b4c9e42c-4723-42a0-b9c3-c4a5014569ec
   framebufferDepthMemorylessMode: 0
