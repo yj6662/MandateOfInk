@@ -100,6 +100,9 @@ namespace MandateOfInk.Spellcraft
         private Transform _strokeRoot;  // 획들을 담는 루트 — 시점에 따라 위치·크기를 바꾼다
         private Transform _playerRoot;
 
+        /// <summary>획을 긋는 중인가(작도 모드에서 마우스를 누른 채) — 붓 소리 등 표현 계층이 읽는다.</summary>
+        public bool IsStroking { get; private set; }
+
         private void Start()
         {
             var shader = Shader.Find("Sprites/Default");
@@ -467,6 +470,7 @@ namespace MandateOfInk.Spellcraft
         {
             if (Input.GetMouseButtonDown(0))
             {
+                IsStroking = true;
                 _strokeId++;
                 // 붓자국 행 선택: 먹 잔량이 적을수록 마른 행 + 약간의 무작위 — 획마다 다른 붓자국
                 float chargeNow = 1f - Mathf.Clamp01(_inkUsed / Mathf.Max(_inkCapacity, 0.01f));
@@ -486,12 +490,16 @@ namespace MandateOfInk.Spellcraft
                 _points.Add(new Point(Input.mousePosition.x, Screen.height - Input.mousePosition.y, _strokeId));
             }
 
-            if (Input.GetMouseButtonUp(0) && _strokes.Count > 0)
+            if (Input.GetMouseButtonUp(0))
             {
-                // 수필: 획 끝을 뾰족하게 뺀다
-                var stroke = _strokes[_strokes.Count - 1];
-                stroke.EndTaper(_endTaperLength);
-                stroke.Apply();
+                IsStroking = false;
+                if (_strokes.Count > 0)
+                {
+                    // 수필: 획 끝을 뾰족하게 뺀다
+                    var stroke = _strokes[_strokes.Count - 1];
+                    stroke.EndTaper(_endTaperLength);
+                    stroke.Apply();
+                }
             }
 
             if (!Input.GetMouseButton(0)) return;
@@ -558,6 +566,7 @@ namespace MandateOfInk.Spellcraft
 
         private void ClearDrawing()
         {
+            IsStroking = false; // 모드 이탈·판정 등 어떤 경로로 지워져도 붓 소리가 멈추게
             _points.Clear();
             _strokeId = -1;
             _inkUsed = 0f; // 새 글자 = 먹 다시 찍기
