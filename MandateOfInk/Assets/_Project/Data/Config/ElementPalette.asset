@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c1c2e65365a9e24ba055fdbe1d8464c, type: 3}
   m_Name: ElementPalette
   m_EditorClassIdentifier: MandateOfInk.Data::MandateOfInk.Data.ElementPaletteSO
-  Wood: {r: 0.2, g: 0.85, b: 0.45, a: 1}
+  Wood: {r: 0.42, g: 0.58, b: 0.24, a: 1}
   Fire: {r: 1, g: 0.35, b: 0.15, a: 1}
   Earth: {r: 0.95, g: 0.72, b: 0.2, a: 1}
   Metal: {r: 0.92, g: 0.93, b: 1, a: 1}

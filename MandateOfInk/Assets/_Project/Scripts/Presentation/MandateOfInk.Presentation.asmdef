@@ -5,7 +5,8 @@
         "MandateOfInk.Core",
         "MandateOfInk.Data",
         "MandateOfInk.Spellcraft",
-        "MandateOfInk.Combat"
+        "MandateOfInk.Combat",
+        "Unity.RenderPipelines.Universal.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

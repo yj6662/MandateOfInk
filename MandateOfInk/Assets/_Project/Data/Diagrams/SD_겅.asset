@@ -54,7 +54,8 @@ MonoBehaviour:
   Polarity: 1
   Scope: 0
   Modifier: 5
-  Category: 1
-  Description: "\uD55C \uB300\uC0C1/\uC790\uC2E0\uC5D0 \uB369\uAD74 \uBC29\uBCBD\uC73C\uB85C
-    \uB9C9\uAE30(\uBC1B\uC544\uCE58\uAE30). \uC778\uC811\uC73C\uB85C \uC5F0\uC1C4."
+  Category: 3
+  Description: "\uB369\uAD74 \uADF8\uB124 \u2014 \uC9C0\uC810\uC5D0 \uB369\uAD74\uC744
+    \uAC78\uC5B4 \uAC74\uB108\uB6F4\uB2E4(\uD544\uB4DC \uC608\uC57D\xB7\uBBF8\uAD6C\uD604)
+    [\uAC00\uC815]."
   InkCost: 10

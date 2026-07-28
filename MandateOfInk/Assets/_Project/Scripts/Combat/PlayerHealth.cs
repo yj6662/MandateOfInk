@@ -43,6 +43,7 @@ namespace MandateOfInk.Combat
                 Debug.Log("[Player] 무적 프레임 — 회피 성공");
                 return;
             }
+            amount *= PlayerBuffLookup.DefenseMultiplier; // 소환수 방어력 버프(1보다 작으면 경감)
             CurrentHp = Mathf.Max(0f, CurrentHp - amount);
             OnDamaged?.Invoke();
             Debug.Log($"[Player] 피해 {amount:F1} -> HP {CurrentHp:F1}");
@@ -60,6 +61,13 @@ namespace MandateOfInk.Combat
             CurrentHp = MaxHp;
             IsDead = false;
             SetInvulnerable(invulnerableSeconds);
+        }
+
+        // 지속 회복(초당) — 버프 소환수(수 속성 등)가 매 프레임 호출한다.
+        public void Heal(float amount)
+        {
+            if (IsDead) return;
+            CurrentHp = Mathf.Min(MaxHp, CurrentHp + amount);
         }
 
         // HP 표시는 HudController(캔버스 먹획 게이지)가 담당한다

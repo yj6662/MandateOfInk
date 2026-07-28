@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_Mountain_Ridge
+  m_Shader: {fileID: 4800000, guid: 74cf367f06c3b4f4aac943e8b161b445, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 138cbabf57c704c4fb12189d3e0f19d7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AmbientBoost: 0.35
+    - _BumpScale: 1
+    - _CelSteps: 3
+    - _InkCelNoiseScale: 2.2
+    - _InkCelNoiseStrength: 0.35
+    - _InkCelSoftness: 0.3
+    - _InkCoatBase: 0
+    - _InkCoatTop: 0
+    - _InkDripAmount: 0
+    - _InkDripScale: 1.5
+    - _InkGlossSharpness: 0.6
+    - _InkGlossStrength: 0
+    - _InkHighlightBoost: 0.5
+    - _InkPoint: 0.04
+    - _PaperPoint: 0.68
+    - _Saturation: 0
+    - _TintRetain: 0.12
+    m_Colors:
+    - _BaseColor: {r: 0.42, g: 0.42, b: 0.42, a: 1}
+    - _InkCoatColor: {r: 0.089999996, g: 0.079999976, b: 0.06999998, a: 1}
+    - _InkToneColor: {r: 0.12999997, g: 0.11999995, b: 0.10999996, a: 1}
+    - _PaperToneColor: {r: 0.93, g: 0.89, b: 0.8, a: 1}
+    - _ShadowTint: {r: 0.62, g: 0.58, b: 0.52, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -1,0 +1,17 @@
+{
+    "name": "MandateOfInk.Vehicle",
+    "rootNamespace": "MandateOfInk.Vehicle",
+    "references": [
+        "MandateOfInk.Core",
+        "MandateOfInk.Data"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -16,6 +16,7 @@ namespace MandateOfInk.Combat
 
         private void Start()
         {
+            useGUILayout = false; // OnGUI 레이아웃 패스 생략
             var cc = FindFirstObjectByType<CharacterController>();
             if (cc != null) _cargo = cc.GetComponent<PlayerCargo>();
         }

@@ -4,7 +4,8 @@
     "references": [
         "MandateOfInk.Core",
         "MandateOfInk.Data",
-        "MandateOfInk.Spellcraft"
+        "MandateOfInk.Spellcraft",
+        "MandateOfInk.Vehicle"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

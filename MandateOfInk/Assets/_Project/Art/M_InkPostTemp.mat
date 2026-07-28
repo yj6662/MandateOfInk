@@ -29,7 +29,11 @@ Material:
     - _GrainStrength: 0.1
     - _OutlineStrength: 0.85
     - _OutlineThreshold: 1.2
+    - _PaperFadeEnd: 200
+    - _PaperFadeStart: 90
+    - _PaperFadeStrength: 0.9
     - _SepiaStrength: 0.35
+    - _SilhouetteKeep: 0.55
     - _VignetteStrength: 0.25
     m_Colors:
     - _InkColor: {r: 0.16499996, g: 0.14899996, b: 0.13299996, a: 1}

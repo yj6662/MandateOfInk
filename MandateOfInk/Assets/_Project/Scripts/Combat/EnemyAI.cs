@@ -201,9 +201,14 @@ namespace MandateOfInk.Combat
             _state = State.Telegraph;
         }
 
-        private float TelegraphSeconds(EnemyDefinitionSO def) =>
-            _pattern == Pattern.Slow ? def.SlowTelegraphSeconds :
-            _pattern == Pattern.Fast ? def.FastTelegraphSeconds : def.FeintTelegraphSeconds;
+        // 화·토 속박(ㄱ받침)에 걸리면 예비 동작이 느려진다(사용자 결정 2026-07-24) — TelegraphMultiplier가 1보다 크면 곱해짐.
+        private float TelegraphSeconds(EnemyDefinitionSO def)
+        {
+            float baseSeconds = _pattern == Pattern.Slow ? def.SlowTelegraphSeconds :
+                _pattern == Pattern.Fast ? def.FastTelegraphSeconds : def.FeintTelegraphSeconds;
+            float multiplier = _status != null ? _status.TelegraphMultiplier : 1f;
+            return baseSeconds * multiplier;
+        }
 
         private Color TelegraphColor() =>
             _pattern == Pattern.Fast ? _fastTelegraphColor : _telegraphColor; // 페인트=느린 색 위장
@@ -270,6 +275,10 @@ namespace MandateOfInk.Combat
 
             Vector3 origin = transform.position + Vector3.up * 1.2f + transform.forward * 0.8f;
             Vector3 aim = (_player.position + Vector3.up * 0.9f) - origin;
+            // 수(水) 속박(ㄱ받침)에 걸리면 조준이 흔들린다(사용자 결정 2026-07-24) — 무작위 각도로 살짝 빗나간다.
+            float jitter = _status != null ? _status.AimJitterDegrees : 0f;
+            if (jitter > 0f)
+                aim = Quaternion.Euler(Random.Range(-jitter, jitter), Random.Range(-jitter, jitter), 0f) * aim;
 
             var go = new GameObject($"EnemyProjectile_{name}");
             go.transform.SetPositionAndRotation(origin, Quaternion.LookRotation(aim));

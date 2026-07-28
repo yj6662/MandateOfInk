@@ -40,8 +40,8 @@ namespace MandateOfInk.Combat
                 if (enemy != null)
                 {
                     var status = EnemyStatus.GetOrAdd(enemy);
-                    enemy.TakeDamage(_config.MeleeDamage * status.GroggyDamageMultiplier);
-                    status.AddPoise(_config.MeleePoiseDamage, _config); // 평타도 포이즈를 깎는다
+                    enemy.TakeDamage(_config.MeleeDamage * status.GroggyDamageMultiplier * PlayerBuffLookup.DamageMultiplier);
+                    status.AddPoise(_config.MeleePoiseDamage * PlayerBuffLookup.PoiseDamageMultiplier, _config); // 평타도 포이즈를 깎는다
                     if (_inkPool != null) _inkPool.Add(_config.MeleeInkRefund);
                     // 타격감: 먹빛 파열 + 석경 공명의 가벼운 화면 울림
                     SpellVisuals.SpawnBurst(hit.point, new Color(0.15f, 0.14f, 0.13f, 0.7f), 0.9f, 0.22f);

@@ -107,3 +107,59 @@ InitTestScene*.unity*
 
 # MCP 개인 연결 설정 (개인 엔드포인트 URL 포함 — 커밋 금지)
 .mcp.json
+
+# ── 서드파티 에셋 팩 제외 (2026-07-27, 맵 제작용 다운로드 — 리포에 커밋하지 않음) ──
+# KCISA 한국 전통 건축·소품 팩 + 에디터 툴. 새 팩 추가 시 여기에 같이 등록할 것.
+/Assets/Hierarchy\ Designer/
+/Assets/Hierarchy\ Designer.meta
+/Assets/House_1/
+/Assets/House_1.meta
+/Assets/House_2/
+/Assets/House_2.meta
+/Assets/HwaseongForteressGate/
+/Assets/HwaseongForteressGate.meta
+/Assets/HwaseongHaenggung/
+/Assets/HwaseongHaenggung.meta
+/Assets/JejumokGwana/
+/Assets/JejumokGwana.meta
+/Assets/KTP_Decal/
+/Assets/KTP_Decal.meta
+/Assets/KTP_Normal_Vol.2/
+/Assets/KTP_Normal_Vol.2.meta
+/Assets/KT_SmartMat_Vol_6/
+/Assets/KT_SmartMat_Vol_6.meta
+/Assets/KT_SplineBuilder/
+/Assets/KT_SplineBuilder.meta
+/Assets/KTinteractiveProp/
+/Assets/KTinteractiveProp.meta
+/Assets/Korea_TreasureProps/
+/Assets/Korea_TreasureProps.meta
+/Assets/KoreanTraditionalPattern_Effect/
+/Assets/KoreanTraditionalPattern_Effect.meta
+/Assets/KoreanTraditional_SmartMaterials\ Vol.3/
+/Assets/KoreanTraditional_SmartMaterials\ Vol.3.meta
+/Assets/KoreanTraditional_SmartMaterials\ Vol.4/
+/Assets/KoreanTraditional_SmartMaterials\ Vol.4.meta
+/Assets/Korean_Traditional_Prop/
+/Assets/Korean_Traditional_Prop.meta
+/Assets/Naganeupseong/
+/Assets/Naganeupseong.meta
+/Assets/SeyeonjeongPavilion/
+/Assets/SeyeonjeongPavilion.meta
+/Assets/YongmeoriCoast/
+/Assets/YongmeoriCoast.meta
+# 팩 부속 데모 씬(Scenes 폴더에 풀린 것)
+/Assets/Scenes/House_1.unity
+/Assets/Scenes/House_1.unity.meta
+/Assets/Scenes/House_2.unity
+/Assets/Scenes/House_2.unity.meta
+# 빌드 리포트 툴 산출물
+/Assets/BuildReport/
+/Assets/BuildReport.meta
+# 기존 커밋에서 추적 해제한 서드파티 (2026-07-27)
+/Assets/GabrielAguiarProductions/
+/Assets/GabrielAguiarProductions.meta
+/Assets/House\ Of\ Changwon/
+/Assets/House\ Of\ Changwon.meta
+/Assets/MobileDependencyResolver/
+/Assets/MobileDependencyResolver.meta

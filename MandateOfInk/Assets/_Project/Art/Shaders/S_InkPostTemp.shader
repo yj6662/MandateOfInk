@@ -13,6 +13,14 @@ Shader "MandateOfInk/Temp/InkPost"
         _GrainStrength("Grain Strength", Range(0, 0.5)) = 0.10
         _GrainScale("Grain Scale", Range(0.5, 8)) = 2.5
         _VignetteStrength("Vignette Strength", Range(0, 1)) = 0.25
+
+        // 원경 여백(인왕제색도 레퍼런스, 사용자 결정 2026-07-24) — 멀수록 한지로 녹아든다.
+        // 하늘(무한 깊이·밝음)은 자동으로 완전한 종이 여백이 되고, 어두운 먹 덩어리는
+        // _SilhouetteKeep 비율만큼 남아 「형태는 뭉개져도 보이는」 원산 실루엣이 된다(사용자 피드백 2026-07-27).
+        _PaperFadeStart("Paper Fade Start (m)", Range(1, 200)) = 50
+        _PaperFadeEnd("Paper Fade End (m)", Range(5, 500)) = 160
+        _PaperFadeStrength("Paper Fade Strength", Range(0, 1)) = 0.9
+        _SilhouetteKeep("Distant Silhouette Keep (Dark Ink Stays)", Range(0, 1)) = 0.45
     }
     SubShader
     {
@@ -37,6 +45,10 @@ Shader "MandateOfInk/Temp/InkPost"
             half _GrainStrength;
             half _GrainScale;
             half _VignetteStrength;
+            half _PaperFadeStart;
+            half _PaperFadeEnd;
+            half _PaperFadeStrength;
+            half _SilhouetteKeep;
 
             float LinearDepthAt(float2 uv)
             {
@@ -66,6 +78,16 @@ Shader "MandateOfInk/Temp/InkPost"
                 // 먼 물체일수록 깊이 차가 커지므로 거리로 정규화해 선 굵기를 고르게
                 float edge = smoothstep(_OutlineThreshold * 0.5, _OutlineThreshold, grad / max(dC * 0.08, 0.02));
                 color = lerp(color, _InkColor.rgb, edge * _OutlineStrength);
+
+                // 1.5) 원경 여백 — 멀수록 한지로 녹아든다(인왕제색도의 안개·하늘 여백).
+                //      외곽선까지 계산한 뒤에 적용해 원경의 먹선도 함께 옅어진다(원산의 흐릿한 윤곽).
+                //      밝은 픽셀(하늘·밝은 면)은 종이로 완전히 사라지지만, 어두운 픽셀(먹 덩어리)은
+                //      _SilhouetteKeep 비율만큼 덜 사라져 씻긴 실루엣으로 남는다(사용자 피드백 2026-07-27).
+                float fade = smoothstep(_PaperFadeStart, _PaperFadeEnd, dC);
+                half preLuma = dot(color, half3(0.299, 0.587, 0.114));
+                half darkness = saturate(1.0h - preLuma * 1.4h); // 밝음=0, 진한 먹=1에 가깝게
+                half fadeAmount = fade * _PaperFadeStrength * (1.0h - _SilhouetteKeep * darkness);
+                color = lerp(color, _PaperColor.rgb, fadeAmount);
 
                 // 2) 한지 세피아 톤 — 명도를 종이색으로 물들인다
                 half luma = dot(color, half3(0.299, 0.587, 0.114));

@@ -18,6 +18,14 @@ namespace MandateOfInk.Combat
         private GameObject _bindVisual;
         public float MoveMultiplier => Time.time < _slowUntil ? _slowFactor : 1f;
 
+        // ㄱ속박 오행별 부가효과(사용자 결정 2026-07-24): 화·토=공격이 느려짐(텔레그래프 배율), 수=조준이 흔들림(오차)
+        private float _telegraphSlowUntil;
+        private float _telegraphMultiplier = 1f; // 1보다 크면 예비 동작이 더 오래 걸림(공격이 느려짐)
+        public float TelegraphMultiplier => Time.time < _telegraphSlowUntil ? _telegraphMultiplier : 1f;
+        private float _aimJitterUntil;
+        private float _aimJitterDegrees;
+        public float AimJitterDegrees => Time.time < _aimJitterUntil ? _aimJitterDegrees : 0f;
+
         // 지속(틱 피해)
         private float _dotUntil;
         private float _dotInterval;
@@ -25,6 +33,23 @@ namespace MandateOfInk.Combat
         private float _nextTickTime;
         private Color _dotColor;
         private GameObject _dotVisual;
+
+        // ㄴ지속 오행별 부가효과(사용자 결정 2026-07-24): 화=틱마다 강해짐/금=포이즈 동반/수=시전자 먹 환급
+        private float _dotFractionGrowthPerTick; // 화 — 매 틱마다 _dotDamagePerTick에 곱해지는 성장분(비율 기준)
+        private float _dotBaseDamage; // 화 성장분 계산용 원 피해(damage), 0이면 성장 없음
+        private float _dotPoiseTickFraction; // 금 — 틱 피해 대비 포이즈 축적 비율
+        private CombatConfigSO _dotCombatConfig; // 금 포이즈 축적에 필요
+        private float _dotInkRefundPerTick; // 수 — 틱마다 시전자에게 돌려줄 먹의 양
+
+        // ㄴ지속(토) — 지속 동안 주기적으로 주변 적을 새로 끌어들이는 광역 판정
+        private float _spreadRadius;
+        private float _spreadInterval;
+        private float _nextSpreadTime;
+        private float _spreadTickFraction;
+        private float _spreadTickInterval;
+        private float _spreadSeconds;
+        private Color _spreadColor;
+        private Element _spreadElement;
 
         // 포이즈·그로기
         private float _poise;
@@ -79,6 +104,22 @@ namespace MandateOfInk.Combat
                 _nextTickTime = Time.time + _dotInterval;
                 _health.TakeDamage(_dotDamagePerTick);
                 SpellVisuals.SpawnBurst(transform.position + Vector3.up * 1.2f, _dotColor, 0.5f, 0.25f);
+
+                if (_dotPoiseTickFraction > 0f && _dotCombatConfig != null) // 금 — 틱마다 포이즈도 축적
+                    AddPoise(_dotDamagePerTick * _dotPoiseTickFraction, _dotCombatConfig);
+
+                if (_dotInkRefundPerTick > 0f) // 수 — 틱마다 시전자에게 먹 환급
+                    PlayerBuffLookup.RefundInk(_dotInkRefundPerTick);
+
+                if (_dotFractionGrowthPerTick > 0f && _dotBaseDamage > 0f) // 화 — 다음 틱은 더 세짐
+                    _dotDamagePerTick += _dotBaseDamage * _dotFractionGrowthPerTick;
+            }
+
+            // ㄴ지속(토) — 주기적으로 주변의 아직 안 걸린 적에게도 지속 피해를 옮긴다
+            if (Time.time < _dotUntil && _spreadRadius > 0f && Time.time >= _nextSpreadTime)
+            {
+                _nextSpreadTime = Time.time + Mathf.Max(_spreadInterval, 0.1f);
+                SpreadToNearby();
             }
 
             // 포이즈 자연 회복 (그로기 중엔 정지)
@@ -109,25 +150,77 @@ namespace MandateOfInk.Combat
             Debug.Log($"[Status] {name} 그로기! {config.GroggySeconds:F1}s — 받는 피해 x{config.GroggyDamageMultiplier:F1}");
         }
 
-        // ㄱ(목) 속박
-        public void ApplyBind(float moveMultiplier, float seconds, Color color)
+        // ㄱ(목) 속박 — 오행별 방해 방식이 다르다(사용자 결정 2026-07-24): 화·토=공격 느려짐, 수=조준 흔들림.
+        //   telegraphMultiplier>1이면 예비 동작이 느려지고, aimJitterDegrees>0이면 조준에 오차가 생긴다. 둘 다 0/1이면 미적용.
+        public void ApplyBind(float moveMultiplier, float seconds, Color color,
+            float telegraphMultiplier = 1f, float aimJitterDegrees = 0f)
         {
             _slowFactor = moveMultiplier;
             _slowUntil = Time.time + seconds;
             RefreshVisual(ref _bindVisual, "ㄱ", color, new Vector3(1.6f, 0.08f, 1.6f), Vector3.up * 0.1f);
             Debug.Log($"[Status] {name} 속박 {seconds:F1}s (이동 x{moveMultiplier:F2})");
+
+            if (telegraphMultiplier > 1f)
+            {
+                _telegraphMultiplier = telegraphMultiplier;
+                _telegraphSlowUntil = Time.time + seconds;
+            }
+            if (aimJitterDegrees > 0f)
+            {
+                _aimJitterDegrees = aimJitterDegrees;
+                _aimJitterUntil = Time.time + seconds;
+            }
         }
 
-        // ㄴ(화) 지속
-        public void ApplyDot(float damagePerTick, float interval, float seconds, Color color)
+        // ㄴ(화) 지속 — 오행별 부가효과(사용자 결정 2026-07-24): 화=틱마다 강해짐/금=포이즈 동반/수=시전자 먹 환급.
+        //   growthPerTick>0이면 매 틱 damagePerTick이 커지고, poiseTickFraction/inkRefundPerTick>0이면 각각 부가효과가 붙는다.
+        public void ApplyDot(float damagePerTick, float interval, float seconds, Color color,
+            float growthPerTick = 0f, float poiseTickFraction = 0f, CombatConfigSO combatConfig = null,
+            float inkRefundPerTick = 0f)
         {
             _dotDamagePerTick = damagePerTick;
+            _dotBaseDamage = damagePerTick;
             _dotInterval = Mathf.Max(interval, 0.1f);
             _dotUntil = Time.time + seconds;
             _nextTickTime = Time.time + _dotInterval;
             _dotColor = color;
+            _dotFractionGrowthPerTick = growthPerTick;
+            _dotPoiseTickFraction = poiseTickFraction;
+            _dotCombatConfig = combatConfig;
+            _dotInkRefundPerTick = inkRefundPerTick;
             RefreshVisual(ref _dotVisual, "ㄴ", color, Vector3.one * 0.45f, Vector3.up * 2.2f);
             Debug.Log($"[Status] {name} 지속 피해 {seconds:F1}s (틱 {damagePerTick:F1})");
+        }
+
+        // ㄴ(토) 지속 — 지속 동안 주기적으로 주변의 아직 안 걸린 적에게도 같은 지속 피해를 옮긴다(광역 확산 판정).
+        public void ApplySustainSpread(float spreadRadius, float spreadInterval,
+            float tickFraction, float tickInterval, float seconds, float baseDamage, Color color, Element element)
+        {
+            _spreadRadius = spreadRadius;
+            _spreadInterval = spreadInterval;
+            _nextSpreadTime = Time.time + Mathf.Max(spreadInterval, 0.1f);
+            _spreadTickFraction = tickFraction;
+            _spreadTickInterval = tickInterval;
+            _spreadSeconds = seconds;
+            _spreadColor = color;
+            _spreadElement = element;
+            _spreadBaseDamageForTick = baseDamage;
+        }
+        private float _spreadBaseDamageForTick;
+
+        private void SpreadToNearby()
+        {
+            var hits = Physics.OverlapSphere(transform.position, _spreadRadius);
+            foreach (var hit in hits)
+            {
+                var enemy = hit.GetComponentInParent<EnemyHealth>();
+                if (enemy == null || enemy == _health) continue;
+                var other = GetOrAdd(enemy);
+                if (Time.time < other._dotUntil) continue; // 이미 지속 걸린 적은 건너뜀(중첩 방지)
+                other.ApplyDot(_spreadBaseDamageForTick * _spreadTickFraction, _spreadTickInterval, _spreadSeconds, _spreadColor);
+                other.ApplySustainSpread(_spreadRadius, _spreadInterval, _spreadTickFraction, _spreadTickInterval,
+                    _spreadSeconds, _spreadBaseDamageForTick, _spreadColor, _spreadElement); // 옮겨붙은 적도 계속 퍼뜨림
+            }
         }
 
         // ㅁ(토) 격발 표식 설치 — 동시 상한 초과 시 가장 오래된 설치가 불발로 흩어진다(처벌 없음)

@@ -31,11 +31,12 @@ namespace MandateOfInk.Data
     public enum FinalModifier
     {
         None,    // 받침 없음 — 빠른 기본형
-        Bind,    // ㄱ(목) — 속박: 적중 대상을 묶는다
+        Bind,    // ㄱ(목) — 속박: 적중 대상을 묶는다 (단일 Scope 한정 — Area일 때는 Summon으로 대체)
         Sustain, // ㄴ(화) — 지속: 장(場)으로 남아 시간에 걸쳐 작용
         Trigger, // ㅁ(토) — 격발: 장전 설치, 양 진이 닿으면 격발(상합)
         Pierce,  // ㅅ(금) — 관통: 방어·다수를 뚫고 직선 진행
         Chain,   // ㅇ(수) — 연쇄: 인접 대상으로 순차 전파
+        Summon,  // ㄱ받침 + 영역(ㅗ/ㅜ) 전용 — 소환수 소환(공격 Attack 분류=공격형 / 방어 DefenseControl 분류=버프형). 사용자 결정(2026-07-23)
     }
 
     // 적 공격 아키타입 — 속성이 데미지 타입이 아니라 「공격 동사」를 바꾼다(전투코어루프 §9).
@@ -58,5 +59,7 @@ namespace MandateOfInk.Data
         Attack,         // 공격
         DefenseControl, // 방어·제어
         TriggerInstall, // 상합 설치
+        Field,          // 필드/퍼즐 술식 — 음성(ㅓ/ㅜ)+받침 45자(사용자 결정 2026-07-27: 전투 축소).
+                        // "음의 기운에 거동을 얹으면 적이 아니라 세상에 작용한다" — 버프 소환(ㅜ+ㄱ)은 소환 유지.
     }
 }

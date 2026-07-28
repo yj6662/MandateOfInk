@@ -115,17 +115,31 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _InkCelNoiseScale: 2.2
+    - _InkCelNoiseStrength: 0.35
+    - _InkCelSoftness: 0.3
+    - _InkCoatBase: 0
+    - _InkCoatTop: 0
+    - _InkDripAmount: 0
+    - _InkDripScale: 1.5
+    - _InkGlossSharpness: 0.6
+    - _InkGlossStrength: 0
+    - _InkHighlightBoost: 0.5
+    - _InkPoint: 0.04
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _PaperPoint: 0.68
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _Saturation: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _TintRetain: 0.12
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
@@ -133,6 +147,9 @@ Material:
     - _BaseColor: {r: 0.42, g: 0.4, b: 0.38, a: 1}
     - _Color: {r: 0.41999996, g: 0.39999998, b: 0.37999994, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _InkCoatColor: {r: 0.089999996, g: 0.079999976, b: 0.06999998, a: 1}
+    - _InkToneColor: {r: 0.12999997, g: 0.11999995, b: 0.10999996, a: 1}
+    - _PaperToneColor: {r: 0.93, g: 0.89, b: 0.8, a: 1}
     - _ShadowTint: {r: 0.62, g: 0.58, b: 0.52, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

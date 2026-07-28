@@ -22,6 +22,11 @@ namespace MandateOfInk.Combat
 
         private GUIStyle _reticleStyle;
 
+        private void Awake()
+        {
+            useGUILayout = false; // OnGUI 레이아웃 패스 생략 — 레티클만 그린다
+        }
+
         private void Update()
         {
             if (Input.GetKeyDown(_toggleKey))

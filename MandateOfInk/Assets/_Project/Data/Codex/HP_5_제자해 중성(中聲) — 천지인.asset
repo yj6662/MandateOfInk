@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f368f303315825a47af603d5af115b29, type: 3}
+  m_Name: "HP_5_\uC81C\uC790\uD574 \uC911\uC131(\u4E2D\u8072) \u2014 \uCC9C\uC9C0\uC778"
+  m_EditorClassIdentifier: MandateOfInk.Data::MandateOfInk.Data.HaeryePageSO
+  SortOrder: 5
+  Title: "\uC81C\uC790\uD574 \uC911\uC131(\u4E2D\u8072) \u2014 \uCC9C\uC9C0\uC778"
+  SourceBook: "\u8A13\u6C11\u6B63\u97F3 \u89E3\u4F8B\u672C"
+  RelatedElement: 5
+  HanjaQuote: "\u318D\u5F62\u4E4B\u5713 \u8C61\u4E4E\u5929\u4E5F. \u3161\u5F62\u4E4B\u5E73
+    \u8C61\u4E4E\u5730\u4E5F. \u3163\u5F62\u4E4B\u7ACB \u8C61\u4E4E\u4EBA\u4E5F"
+  KoreanText: "\u318D\uB294 \uB465\uAE00\uC5B4 \uD558\uB298\uC744 \uBCF8\uB5B4\uACE0,
+    \u3161\uB294 \uD3C9\uD3C9\uD558\uC5EC \uB545\uC744 \uBCF8\uB5B4\uC73C\uBA70,
+    \u3163\uB294 \uC11C \uC788\uC5B4 \uC0AC\uB78C\uC744 \uBCF8\uB5B4\uB2E4. \uD558\uB298\uC5D0\uC11C
+    \uB09C \u314F\xB7\u3157\uB294 \uC591(\u967D)\uC774 \uB418\uACE0, \uB545\uC5D0\uC11C
+    \uB09C \u3153\xB7\u315C\uB294 \uC74C(\u9670)\uC774 \uB41C\uB2E4."
+  Lore: "\uC591\uC758 \uBAA8\uC74C\uC740 \uBC1C\uC0B0\uD574 \uC801\uC744 \uCE58\uACE0,
+    \uC74C\uC758 \uBAA8\uC74C\uC740 \uC218\uB834\uD574 \uC138\uC0C1\uC744 \uBC14\uAFBC\uB2E4
+    \u2014 \uC791\uB3C4\uC758 \uC74C\uC591\uC774 \uC5EC\uAE30\uC11C \uAC08\uB9B0\uB2E4."

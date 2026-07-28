@@ -44,6 +44,10 @@ namespace MandateOfInk.Combat
         [SerializeField, Range(0f, 1f)] private float _objectAlpha = 0.35f;
         [SerializeField] private Color _letterColor = new Color(0.05f, 0.05f, 0.05f, 0.95f);
 
+        [Header("소환(ㅗ/ㅜ+ㄱ) — 사용자 결정(2026-07-23), 속성별 SummonDefinitionSO 배선")]
+        [Tooltip("오행별 소환수 정의 — 이번 범위는 목(木) 1장만 채움. 없는 속성은 소환 무시(경고 로그)")]
+        [SerializeField] private SummonDefinitionSO[] _summonDefinitions;
+
         private Transform _playerRoot; // 방어 진·광역의 기준 (몸)
 
         private void OnEnable()
@@ -85,6 +89,14 @@ namespace MandateOfInk.Combat
             }
             else color.a = _objectAlpha;
 
+            // ㄱ받침 + 영역(ㅗ/ㅜ) — 소환수(사용자 결정 2026-07-23). Category와 무관하게 최우선 분기.
+            //   Attack 분류(ㅗ+ㄱ)=공격형, DefenseControl 분류(ㅜ+ㄱ)=버프형.
+            if (diagram.Modifier == FinalModifier.Summon && diagram.Scope == Scope.Area)
+            {
+                CastSummon(diagram, request, color);
+                return;
+            }
+
             switch (diagram.Category)
             {
                 case DiagramCategory.Attack:
@@ -99,8 +111,16 @@ namespace MandateOfInk.Combat
                     if (diagram.Scope == Scope.Area) CastAreaBlast(diagram, request, color, installOnly: true);
                     else CastProjectile(diagram, request, color, installOnly: true);
                     break;
+                case DiagramCategory.Field:
+                    // 음성(ㅓ/ㅜ)+받침 = 필드/퍼즐 술식(사용자 결정 2026-07-27) — 세상에 작용한다
+                    if (_fieldExecutor == null) _fieldExecutor = GetComponent<FieldSpellExecutor>();
+                    if (_fieldExecutor != null) _fieldExecutor.Cast(diagram, request.PowerMultiplier, color);
+                    else Debug.LogWarning("[Spell] FieldSpellExecutor 미부착 — 필드 술식 무시");
+                    break;
             }
         }
+
+        private FieldSpellExecutor _fieldExecutor;
 
         private float GetDamage(SpellDiagramSO diagram, DiagramCastRequest request)
         {
@@ -179,6 +199,53 @@ namespace MandateOfInk.Combat
                 }
             }
             Log(diagram, request, installOnly ? "격발 표식 파동" : "광역 파동");
+        }
+
+        // 소환(ㅗ+ㄱ=공격형 / ㅜ+ㄱ=버프형) — 사용자 결정(2026-07-23). 개수 제한 없음(먹 비용으로만 억제).
+        // 룩은 임시 반투명 프리미티브(사람 영역 — 정식 모델/셰이더는 추후 아트 결정).
+        private void CastSummon(SpellDiagramSO diagram, DiagramCastRequest request, Color color)
+        {
+            // 같은 속성이라도 공격형(ㅗ+ㄱ, Attack 분류)과 버프형(ㅜ+ㄱ, DefenseControl 분류)은 다른 SO.
+            var wantKind = diagram.Category == DiagramCategory.Attack
+                ? SummonDefinitionSO.Role.Attacker : SummonDefinitionSO.Role.Buffer;
+            var def = FindSummonDefinition(diagram.Element, wantKind);
+            if (def == null)
+            {
+                Debug.LogWarning($"[Spell] {diagram.Element}/{wantKind} SummonDefinition 미배선 — 소환 무시");
+                return;
+            }
+            if (PlayerRoot == null) return;
+
+            Vector3 spawnPos = PlayerRoot.position + PlayerRoot.forward * 2f;
+            var go = SpellVisuals.CreateTranslucent(PrimitiveType.Capsule, color,
+                Vector3.one * def.ModelScale, keepColliderAsTrigger: true);
+            go.name = $"Summon_{diagram.Letter}";
+            go.transform.position = spawnPos;
+
+            if (def.Kind == SummonDefinitionSO.Role.Attacker)
+            {
+                // 금(저격)은 사거리 자체가 정체성이라 공통 탐지 반경 대신 전용 사거리를 쓴다.
+                float range = def.Verb == SummonDefinitionSO.AttackVerb.SniperPierce
+                    ? def.SniperRange
+                    : (_modifierConfig != null ? _modifierConfig.SummonAttackRange : 10f);
+                go.AddComponent<SummonAttack>().Init(def, _relationTable, color, range);
+                Log(diagram, request, "공격 소환수");
+            }
+            else
+            {
+                float followDist = _modifierConfig != null ? _modifierConfig.SummonFollowDistance : 2.5f;
+                float buffRadius = _modifierConfig != null ? _modifierConfig.SummonBuffRadius : 6f;
+                go.AddComponent<SummonBuff>().Init(def, PlayerRoot, followDist, buffRadius);
+                Log(diagram, request, "버프 소환수");
+            }
+        }
+
+        private SummonDefinitionSO FindSummonDefinition(Element element, SummonDefinitionSO.Role kind)
+        {
+            if (_summonDefinitions == null) return null;
+            foreach (var def in _summonDefinitions)
+                if (def != null && def.Element == element && def.Kind == kind) return def;
+            return null;
         }
 
         // 방어(ㅓ=전방 막 / ㅜ=광역 돔): 플레이어를 따라다니는 반투명 방벽 + 글자
@@ -261,7 +328,7 @@ namespace MandateOfInk.Combat
             }
             return element switch
             {
-                Element.Wood => new Color(0.25f, 0.85f, 0.45f),  // 청(청록 계열)
+                Element.Wood => new Color(0.42f, 0.58f, 0.24f),  // 갈색+녹색 혼합(나무 느낌)
                 Element.Fire => new Color(0.95f, 0.25f, 0.15f),  // 적
                 Element.Earth => new Color(0.95f, 0.8f, 0.2f),   // 황
                 Element.Metal => new Color(0.92f, 0.94f, 0.98f), // 백

@@ -112,6 +112,7 @@ namespace MandateOfInk.Spellcraft
                 mainTexture = _brushAtlas != null ? (Texture)_brushAtlas : InkStroke.CreateBrushAtlas()
             };
             if (_brushAtlas == null) _brushAtlasRows = InkStroke.ProceduralAtlasRows;
+            useGUILayout = false; // OnGUI 레이아웃 패스 생략 — 고정 프롬프트만 그린다
 
             var rootGo = new GameObject("InkStrokeRoot");
             rootGo.transform.SetParent(_viewCamera.transform, false);
@@ -583,6 +584,16 @@ namespace MandateOfInk.Spellcraft
                 ? "[등록 모드] 중성을 그리고 1=ㅏ 2=ㅓ 3=ㅗ 4=ㅜ 로 저장 | F2 = 등록 종료"
                 : "작도: 글자를 이어 그리세요 (예: 가 = ㄱ+ㅏ, 검 = ㄱ+ㅓ+ㅁ받침) — 키를 떼면 발동 | F2 = 중성 등록";
             GUI.Label(new Rect(10, Screen.height - 30, 900, 24), msg);
+        }
+
+        private void OnDestroy()
+        {
+            // 절차 생성 아틀라스·먹선 머티리얼 해제 — 씬 재로드마다 누적되지 않게
+            if (_inkMaterial != null)
+            {
+                if (_brushAtlas == null && _inkMaterial.mainTexture != null) Destroy(_inkMaterial.mainTexture);
+                Destroy(_inkMaterial);
+            }
         }
     }
 }

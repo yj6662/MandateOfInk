@@ -25,6 +25,7 @@ namespace MandateOfInk.Combat
 
         private void Awake()
         {
+            useGUILayout = false; // OnGUI 레이아웃 패스 생략
             foreach (var _ in _bounties) { _states.Add(SlotState.Available); _killCounts.Add(0); }
         }
 

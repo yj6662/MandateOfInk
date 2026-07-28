@@ -1,121 +1,121 @@
 letter,initial,medial,final,element,polarity,scope,modifier,category,ink_cost,description
 가,ㄱ,ㅏ,,Wood,Yang,Single,None,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해.
-각,ㄱ,ㅏ,ㄱ,Wood,Yang,Single,Bind,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 닿은 대상 속박.
-간,ㄱ,ㅏ,ㄴ,Wood,Yang,Single,Sustain,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 장(場)으로 남아 지속.
+각,ㄱ,ㅏ,ㄱ,Wood,Yang,Single,Bind,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 닿은 대상 표준 속박(이동 감속)([가정]).
+간,ㄱ,ㅏ,ㄴ,Wood,Yang,Single,Sustain,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 장(場)으로 남아 표준 지속 피해([가정]).
 감,ㄱ,ㅏ,ㅁ,Wood,Yang,Single,Trigger,TriggerInstall,10,덩굴 표식을 격발 장전으로 심는 공세형 설치([가정]).
-갓,ㄱ,ㅏ,ㅅ,Wood,Yang,Single,Pierce,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 방어·다수 관통.
-강,ㄱ,ㅏ,ㅇ,Wood,Yang,Single,Chain,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 인접으로 연쇄.
+갓,ㄱ,ㅏ,ㅅ,Wood,Yang,Single,Pierce,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 최대 3명 관통, 관통한 대상 짧게 속박([가정]).
+강,ㄱ,ㅏ,ㅇ,Wood,Yang,Single,Chain,Attack,10,단일 대상에 생목 가시를 쏘아 직접 피해. 인접으로 연쇄, 속박도 함께 전염([가정]).
 거,ㄱ,ㅓ,,Wood,Yin,Single,None,DefenseControl,10,한 대상/자신에 덩굴 방벽으로 막기(받아치기).
-걱,ㄱ,ㅓ,ㄱ,Wood,Yin,Single,Bind,DefenseControl,10,한 대상/자신에 덩굴 방벽으로 막기(받아치기). 닿은 대상 속박.
-건,ㄱ,ㅓ,ㄴ,Wood,Yin,Single,Sustain,DefenseControl,10,한 대상/자신에 덩굴 방벽으로 막기(받아치기). 장(場)으로 남아 지속.
-검,ㄱ,ㅓ,ㅁ,Wood,Yin,Single,Trigger,TriggerInstall,10,덩굴 표식을 한 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 생목·덩굴 폭발(상합).
-것,ㄱ,ㅓ,ㅅ,Wood,Yin,Single,Pierce,DefenseControl,10,한 대상/자신에 덩굴 방벽으로 막기(받아치기). 방어·다수 관통.
-겅,ㄱ,ㅓ,ㅇ,Wood,Yin,Single,Chain,DefenseControl,10,한 대상/자신에 덩굴 방벽으로 막기(받아치기). 인접으로 연쇄.
+걱,ㄱ,ㅓ,ㄱ,Wood,Yin,Single,Bind,Field,10,덩굴 손 — 벽면에 덩굴 홀드를 붙여 오를 수 있게 한다(필드 예약·미구현) [가정].
+건,ㄱ,ㅓ,ㄴ,Wood,Yin,Single,Sustain,Field,10,생기 지속 — 체력이 서서히 회복된다(필드 예약·미구현) [가정].
+검,ㄱ,ㅓ,ㅁ,Wood,Yin,Single,Trigger,Field,10,덩굴 줄 설치 — 오르내릴 덩굴을 드리운다(필드 예약·미구현) [가정].
+것,ㄱ,ㅓ,ㅅ,Wood,Yin,Single,Pierce,Field,10,덤불 가르기 — 식물 장애물을 벤다(필드 예약·미구현) [가정].
+겅,ㄱ,ㅓ,ㅇ,Wood,Yin,Single,Chain,Field,10,덩굴 그네 — 지점에 덩굴을 걸어 건너뛴다(필드 예약·미구현) [가정].
 고,ㄱ,ㅗ,,Wood,Yang,Area,None,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해.
-곡,ㄱ,ㅗ,ㄱ,Wood,Yang,Area,Bind,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 닿은 대상 속박.
-곤,ㄱ,ㅗ,ㄴ,Wood,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 장(場)으로 남아 지속.
+곡,ㄱ,ㅗ,ㄱ,Wood,Yang,Area,Summon,Attack,10,지속 공격형 소환수 하나를 소환한다. 근처 적을 자동 타겟팅해 생목 가시를 지속 발사([가정]).
+곤,ㄱ,ㅗ,ㄴ,Wood,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 장(場)으로 남아 표준 지속 피해([가정]).
 곰,ㄱ,ㅗ,ㅁ,Wood,Yang,Area,Trigger,TriggerInstall,10,덩굴 표식을 격발 장전으로 심는 공세형 설치([가정]).
-곳,ㄱ,ㅗ,ㅅ,Wood,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 방어·다수 관통.
-공,ㄱ,ㅗ,ㅇ,Wood,Yang,Area,Chain,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 인접으로 연쇄.
+곳,ㄱ,ㅗ,ㅅ,Wood,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 최대 3명 관통, 관통한 대상 짧게 속박([가정]).
+공,ㄱ,ㅗ,ㅇ,Wood,Yang,Area,Chain,Attack,10,광역의 여러 대상에 생목 가시를 쏘아 피해. 인접으로 연쇄, 속박도 함께 전염([가정]).
 구,ㄱ,ㅜ,,Wood,Yin,Area,None,DefenseControl,10,넓은 범위에 덩굴 방벽으로 광역 방어.
-국,ㄱ,ㅜ,ㄱ,Wood,Yin,Area,Bind,DefenseControl,10,넓은 범위에 덩굴 방벽으로 광역 방어. 닿은 대상 속박.
-군,ㄱ,ㅜ,ㄴ,Wood,Yin,Area,Sustain,DefenseControl,10,넓은 범위에 덩굴 방벽으로 광역 방어. 장(場)으로 남아 지속.
-굼,ㄱ,ㅜ,ㅁ,Wood,Yin,Area,Trigger,TriggerInstall,10,덩굴 표식을 여러 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 생목·덩굴 폭발(상합).
-굿,ㄱ,ㅜ,ㅅ,Wood,Yin,Area,Pierce,DefenseControl,10,넓은 범위에 덩굴 방벽으로 광역 방어. 방어·다수 관통.
-궁,ㄱ,ㅜ,ㅇ,Wood,Yin,Area,Chain,DefenseControl,10,넓은 범위에 덩굴 방벽으로 광역 방어. 인접으로 연쇄.
+국,ㄱ,ㅜ,ㄱ,Wood,Yin,Area,Summon,DefenseControl,10,버프형 소환수 하나를 소환한다. 플레이어를 따라다니며 범위 내에서 오행 속성에 맞는 버프를 건다([가정]).
+군,ㄱ,ㅜ,ㄴ,Wood,Yin,Area,Sustain,Field,10,생장 영역 — 시든 초목을 되살려 길을 낸다(필드 예약·미구현) [가정].
+굼,ㄱ,ㅜ,ㅁ,Wood,Yin,Area,Trigger,Field,10,나무 기둥 설치 — 발밑에서 솟아올라 위로 쏘아 올린다(도약) [가정].
+굿,ㄱ,ㅜ,ㅅ,Wood,Yin,Area,Pierce,Field,10,뿌리 뚫기 — 얽힌 뿌리 벽을 광역으로 걷어낸다(필드 예약·미구현) [가정].
+궁,ㄱ,ㅜ,ㅇ,Wood,Yin,Area,Chain,Field,10,덩굴 그물 — 기둥 사이를 덩굴로 이어 길을 짠다(필드 예약·미구현) [가정].
 나,ㄴ,ㅏ,,Fire,Yang,Single,None,Attack,10,단일 대상에 화염을 내쏘아 직접 피해.
-낙,ㄴ,ㅏ,ㄱ,Fire,Yang,Single,Bind,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 닿은 대상 속박.
-난,ㄴ,ㅏ,ㄴ,Fire,Yang,Single,Sustain,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 장(場)으로 남아 지속.
+낙,ㄴ,ㅏ,ㄱ,Fire,Yang,Single,Bind,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 닿은 대상 속박, 예비 동작(공격)도 느려짐([가정]).
+난,ㄴ,ㅏ,ㄴ,Fire,Yang,Single,Sustain,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 장(場)으로 남아 지속, 불이 번지듯 틱마다 피해가 점점 세짐([가정]).
 남,ㄴ,ㅏ,ㅁ,Fire,Yang,Single,Trigger,TriggerInstall,10,불씨을 격발 장전으로 심는 공세형 설치([가정]).
-낫,ㄴ,ㅏ,ㅅ,Fire,Yang,Single,Pierce,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 방어·다수 관통.
-낭,ㄴ,ㅏ,ㅇ,Fire,Yang,Single,Chain,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 인접으로 연쇄.
+낫,ㄴ,ㅏ,ㅅ,Fire,Yang,Single,Pierce,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 최대 2명 관통, 관통 경로에 짧은 화상([가정]).
+낭,ㄴ,ㅏ,ㅇ,Fire,Yang,Single,Chain,Attack,10,단일 대상에 화염을 내쏘아 직접 피해. 인접으로 연쇄, 화상이 옮겨붙어 나중 대상일수록 더 오래 탐([가정]).
 너,ㄴ,ㅓ,,Fire,Yin,Single,None,DefenseControl,10,한 대상/자신에 화막(火幕)으로 막기(받아치기).
-넉,ㄴ,ㅓ,ㄱ,Fire,Yin,Single,Bind,DefenseControl,10,한 대상/자신에 화막(火幕)으로 막기(받아치기). 닿은 대상 속박.
-넌,ㄴ,ㅓ,ㄴ,Fire,Yin,Single,Sustain,DefenseControl,10,한 대상/자신에 화막(火幕)으로 막기(받아치기). 장(場)으로 남아 지속.
-넘,ㄴ,ㅓ,ㅁ,Fire,Yin,Single,Trigger,TriggerInstall,10,불씨을 한 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 화염 폭발(상합).
-넛,ㄴ,ㅓ,ㅅ,Fire,Yin,Single,Pierce,DefenseControl,10,한 대상/자신에 화막(火幕)으로 막기(받아치기). 방어·다수 관통.
-넝,ㄴ,ㅓ,ㅇ,Fire,Yin,Single,Chain,DefenseControl,10,한 대상/자신에 화막(火幕)으로 막기(받아치기). 인접으로 연쇄.
+넉,ㄴ,ㅓ,ㄱ,Fire,Yin,Single,Bind,Field,10,불씨 부착 — 자신·사물에 등불을 붙여 어둠을 밝힌다(필드 예약·미구현) [가정].
+넌,ㄴ,ㅓ,ㄴ,Fire,Yin,Single,Sustain,Field,10,화력 지속 — 근처 마석 자동차 보일러에 화력을 주입해 잠시 가속한다 [가정].
+넘,ㄴ,ㅓ,ㅁ,Fire,Yin,Single,Trigger,Field,10,화톳불 설치 — 어둠을 밝히는 거점 불을 놓는다(필드 예약·미구현) [가정].
+넛,ㄴ,ㅓ,ㅅ,Fire,Yin,Single,Pierce,Field,10,녹여 뚫기 — 얼음·밀랍을 녹여 길을 낸다(필드 예약·미구현) [가정].
+넝,ㄴ,ㅓ,ㅇ,Fire,Yin,Single,Chain,Field,10,불씨 잇기 — 꺼진 등불·화로에 불을 옮긴다(필드 예약·미구현) [가정].
 노,ㄴ,ㅗ,,Fire,Yang,Area,None,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해.
-녹,ㄴ,ㅗ,ㄱ,Fire,Yang,Area,Bind,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 닿은 대상 속박.
-논,ㄴ,ㅗ,ㄴ,Fire,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 장(場)으로 남아 지속.
+녹,ㄴ,ㅗ,ㄱ,Fire,Yang,Area,Summon,Attack,10,지속 공격형 소환수 하나를 소환한다. 근처에 제자리 화염 지속 피해장을 두고 범위 내 적을 태운다([가정]).
+논,ㄴ,ㅗ,ㄴ,Fire,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 장(場)으로 남아 지속, 불이 번지듯 틱마다 피해가 점점 세짐([가정]).
 놈,ㄴ,ㅗ,ㅁ,Fire,Yang,Area,Trigger,TriggerInstall,10,불씨을 격발 장전으로 심는 공세형 설치([가정]).
-놋,ㄴ,ㅗ,ㅅ,Fire,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 방어·다수 관통.
-농,ㄴ,ㅗ,ㅇ,Fire,Yang,Area,Chain,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 인접으로 연쇄.
+놋,ㄴ,ㅗ,ㅅ,Fire,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 최대 2명 관통, 관통 경로에 짧은 화상([가정]).
+농,ㄴ,ㅗ,ㅇ,Fire,Yang,Area,Chain,Attack,10,광역의 여러 대상에 화염을 내쏘아 피해. 인접으로 연쇄, 화상이 옮겨붙어 나중 대상일수록 더 오래 탐([가정]).
 누,ㄴ,ㅜ,,Fire,Yin,Area,None,DefenseControl,10,넓은 범위에 화막(火幕)으로 광역 방어.
-눅,ㄴ,ㅜ,ㄱ,Fire,Yin,Area,Bind,DefenseControl,10,넓은 범위에 화막(火幕)으로 광역 방어. 닿은 대상 속박.
-눈,ㄴ,ㅜ,ㄴ,Fire,Yin,Area,Sustain,DefenseControl,10,넓은 범위에 화막(火幕)으로 광역 방어. 장(場)으로 남아 지속.
-눔,ㄴ,ㅜ,ㅁ,Fire,Yin,Area,Trigger,TriggerInstall,10,불씨을 여러 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 화염 폭발(상합).
-눗,ㄴ,ㅜ,ㅅ,Fire,Yin,Area,Pierce,DefenseControl,10,넓은 범위에 화막(火幕)으로 광역 방어. 방어·다수 관통.
-눙,ㄴ,ㅜ,ㅇ,Fire,Yin,Area,Chain,DefenseControl,10,넓은 범위에 화막(火幕)으로 광역 방어. 인접으로 연쇄.
+눅,ㄴ,ㅜ,ㄱ,Fire,Yin,Area,Summon,DefenseControl,10,버프형 소환수 하나를 소환한다. 플레이어를 따라다니며 범위 내에서 공격력을 올려준다([가정]).
+눈,ㄴ,ㅜ,ㄴ,Fire,Yin,Area,Sustain,Field,10,온기 영역 — 추위를 막고 얼음을 서서히 녹인다(필드 예약·미구현) [가정].
+눔,ㄴ,ㅜ,ㅁ,Fire,Yin,Area,Trigger,Field,10,분출구 설치 — 화염 분출로 전방으로 쏘아 보낸다(필드 예약·미구현) [가정].
+눗,ㄴ,ㅜ,ㅅ,Fire,Yin,Area,Pierce,Field,10,광역 융해 — 넓은 얼음판을 녹인다(필드 예약·미구현) [가정].
+눙,ㄴ,ㅜ,ㅇ,Fire,Yin,Area,Chain,Field,10,봉화 연쇄 — 영역의 등불을 한꺼번에 밝힌다(필드 예약·미구현) [가정].
 마,ㅁ,ㅏ,,Earth,Yang,Single,None,Attack,10,단일 대상에 바위를 쳐올려 직접 피해.
-막,ㅁ,ㅏ,ㄱ,Earth,Yang,Single,Bind,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 닿은 대상 속박.
-만,ㅁ,ㅏ,ㄴ,Earth,Yang,Single,Sustain,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 장(場)으로 남아 지속.
+막,ㅁ,ㅏ,ㄱ,Earth,Yang,Single,Bind,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 닿은 대상 강한 속박, 예비 동작(공격)도 느려짐([가정]).
+만,ㅁ,ㅏ,ㄴ,Earth,Yang,Single,Sustain,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 장(場)으로 남아 지속, 시간이 갈수록 판정 범위가 넓어져 주변 적도 새로 끌어들임([가정]).
 맘,ㅁ,ㅏ,ㅁ,Earth,Yang,Single,Trigger,TriggerInstall,10,토진(土陣) 부적을 격발 장전으로 심는 공세형 설치([가정]).
-맛,ㅁ,ㅏ,ㅅ,Earth,Yang,Single,Pierce,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 방어·다수 관통.
-망,ㅁ,ㅏ,ㅇ,Earth,Yang,Single,Chain,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 인접으로 연쇄.
+맛,ㅁ,ㅏ,ㅅ,Earth,Yang,Single,Pierce,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 최대 2명 관통(느림), 관통마다 그로기 축적 추가([가정]).
+망,ㅁ,ㅏ,ㅇ,Earth,Yang,Single,Chain,Attack,10,단일 대상에 바위를 쳐올려 직접 피해. 인접으로 연쇄, 그로기 축적이 누적되어 마지막 대상이 가장 크게 휘청임([가정]).
 머,ㅁ,ㅓ,,Earth,Yin,Single,None,DefenseControl,10,한 대상/자신에 토벽 결계으로 막기(받아치기).
-먹,ㅁ,ㅓ,ㄱ,Earth,Yin,Single,Bind,DefenseControl,10,한 대상/자신에 토벽 결계으로 막기(받아치기). 닿은 대상 속박.
-먼,ㅁ,ㅓ,ㄴ,Earth,Yin,Single,Sustain,DefenseControl,10,한 대상/자신에 토벽 결계으로 막기(받아치기). 장(場)으로 남아 지속.
-멈,ㅁ,ㅓ,ㅁ,Earth,Yin,Single,Trigger,TriggerInstall,10,토진(土陣) 부적을 한 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 흙·바위 폭발(상합).
-멋,ㅁ,ㅓ,ㅅ,Earth,Yin,Single,Pierce,DefenseControl,10,한 대상/자신에 토벽 결계으로 막기(받아치기). 방어·다수 관통.
-멍,ㅁ,ㅓ,ㅇ,Earth,Yin,Single,Chain,DefenseControl,10,한 대상/자신에 토벽 결계으로 막기(받아치기). 인접으로 연쇄.
+먹,ㅁ,ㅓ,ㄱ,Earth,Yin,Single,Bind,Field,10,무게 고정 — 자신을 땅에 붙여 강풍·급류에 밀리지 않는다(필드 예약·미구현) [가정].
+먼,ㅁ,ㅓ,ㄴ,Earth,Yin,Single,Sustain,Field,10,바위 피부 — 받는 피해가 잠시 줄어든다(필드 예약·미구현) [가정].
+멈,ㅁ,ㅓ,ㅁ,Earth,Yin,Single,Trigger,Field,10,디딤돌 설치 — 공중에 발판 하나를 놓는다(필드 예약·미구현) [가정].
+멋,ㅁ,ㅓ,ㅅ,Earth,Yin,Single,Pierce,Field,10,흙 뚫기 — 무너진 흙더미를 파낸다(필드 예약·미구현) [가정].
+멍,ㅁ,ㅓ,ㅇ,Earth,Yin,Single,Chain,Field,10,징검돌 잇기 — 걷는 길을 따라 디딤돌이 이어진다(필드 예약·미구현) [가정].
 모,ㅁ,ㅗ,,Earth,Yang,Area,None,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해.
-목,ㅁ,ㅗ,ㄱ,Earth,Yang,Area,Bind,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 닿은 대상 속박.
-몬,ㅁ,ㅗ,ㄴ,Earth,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 장(場)으로 남아 지속.
+목,ㅁ,ㅗ,ㄱ,Earth,Yang,Area,Summon,Attack,10,지속 공격형 소환수 하나를 소환한다. 예비 동작 후 굵고 느린 광역 고피해 타격을 내리찍는다([가정]).
+몬,ㅁ,ㅗ,ㄴ,Earth,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 장(場)으로 남아 지속, 시간이 갈수록 판정 범위가 넓어져 주변 적도 새로 끌어들임([가정]).
 몸,ㅁ,ㅗ,ㅁ,Earth,Yang,Area,Trigger,TriggerInstall,10,토진(土陣) 부적을 격발 장전으로 심는 공세형 설치([가정]).
-못,ㅁ,ㅗ,ㅅ,Earth,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 방어·다수 관통.
-몽,ㅁ,ㅗ,ㅇ,Earth,Yang,Area,Chain,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 인접으로 연쇄.
+못,ㅁ,ㅗ,ㅅ,Earth,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 최대 2명 관통(느림), 관통마다 그로기 축적 추가([가정]).
+몽,ㅁ,ㅗ,ㅇ,Earth,Yang,Area,Chain,Attack,10,광역의 여러 대상에 바위를 쳐올려 피해. 인접으로 연쇄, 그로기 축적이 누적되어 마지막 대상이 가장 크게 휘청임([가정]).
 무,ㅁ,ㅜ,,Earth,Yin,Area,None,DefenseControl,10,넓은 범위에 토벽 결계으로 광역 방어.
-묵,ㅁ,ㅜ,ㄱ,Earth,Yin,Area,Bind,DefenseControl,10,넓은 범위에 토벽 결계으로 광역 방어. 닿은 대상 속박.
-문,ㅁ,ㅜ,ㄴ,Earth,Yin,Area,Sustain,DefenseControl,10,넓은 범위에 토벽 결계으로 광역 방어. 장(場)으로 남아 지속.
-뭄,ㅁ,ㅜ,ㅁ,Earth,Yin,Area,Trigger,TriggerInstall,10,토진(土陣) 부적을 여러 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 흙·바위 폭발(상합).
-뭇,ㅁ,ㅜ,ㅅ,Earth,Yin,Area,Pierce,DefenseControl,10,넓은 범위에 토벽 결계으로 광역 방어. 방어·다수 관통.
-뭉,ㅁ,ㅜ,ㅇ,Earth,Yin,Area,Chain,DefenseControl,10,넓은 범위에 토벽 결계으로 광역 방어. 인접으로 연쇄.
+묵,ㅁ,ㅜ,ㄱ,Earth,Yin,Area,Summon,DefenseControl,10,버프형 소환수 하나를 소환한다. 플레이어를 따라다니며 범위 내에서 방어력을 올려준다([가정]).
+문,ㅁ,ㅜ,ㄴ,Earth,Yin,Area,Sustain,Field,10,굳힘 영역 — 늪·모래를 굳혀 건널 수 있게 한다(필드 예약·미구현) [가정].
+뭄,ㅁ,ㅜ,ㅁ,Earth,Yin,Area,Trigger,Field,10,돌다리 설치 — 절벽 사이를 잇는 땅을 놓는다 [가정].
+뭇,ㅁ,ㅜ,ㅅ,Earth,Yin,Area,Pierce,Field,10,함몰 — 영역의 땅을 꺼뜨려 구덩이를 판다(필드 예약·미구현) [가정].
+뭉,ㅁ,ㅜ,ㅇ,Earth,Yin,Area,Chain,Field,10,징검돌 무리 — 수면 위 징검다리를 놓는다(필드 예약·미구현) [가정].
 사,ㅅ,ㅏ,,Metal,Yang,Single,None,Attack,10,단일 대상에 쇳날로 베어 직접 피해.
-삭,ㅅ,ㅏ,ㄱ,Metal,Yang,Single,Bind,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 닿은 대상 속박.
-산,ㅅ,ㅏ,ㄴ,Metal,Yang,Single,Sustain,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 장(場)으로 남아 지속.
+삭,ㅅ,ㅏ,ㄱ,Metal,Yang,Single,Bind,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 닿은 대상 약한 속박, 대신 지속 피해([가정]).
+산,ㅅ,ㅏ,ㄴ,Metal,Yang,Single,Sustain,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 장(場)으로 남아 지속, 틱마다 포이즈도 함께 깎여 그로기를 유도([가정]).
 삼,ㅅ,ㅏ,ㅁ,Metal,Yang,Single,Trigger,TriggerInstall,10,쇳가시을 격발 장전으로 심는 공세형 설치([가정]).
-삿,ㅅ,ㅏ,ㅅ,Metal,Yang,Single,Pierce,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 방어·다수 관통.
-상,ㅅ,ㅏ,ㅇ,Metal,Yang,Single,Chain,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 인접으로 연쇄.
+삿,ㅅ,ㅏ,ㅅ,Metal,Yang,Single,Pierce,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 최대 5명을 빠르게 관통(순수 관통력 특화, 부가효과 없음)([가정]).
+상,ㅅ,ㅏ,ㅇ,Metal,Yang,Single,Chain,Attack,10,단일 대상에 쇳날로 베어 직접 피해. 부가효과 없이 더 멀리·많은 대상으로 연쇄(순수 전파력 특화)([가정]).
 서,ㅅ,ㅓ,,Metal,Yin,Single,None,DefenseControl,10,한 대상/자신에 금강 방벽으로 막기(받아치기).
-석,ㅅ,ㅓ,ㄱ,Metal,Yin,Single,Bind,DefenseControl,10,한 대상/자신에 금강 방벽으로 막기(받아치기). 닿은 대상 속박.
-선,ㅅ,ㅓ,ㄴ,Metal,Yin,Single,Sustain,DefenseControl,10,한 대상/자신에 금강 방벽으로 막기(받아치기). 장(場)으로 남아 지속.
-섬,ㅅ,ㅓ,ㅁ,Metal,Yin,Single,Trigger,TriggerInstall,10,쇳가시을 한 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 쇠날 폭발(상합).
-섯,ㅅ,ㅓ,ㅅ,Metal,Yin,Single,Pierce,DefenseControl,10,한 대상/자신에 금강 방벽으로 막기(받아치기). 방어·다수 관통.
-성,ㅅ,ㅓ,ㅇ,Metal,Yin,Single,Chain,DefenseControl,10,한 대상/자신에 금강 방벽으로 막기(받아치기). 인접으로 연쇄.
+석,ㅅ,ㅓ,ㄱ,Metal,Yin,Single,Bind,Field,10,쇠 부착 — 금속면에 붙어 매달린다(필드 예약·미구현) [가정].
+선,ㅅ,ㅓ,ㄴ,Metal,Yin,Single,Sustain,Field,10,날 세우기 — 잠시 베기 상호작용이 강해진다(필드 예약·미구현) [가정].
+섬,ㅅ,ㅓ,ㅁ,Metal,Yin,Single,Trigger,Field,10,쇠말뚝 설치 — 고정 앵커를 박는다(필드 예약·미구현) [가정].
+섯,ㅅ,ㅓ,ㅅ,Metal,Yin,Single,Pierce,Field,10,절단 — 자물쇠·사슬을 끊는다(필드 예약·미구현) [가정].
+성,ㅅ,ㅓ,ㅇ,Metal,Yin,Single,Chain,Field,10,동력 잇기 — 마석 기계에 동력을 이어 작동시킨다(필드 예약·미구현) [가정].
 소,ㅅ,ㅗ,,Metal,Yang,Area,None,Attack,10,광역의 여러 대상에 쇳날로 베어 피해.
-속,ㅅ,ㅗ,ㄱ,Metal,Yang,Area,Bind,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 닿은 대상 속박.
-손,ㅅ,ㅗ,ㄴ,Metal,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 장(場)으로 남아 지속.
+속,ㅅ,ㅗ,ㄱ,Metal,Yang,Area,Summon,Attack,10,지속 공격형 소환수 하나를 소환한다. 긴 사거리에서 여러 적을 꿰뚫는 저격탄을 쏜다([가정]).
+손,ㅅ,ㅗ,ㄴ,Metal,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 장(場)으로 남아 지속, 틱마다 포이즈도 함께 깎여 그로기를 유도([가정]).
 솜,ㅅ,ㅗ,ㅁ,Metal,Yang,Area,Trigger,TriggerInstall,10,쇳가시을 격발 장전으로 심는 공세형 설치([가정]).
-솟,ㅅ,ㅗ,ㅅ,Metal,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 방어·다수 관통.
-송,ㅅ,ㅗ,ㅇ,Metal,Yang,Area,Chain,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 인접으로 연쇄.
+솟,ㅅ,ㅗ,ㅅ,Metal,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 최대 5명을 빠르게 관통(순수 관통력 특화, 부가효과 없음)([가정]).
+송,ㅅ,ㅗ,ㅇ,Metal,Yang,Area,Chain,Attack,10,광역의 여러 대상에 쇳날로 베어 피해. 부가효과 없이 더 멀리·많은 대상으로 연쇄(순수 전파력 특화)([가정]).
 수,ㅅ,ㅜ,,Metal,Yin,Area,None,DefenseControl,10,넓은 범위에 금강 방벽으로 광역 방어.
-숙,ㅅ,ㅜ,ㄱ,Metal,Yin,Area,Bind,DefenseControl,10,넓은 범위에 금강 방벽으로 광역 방어. 닿은 대상 속박.
-순,ㅅ,ㅜ,ㄴ,Metal,Yin,Area,Sustain,DefenseControl,10,넓은 범위에 금강 방벽으로 광역 방어. 장(場)으로 남아 지속.
-숨,ㅅ,ㅜ,ㅁ,Metal,Yin,Area,Trigger,TriggerInstall,10,쇳가시을 여러 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 쇠날 폭발(상합).
-숫,ㅅ,ㅜ,ㅅ,Metal,Yin,Area,Pierce,DefenseControl,10,넓은 범위에 금강 방벽으로 광역 방어. 방어·다수 관통.
-숭,ㅅ,ㅜ,ㅇ,Metal,Yin,Area,Chain,DefenseControl,10,넓은 범위에 금강 방벽으로 광역 방어. 인접으로 연쇄.
+숙,ㅅ,ㅜ,ㄱ,Metal,Yin,Area,Summon,DefenseControl,10,버프형 소환수 하나를 소환한다. 플레이어를 따라다니며 범위 내에서 적에게 포이즈를 더 빨리 축적시켜 그로기를 유도하기 쉽게 한다([가정]).
+순,ㅅ,ㅜ,ㄴ,Metal,Yin,Area,Sustain,Field,10,자기장 영역 — 쇠붙이를 끌어 정렬한다(필드 예약·미구현) [가정].
+숨,ㅅ,ㅜ,ㅁ,Metal,Yin,Area,Trigger,Field,10,철책 설치 — 길을 막는 쇠 울타리를 세운다(필드 예약·미구현) [가정].
+숫,ㅅ,ㅜ,ㅅ,Metal,Yin,Area,Pierce,Field,10,광역 절단 — 여러 사슬·창살을 동시에 끊는다(필드 예약·미구현) [가정].
+숭,ㅅ,ㅜ,ㅇ,Metal,Yin,Area,Chain,Field,10,기관 연동 — 영역의 마석 기계를 일괄 작동한다(필드 예약·미구현) [가정].
 아,ㅇ,ㅏ,,Water,Yang,Single,None,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해.
-악,ㅇ,ㅏ,ㄱ,Water,Yang,Single,Bind,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 닿은 대상 속박.
-안,ㅇ,ㅏ,ㄴ,Water,Yang,Single,Sustain,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 장(場)으로 남아 지속.
+악,ㅇ,ㅏ,ㄱ,Water,Yang,Single,Bind,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 닿은 대상 약한 속박, 대신 조준이 흔들림([가정]).
+안,ㅇ,ㅏ,ㄴ,Water,Yang,Single,Sustain,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 장(場)으로 남아 지속(틱 피해는 약함), 틱마다 시전자에게 먹을 조금씩 환급([가정]).
 암,ㅇ,ㅏ,ㅁ,Water,Yang,Single,Trigger,TriggerInstall,10,서릿발을 격발 장전으로 심는 공세형 설치([가정]).
-앗,ㅇ,ㅏ,ㅅ,Water,Yang,Single,Pierce,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 방어·다수 관통.
-앙,ㅇ,ㅏ,ㅇ,Water,Yang,Single,Chain,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 인접으로 연쇄.
+앗,ㅇ,ㅏ,ㅅ,Water,Yang,Single,Pierce,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 최대 3명 관통, 관통한 대상들을 서로 끌어당김([가정]).
+앙,ㅇ,ㅏ,ㅇ,Water,Yang,Single,Chain,Attack,10,단일 대상에 물줄기를 쏘아 직접 피해. 인접으로 연쇄, 감속이 연쇄 전체에 고르게 유지([가정]).
 어,ㅇ,ㅓ,,Water,Yin,Single,None,DefenseControl,10,한 대상/자신에 수막(水幕)으로 막기(받아치기).
-억,ㅇ,ㅓ,ㄱ,Water,Yin,Single,Bind,DefenseControl,10,한 대상/자신에 수막(水幕)으로 막기(받아치기). 닿은 대상 속박.
-언,ㅇ,ㅓ,ㄴ,Water,Yin,Single,Sustain,DefenseControl,10,한 대상/자신에 수막(水幕)으로 막기(받아치기). 장(場)으로 남아 지속.
-엄,ㅇ,ㅓ,ㅁ,Water,Yin,Single,Trigger,TriggerInstall,10,서릿발을 한 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 물·서리 폭발(상합).
-엇,ㅇ,ㅓ,ㅅ,Water,Yin,Single,Pierce,DefenseControl,10,한 대상/자신에 수막(水幕)으로 막기(받아치기). 방어·다수 관통.
-엉,ㅇ,ㅓ,ㅇ,Water,Yin,Single,Chain,DefenseControl,10,한 대상/자신에 수막(水幕)으로 막기(받아치기). 인접으로 연쇄.
+억,ㅇ,ㅓ,ㄱ,Water,Yin,Single,Bind,Field,10,수면 밟기 — 물 위에 붙어 걷는다(필드 예약·미구현) [가정].
+언,ㅇ,ㅓ,ㄴ,Water,Yin,Single,Sustain,Field,10,수막 — 낙하 피해를 받아낸다. 떨어지는 중에도 시전 가능 [가정].
+엄,ㅇ,ㅓ,ㅁ,Water,Yin,Single,Trigger,Field,10,샘 설치 — 먹(잉크)이 차오르는 샘을 판다(필드 예약·미구현) [가정].
+엇,ㅇ,ㅓ,ㅅ,Water,Yin,Single,Pierce,Field,10,물길 트기 — 막힌 물길을 연다(필드 예약·미구현) [가정].
+엉,ㅇ,ㅓ,ㅇ,Water,Yin,Single,Chain,Field,10,물살 잇기 — 물살을 만들어 부유물을 민다(필드 예약·미구현) [가정].
 오,ㅇ,ㅗ,,Water,Yang,Area,None,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해.
-옥,ㅇ,ㅗ,ㄱ,Water,Yang,Area,Bind,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 닿은 대상 속박.
-온,ㅇ,ㅗ,ㄴ,Water,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 장(場)으로 남아 지속.
+옥,ㅇ,ㅗ,ㄱ,Water,Yang,Area,Summon,Attack,10,지속 공격형 소환수 하나를 소환한다. 주기적으로 인접한 적 전원에게 동시에 연쇄 파동을 터뜨린다([가정]).
+온,ㅇ,ㅗ,ㄴ,Water,Yang,Area,Sustain,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 장(場)으로 남아 지속(틱 피해는 약함), 틱마다 시전자에게 먹을 조금씩 환급([가정]).
 옴,ㅇ,ㅗ,ㅁ,Water,Yang,Area,Trigger,TriggerInstall,10,서릿발을 격발 장전으로 심는 공세형 설치([가정]).
-옷,ㅇ,ㅗ,ㅅ,Water,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 방어·다수 관통.
-옹,ㅇ,ㅗ,ㅇ,Water,Yang,Area,Chain,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 인접으로 연쇄.
+옷,ㅇ,ㅗ,ㅅ,Water,Yang,Area,Pierce,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 최대 3명 관통, 관통한 대상들을 서로 끌어당김([가정]).
+옹,ㅇ,ㅗ,ㅇ,Water,Yang,Area,Chain,Attack,10,광역의 여러 대상에 물줄기를 쏘아 피해. 인접으로 연쇄, 감속이 연쇄 전체에 고르게 유지([가정]).
 우,ㅇ,ㅜ,,Water,Yin,Area,None,DefenseControl,10,넓은 범위에 수막(水幕)으로 광역 방어.
-욱,ㅇ,ㅜ,ㄱ,Water,Yin,Area,Bind,DefenseControl,10,넓은 범위에 수막(水幕)으로 광역 방어. 닿은 대상 속박.
-운,ㅇ,ㅜ,ㄴ,Water,Yin,Area,Sustain,DefenseControl,10,넓은 범위에 수막(水幕)으로 광역 방어. 장(場)으로 남아 지속.
-움,ㅇ,ㅜ,ㅁ,Water,Yin,Area,Trigger,TriggerInstall,10,서릿발을 여러 적에 발사·부착(C4식 설치). 양 진 격발 시 큰 그로기 + 물·서리 폭발(상합).
-웃,ㅇ,ㅜ,ㅅ,Water,Yin,Area,Pierce,DefenseControl,10,넓은 범위에 수막(水幕)으로 광역 방어. 방어·다수 관통.
-웅,ㅇ,ㅜ,ㅇ,Water,Yin,Area,Chain,DefenseControl,10,넓은 범위에 수막(水幕)으로 광역 방어. 인접으로 연쇄.
+욱,ㅇ,ㅜ,ㄱ,Water,Yin,Area,Summon,DefenseControl,10,버프형 소환수 하나를 소환한다. 플레이어를 따라다니며 범위 내에서 이동속도를 올려준다([가정]).
+운,ㅇ,ㅜ,ㄴ,Water,Yin,Area,Sustain,Field,10,안개 영역 — 시야를 가려 몸을 숨긴다(필드 예약·미구현) [가정].
+움,ㅇ,ㅜ,ㅁ,Water,Yin,Area,Trigger,Field,10,물웅덩이 설치 — 떨어질 자리를 받아줄 쿠션을 놓는다(필드 예약·미구현) [가정].
+웃,ㅇ,ㅜ,ㅅ,Water,Yin,Area,Pierce,Field,10,급류 가르기 — 물벽을 갈라 길을 낸다(필드 예약·미구현) [가정].
+웅,ㅇ,ㅜ,ㅇ,Water,Yin,Area,Chain,Field,10,수로 연결 — 물길을 이어 수위를 맞춘다(필드 예약·미구현) [가정].

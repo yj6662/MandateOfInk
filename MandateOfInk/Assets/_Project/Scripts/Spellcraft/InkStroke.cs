@@ -196,8 +196,10 @@ namespace MandateOfInk.Spellcraft
 
         private Mesh _mesh;
         private Color32[] _inkOriginal;
+        private Color32[] _inkScratch;   // 매 프레임 재사용 — GC 할당 방지
         private Mesh _glowMesh;
         private Color32[] _glowOriginal;
+        private Color32[] _glowScratch;
         private float _duration;
         private float _elapsed;
 
@@ -205,6 +207,7 @@ namespace MandateOfInk.Spellcraft
         {
             _mesh = mesh;
             _inkOriginal = mesh.colors32;
+            _inkScratch = new Color32[_inkOriginal.Length];
             _duration = Mathf.Max(duration, 0.05f);
 
             if (!success) return;
@@ -224,6 +227,7 @@ namespace MandateOfInk.Spellcraft
             var gc = (Color32)glowColor;
             for (int i = 0; i < _glowOriginal.Length; i++)
                 _glowOriginal[i] = new Color32(gc.r, gc.g, gc.b, (byte)(_inkOriginal[i].a * glowColor.a));
+            _glowScratch = new Color32[_glowOriginal.Length];
             _glowMesh.colors32 = _glowOriginal;
 
             var glowGo = new GameObject("InkGlow");
@@ -243,19 +247,22 @@ namespace MandateOfInk.Spellcraft
             float remain = 1f - Mathf.Clamp01(_elapsed / _duration);
             if (remain <= 0f) { Destroy(gameObject); return; }
 
-            _mesh.colors32 = ScaleAlpha(_inkOriginal, remain);
-            if (_glowMesh != null) _glowMesh.colors32 = ScaleAlpha(_glowOriginal, remain);
+            ScaleAlpha(_inkOriginal, _inkScratch, remain);
+            _mesh.colors32 = _inkScratch;
+            if (_glowMesh != null)
+            {
+                ScaleAlpha(_glowOriginal, _glowScratch, remain);
+                _glowMesh.colors32 = _glowScratch;
+            }
         }
 
-        private static Color32[] ScaleAlpha(Color32[] source, float factor)
+        private static void ScaleAlpha(Color32[] source, Color32[] dest, float factor)
         {
-            var result = new Color32[source.Length];
             for (int i = 0; i < source.Length; i++)
             {
                 var c = source[i];
-                result[i] = new Color32(c.r, c.g, c.b, (byte)(c.a * factor));
+                dest[i] = new Color32(c.r, c.g, c.b, (byte)(c.a * factor));
             }
-            return result;
         }
 
         private void OnDestroy()

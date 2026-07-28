@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 742d2981f64ab6f468f2386da48e8d0f, type: 3}
+  m_Name: FieldSpellConfig
+  m_EditorClassIdentifier: MandateOfInk.Data::MandateOfInk.Data.FieldSpellConfigSO
+  MaterializeSeconds: 1.2
+  BridgePrefab: {fileID: 1286482749558400729, guid: 9eb2412f3515b3245b847e0c68eb4ac4, type: 3}
+  PillarPrefab: {fileID: 4328983017869714706, guid: 82ac04966bc07174389046fa06544602, type: 3}
+  BridgeLength: 9
+  BridgeWidth: 2.6
+  BridgeThickness: 0.35
+  BridgeSeconds: 25
+  LeapVelocity: 12
+  PillarHeight: 3
+  PillarSeconds: 2.5
+  FallGuardSeconds: 12
+  BoostCastRange: 12
+  BoostMultiplier: 1.8
+  BoostSeconds: 10
+  SafeFallSpeed: 12
+  DamagePerExcessSpeed: 6

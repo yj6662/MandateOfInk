@@ -41,16 +41,9 @@ namespace MandateOfInk.Combat
         }
 
         // 폭발 이펙트 재생 — 속성에 맞는 폭발 + 바닥 전통 문양이 함께 터진다(배선 없으면 팽창 구 폴백).
+        // 목(木)도 다른 속성과 같은 Fly Explosion 문양을 쓰되, 틴트가 갈색+녹색 혼합(나무 느낌)으로 물든다(사용자 결정).
         private void PlayImpact(Vector3 at)
         {
-            // 목(木): [임시] 나뭇가지가 사방으로 뻗어나가는 폭발(화염 아님). 바닥 원반 진은 제거(사용자 결정) — 가지만.
-            if (_element == Element.Wood)
-            {
-                SpellVisuals.SpawnBranchBurst(at, _explosionDiameter, _explosionTint);
-                return;
-            }
-
-            // 그 외 속성: Fly Explosion(현재 화염 계열) + 바닥 문양. 속성별 폭발 다양화는 추후.
             if (_explosionPrefab != null)
             {
                 SpellVisuals.SpawnPatternExplosion(_explosionPrefab, at, _explosionDiameter, _explosionTint);
@@ -79,7 +72,14 @@ namespace MandateOfInk.Combat
             _config = config;
             _installOnly = installOnly;
             _alreadyHit = visited ?? new HashSet<EnemyHealth>();
-            _pierceLeft = modifier == FinalModifier.Pierce && config != null ? config.PierceMaxTargets : 1;
+            if (modifier == FinalModifier.Pierce && config != null)
+            {
+                // 관통은 오행별 수치·부가효과가 다르다(사용자 결정 2026-07-24) — 목=속박/화=화상/토=포이즈/금=관통력/수=끌어당김
+                var pierceCfg = config.GetPierceConfig(element);
+                _pierceLeft = pierceCfg.MaxTargets;
+                _speed *= pierceCfg.SpeedMultiplier;
+            }
+            else _pierceLeft = 1;
             _chainJumpsLeft = chainJumpsLeft >= 0 ? chainJumpsLeft
                 : (modifier == FinalModifier.Chain && config != null ? config.ChainMaxJumps : 0);
         }
@@ -148,26 +148,113 @@ namespace MandateOfInk.Combat
             if (status != null && _polarity == Polarity.Yang) status.TryDetonateMark(_combatConfig);
             // 그로기 중이면 받는 피해 증가
             if (status != null) damage *= status.GroggyDamageMultiplier;
+            // 소환수 버프(공격력 증가) — 런타임 생성 투사체라 씬 배선이 안 되니 지연 조회 후 캐싱
+            damage *= PlayerBuffLookup.DamageMultiplier;
 
             Debug.Log($"[Spell] {_element} -> {enemy.Definition?.Element} 상성 배율 {multiplier:F2}");
             enemy.TakeDamage(damage);
-            // 술식 적중 = 포이즈 축적
+            // 술식 적중 = 포이즈 축적(금 버프 소환수가 있으면 더 빨리 쌓임)
             if (_combatConfig != null)
-                EnemyStatus.GetOrAdd(enemy).AddPoise(damage * _combatConfig.SpellPoiseFraction, _combatConfig);
+                EnemyStatus.GetOrAdd(enemy).AddPoise(
+                    damage * _combatConfig.SpellPoiseFraction * PlayerBuffLookup.PoiseDamageMultiplier, _combatConfig);
 
             if (_config == null) return;
             switch (_modifier)
             {
                 case FinalModifier.Bind:
-                    EnemyStatus.GetOrAdd(enemy).ApplyBind(_config.BindMoveMultiplier, _config.BindSeconds, _elementColor);
+                {
+                    // 단일속박은 오행별로 "방해 방식"이 다르다(사용자 결정 2026-07-24) — 목=표준/화·토=공격 느려짐/금=지속피해/수=조준 흔들림.
+                    var bindCfg = _config.GetBindConfig(_element);
+                    var bindTarget = EnemyStatus.GetOrAdd(enemy);
+                    bindTarget.ApplyBind(bindCfg.MoveMultiplier, bindCfg.Seconds, _elementColor,
+                        bindCfg.TelegraphMultiplier, bindCfg.AimJitterDegrees);
+                    if (bindCfg.SustainTickFraction > 0f)
+                        bindTarget.ApplyDot(damage * bindCfg.SustainTickFraction,
+                            bindCfg.SustainTickInterval, bindCfg.SustainSeconds, _elementColor);
                     break;
+                }
                 case FinalModifier.Sustain:
-                    EnemyStatus.GetOrAdd(enemy).ApplyDot(_damage * _config.SustainTickFraction,
-                        _config.SustainTickInterval, _config.SustainSeconds, _elementColor);
+                    ApplySustainElementEffect(enemy, damage);
+                    break;
+                case FinalModifier.Pierce:
+                    ApplyPierceElementEffect(enemy, damage, status);
                     break;
                 case FinalModifier.Chain:
+                    ApplyChainElementEffect(enemy, damage);
                     TryChain(enemy);
                     break;
+            }
+        }
+
+        // ㄴ지속 오행별 부가효과(사용자 결정 2026-07-24) — 목=표준 DoT/화=틱마다 강해짐/
+        //   토=주변 적을 새로 끌어들이는 광역 판정/금=포이즈 동반/수=시전자 먹 환급.
+        private void ApplySustainElementEffect(EnemyHealth enemy, float damage)
+        {
+            var cfg = _config.GetSustainConfig(_element);
+            var target = EnemyStatus.GetOrAdd(enemy);
+            target.ApplyDot(damage * cfg.TickFraction, cfg.TickInterval, cfg.Seconds, _elementColor,
+                cfg.TickFractionGrowthPerTick, cfg.PoiseTickFraction, _combatConfig, cfg.InkRefundPerTick);
+
+            if (cfg.SpreadRadius > 0f)
+                target.ApplySustainSpread(cfg.SpreadRadius, cfg.SpreadInterval,
+                    cfg.TickFraction, cfg.TickInterval, cfg.Seconds, damage, _elementColor, _element);
+        }
+
+        // ㅇ연쇄 오행별 부가효과(사용자 결정 2026-07-24) — "연쇄=퍼진다"는 동사에서 유추되도록,
+        //   부가효과 자체가 연쇄를 타고 함께 퍼진다(점프 수가 늘수록 화상·그로기가 더 강해짐).
+        private void ApplyChainElementEffect(EnemyHealth enemy, float damage)
+        {
+            var chainCfg = _config.GetChainConfig(_element);
+            int jumpIndex = Mathf.Max(0, _config.ChainMaxJumps - _chainJumpsLeft); // 0=첫 타격, 커질수록 나중 점프
+            var target = EnemyStatus.GetOrAdd(enemy);
+
+            if (chainCfg.BindMoveMultiplier > 0f)
+                target.ApplyBind(chainCfg.BindMoveMultiplier, chainCfg.BindSeconds, _elementColor);
+
+            if (chainCfg.SustainTickFraction > 0f)
+            {
+                float seconds = chainCfg.SustainSeconds + chainCfg.SustainSecondsGrowthPerJump * jumpIndex;
+                target.ApplyDot(damage * chainCfg.SustainTickFraction, chainCfg.SustainTickInterval, seconds, _elementColor);
+            }
+
+            if (chainCfg.ExtraPoiseFraction > 0f && _combatConfig != null)
+            {
+                float fraction = chainCfg.ExtraPoiseFraction + chainCfg.ExtraPoiseGrowthPerJump * jumpIndex;
+                target.AddPoise(damage * fraction, _combatConfig);
+            }
+        }
+
+        // ㅅ관통 오행별 부가효과(사용자 결정 2026-07-24) — 목=속박/화=화상/토=포이즈 추가/금=효과 없음(관통력 자체가 특화)/수=끌어당김.
+        private void ApplyPierceElementEffect(EnemyHealth enemy, float damage, EnemyStatus status)
+        {
+            var pierceCfg = _config.GetPierceConfig(_element);
+            var target = EnemyStatus.GetOrAdd(enemy);
+
+            if (pierceCfg.BindMoveMultiplier > 0f)
+                target.ApplyBind(pierceCfg.BindMoveMultiplier, pierceCfg.BindSeconds, _elementColor);
+
+            if (pierceCfg.SustainTickFraction > 0f)
+                target.ApplyDot(damage * pierceCfg.SustainTickFraction,
+                    pierceCfg.SustainTickInterval, pierceCfg.SustainSeconds, _elementColor);
+
+            if (pierceCfg.ExtraPoiseFraction > 0f && _combatConfig != null)
+                target.AddPoise(damage * pierceCfg.ExtraPoiseFraction, _combatConfig);
+
+            if (pierceCfg.PullStrength > 0f)
+                PullPreviousPierceTargets(enemy, pierceCfg.PullStrength);
+        }
+
+        // 수(水) 관통 — 이번에 맞은 대상을, 앞서 관통했던 대상들 쪽으로 살짝 끌어당긴다(뭉치게 만든다).
+        private void PullPreviousPierceTargets(EnemyHealth justHit, float strength)
+        {
+            foreach (var prior in _alreadyHit)
+            {
+                if (prior == null || prior == justHit) continue;
+                Vector3 toPrior = prior.transform.position - justHit.transform.position;
+                if (toPrior.sqrMagnitude < 0.01f) continue;
+                Vector3 pull = toPrior.normalized * strength;
+                justHit.transform.position += pull * Time.deltaTime;
+                break; // 가장 최근(첫 번째로 잡히는) 이전 대상 쪽으로만 당긴다 — 여러 방향으로 찢기지 않게
             }
         }
 

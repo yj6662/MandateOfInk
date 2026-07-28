@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df0865635cc8fff4497c63c848b1b676, type: 3}
+  m_Name: SM_Water_Attacker
+  m_EditorClassIdentifier: MandateOfInk.Data::MandateOfInk.Data.SummonDefinitionSO
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  Id: SM_Water_Attacker
+  Element: 4
+  Kind: 0
+  MaxHp: 25
+  LifetimeSeconds: 12
+  ModelScale: 0.6
+  Verb: 4
+  AttackDamage: 5
+  AttackInterval: 1.6
+  ProjectileSpeed: 14
+  FireZoneRadius: 3
+  SlamRadius: 3.5
+  SlamTelegraphSeconds: 1
+  SniperRange: 20
+  SniperProjectileSpeed: 32
+  SniperPierceCount: 3
+  ChainPulseRadius: 5
+  DamageMultiplier: 1
+  MoveSpeedMultiplier: 1
+  DefenseMultiplier: 1
+  PoiseDamageMultiplier: 1
+  HealPerSecond: 0

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f368f303315825a47af603d5af115b29, type: 3}
+  m_Name: "HP_9_\uD0DC\uADF9\uB3C4\uC124 \uC0DD\uC624\uD589(\u751F\u4E94\u884C)"
+  m_EditorClassIdentifier: MandateOfInk.Data::MandateOfInk.Data.HaeryePageSO
+  SortOrder: 9
+  Title: "\uD0DC\uADF9\uB3C4\uC124 \uC0DD\uC624\uD589(\u751F\u4E94\u884C)"
+  SourceBook: "\u592A\u6975\u5716\u8AAA"
+  RelatedElement: 5
+  HanjaQuote: "\u592A\u6975\u52D5\u800C\u751F\u967D \u52D5\u6975\u800C\u975C \u975C\u800C\u751F\u9670
+    \u2026 \u967D\u8B8A\u9670\u5408 \u800C\u751F\u6C34\u706B\u6728\u91D1\u571F"
+  KoreanText: "\uD0DC\uADF9\uC774 \uC6C0\uC9C1\uC5EC \uC591\uC744 \uB0B3\uACE0, \uC6C0\uC9C1\uC784\uC774
+    \uB2E4\uD558\uBA74 \uACE0\uC694\uD574\uC9C0\uB2C8 \uACE0\uC694\uD558\uC5EC \uC74C\uC744
+    \uB0B3\uB294\uB2E4. \uC591\uC774 \uBCC0\uD558\uACE0 \uC74C\uC774 \uD569\uD558\uC5EC
+    \uBB3C\xB7\uBD88\xB7\uB098\uBB34\xB7\uC1E0\xB7\uD759\uC744 \uB0B3\uB294\uB2E4."
+  Lore: "\uC74C\uC591\uC774 \uC624\uD589\uACFC \uD569\uD574\uC11C\uC57C \uB9CC\uBB3C\uC774
+    \uB09C\uB2E4 \u2014 \uCCAB\uC18C\uB9AC(\uC624\uD589)\uC5D0 \uAC00\uC6B4\uB383\uC18C\uB9AC(\uC74C\uC591)\uB97C
+    \uB9FA\uC5B4\uC57C \uD55C \uAE00\uC790\uC758 \uC9C4\uC774 \uC11C\uB294 \uAE4C\uB2ED\uC774\uB2E4."
